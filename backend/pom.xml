@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-modulith.version>2.1.1</spring-modulith.version>
         <!-- Mesma versão que o Spring Modulith traz; declarada para os testes de arquitetura do PT-02. -->
-        <archunit.version>1.4.2</archunit.version>
+        <archunit.version>1.5.1</archunit.version>
         <!--
             Jackson 3 chega pelo flyway-core (PT-04). O 3.1.5 do Boot 4.1.1 tem vulnerabilidades altas
             apontadas pelo SCA do CI; fixa o último patch da linha 3.1 até o Boot trazer versão corrigida.
