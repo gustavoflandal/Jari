@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>br.com.sirej</groupId>
+    <artifactId>sirej-backend</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>SIREJ :: backend</name>
+    <description>Monólito modular do SIREJ: um módulo Maven e um módulo Spring Modulith por contexto (docs/dev/03).</description>
+
+    <properties>
+        <java.version>25</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-modulith.version>2.1.1</spring-modulith.version>
+    </properties>
+
+    <!-- Um módulo por contexto do doc 03, com os nomes exatos de lá; app é o módulo técnico de inicialização. -->
+    <modules>
+        <module>compartilhado</module>
+        <module>configuracao</module>
+        <module>auditoria</module>
+        <module>identidade</module>
+        <module>pessoas</module>
+        <module>documentos</module>
+        <module>assinatura</module>
+        <module>prazos</module>
+        <module>processo</module>
+        <module>peticionamento</module>
+        <module>instrucao</module>
+        <module>secretaria</module>
+        <module>composicao</module>
+        <module>distribuicao</module>
+        <module>sessao</module>
+        <module>julgamento</module>
+        <module>notificacao</module>
+        <module>segundainstancia</module>
+        <module>credenciamento</module>
+        <module>publicidade</module>
+        <module>judicial</module>
+        <module>integracao</module>
+        <module>app</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.modulith</groupId>
+                <artifactId>spring-modulith-bom</artifactId>
+                <version>${spring-modulith.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>exigir-java-25</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[25,)</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>[3.9,)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

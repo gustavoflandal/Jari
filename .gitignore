@@ -1,0 +1,18 @@
+# Backend
+target/
+
+# Frontend
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# IDE e sistema
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Nunca versionar segredos (docs/dev/13)
+.env
+.env.*

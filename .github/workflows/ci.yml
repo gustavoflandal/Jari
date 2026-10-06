@@ -1,0 +1,74 @@
+# Pipeline de integração contínua do SIREJ (PT-01; docs/dev/19 e docs/dev/08).
+# Build e testes do backend e do frontend, SCA e SBOM CycloneDX publicados como artefatos.
+# SAST (CodeQL) fica em codeql.yml. Nenhum passo depende de segredo ou chave de API.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (./mvnw verify + SBOM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build, testes, ApplicationModules.verify()
+        run: ./mvnw -B -ntp verify
+      # SCA do backend sobre o SBOM (dependências diretas e transitivas de execução).
+      # Falha com qualquer vulnerabilidade conhecida (mais restritivo que "alta").
+      - name: SCA das dependências Maven (OSV-Scanner sobre o SBOM)
+        uses: google/osv-scanner-action/osv-scanner-action@a345acffa64b0eaede81a3d9aae6141214d9c8fc # v2.6.0
+        with:
+          scan-args: |-
+            --lockfile=backend/app/target/classes/META-INF/sbom/application.cdx.json
+      - name: Publicar SBOM do backend (CycloneDX)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-backend
+          path: backend/app/target/classes/META-INF/sbom/application.cdx.json
+          if-no-files-found: error
+
+  frontend:
+    name: Frontend (typecheck, testes, build, SCA + SBOM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: SCA das dependências npm (bloqueia severidade alta)
+        run: npm audit --audit-level=high
+      - name: Gerar SBOM do frontend (CycloneDX)
+        run: npx --yes @cyclonedx/cyclonedx-npm@6.0.1 --omit dev --output-format JSON --output-file sbom-frontend.cdx.json
+      - name: Publicar SBOM do frontend
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-frontend
+          path: frontend/sbom-frontend.cdx.json
+          if-no-files-found: error

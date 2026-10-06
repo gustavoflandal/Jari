@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>br.com.sirej</groupId>
+        <artifactId>sirej-backend</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>sirej-app</artifactId>
+    <name>SIREJ :: app</name>
+    <description>Módulo técnico de inicialização: classe @SpringBootApplication e verificação dos módulos (docs/dev/03).</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-starter-core</artifactId>
+        </dependency>
+
+        <!-- Módulos de contexto do doc 03 -->
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-compartilhado</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-configuracao</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-auditoria</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-identidade</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-pessoas</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-documentos</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-assinatura</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-prazos</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-processo</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-peticionamento</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-instrucao</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-secretaria</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-composicao</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-distribuicao</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-sessao</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-julgamento</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-notificacao</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-segundainstancia</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-credenciamento</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-publicidade</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-judicial</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>br.com.sirej</groupId><artifactId>sirej-integracao</artifactId><version>${project.version}</version></dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!--
+                SBOM CycloneDX (JSON) do artefato executável, com todos os módulos e sem dependências de teste.
+                Configuração herdada do spring-boot-starter-parent; saída em
+                target/classes/META-INF/sbom/application.cdx.json (publicada pelo CI).
+            -->
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
