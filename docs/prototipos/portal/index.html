@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recorrer de multa — Portal (protótipo SIREJ)</title>
+<link rel="stylesheet" href="../assets/proto.css">
+<style>
+  .ait-item { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .ait-item:hover { border-color: var(--azul); }
+  .ait-item .linha1 { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+  .anexo { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding: 0.5rem 0; border-bottom: 1px solid var(--cinza-10); }
+  .anexo .nome { flex: 1 1 12rem; word-break: break-all; }
+  .anexo .progresso { flex: 1 1 100%; }
+  .recibo-numero { font-size: 1.375rem; font-weight: 800; color: var(--azul-escuro); }
+  .resumo dt { margin-top: 0.5rem; }
+  .contador { font-size: 0.8125rem; color: var(--cinza-60); text-align: right; }
+</style>
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<div class="faixa-prototipo" role="note">PROTÓTIPO — SEM VALOR JURÍDICO · dados fictícios</div>
+<header class="cabecalho">
+  <a class="marca" href="#" id="link-inicio">SIREJ · Recursos de multa</a>
+  <span class="orgao">JARI do Órgão Exemplo (fictício)</span>
+  <span class="usuario" id="usuario">Entrou como: Maria Exemplo (conta de teste)</span>
+</header>
+
+<main id="conteudo" class="estreito" tabindex="-1">
+
+  <!-- ===== Início: placa ou AIT ===== -->
+  <section id="tela-inicio" aria-labelledby="t-inicio">
+    <h1 id="t-inicio">Recorrer de uma multa</h1>
+    <div class="msg msg-info">
+      <p><strong>Você não precisa pagar a multa para recorrer.</strong> Recorrer é gratuito. E se você já pagou, ainda pode recorrer.</p>
+    </div>
+    <form id="form-busca" class="cartao" novalidate>
+      <div class="campo">
+        <label for="busca">Placa do veículo ou número do auto de infração</label>
+        <p class="dica" id="busca-dica">Exemplo: ABC1D23 ou PROTO-000123</p>
+        <input type="text" id="busca" name="busca" autocomplete="off" autocapitalize="characters"
+               aria-describedby="busca-dica busca-erro" spellcheck="false">
+        <p class="erro-campo oculto" id="busca-erro"></p>
+      </div>
+      <button class="btn btn-primario btn-bloco" type="submit">Buscar</button>
+    </form>
+    <details class="cartao">
+      <summary><strong>Dados para o teste</strong> (fictícios)</summary>
+      <ul>
+        <li><code>ABC1D23</code>: três autuações em fases diferentes</li>
+        <li><code>XYZ9W87</code>: recurso já julgado pela JARI</li>
+      </ul>
+      <p class="dica">No teste, não digite placa ou dados seus de verdade.</p>
+    </details>
+    <p><a href="#" id="link-meus">Ver meus processos</a></p>
+  </section>
+
+  <!-- ===== Lista de autuações da placa ===== -->
+  <section id="tela-aits" class="oculto" aria-labelledby="t-aits">
+    <h1 id="t-aits">Autuações do veículo <span id="aits-placa"></span></h1>
+    <p id="aits-veiculo" class="dica"></p>
+    <p>Escolha a autuação sobre a qual você quer se manifestar.</p>
+    <div id="aits-lista"></div>
+    <div class="acoes"><button type="button" class="btn" data-ir="inicio">Voltar</button></div>
+  </section>
+
+  <!-- ===== Passo 1: escolher peça ===== -->
+  <section id="tela-passo1" class="oculto" aria-labelledby="t-passo1">
+    <ol class="passos" aria-label="Etapas do protocolo">
+      <li aria-current="step">1. Escolher</li><li>2. Escrever e anexar</li><li>3. Revisar</li><li>4. Assinar</li>
+    </ol>
+    <p class="dica">Etapa 1 de 4</p>
+    <h1 id="t-passo1">O que você quer fazer?</h1>
+    <div class="cartao" id="p1-ait"></div>
+    <form id="form-peca" novalidate>
+      <fieldset aria-describedby="p1-erro">
+        <legend>Pedidos possíveis nesta fase da sua multa</legend>
+        <div id="p1-pecas"></div>
+      </fieldset>
+      <p class="erro-campo oculto" id="p1-erro">Escolha uma opção para continuar.</p>
+      <details class="cartao" id="p1-porque">
+        <summary>Por que não aparecem outras opções?</summary>
+        <p id="p1-porque-texto"></p>
+      </details>
+      <div class="acoes">
+        <button type="submit" class="btn btn-primario">Continuar</button>
+        <button type="button" class="btn btn-texto" data-ir="aits">Voltar</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ===== Passo 2: escrever e anexar ===== -->
+  <section id="tela-passo2" class="oculto" aria-labelledby="t-passo2">
+    <ol class="passos" aria-label="Etapas do protocolo">
+      <li class="feito">1. Escolher</li><li aria-current="step">2. Escrever e anexar</li><li>3. Revisar</li><li>4. Assinar</li>
+    </ol>
+    <p class="dica">Etapa 2 de 4 · <span id="p2-peca"></span></p>
+    <h1 id="t-passo2">Conte o que aconteceu</h1>
+    <form id="form-texto" novalidate>
+      <div class="campo">
+        <label for="texto">Por que a multa deve ser cancelada?</label>
+        <p class="dica" id="texto-dica">Escreva com suas palavras. Não precisa de advogado nem de termos jurídicos. Ajuda dizer: onde você estava, o que aconteceu e por que a autuação está errada.</p>
+        <textarea id="texto" name="texto" aria-describedby="texto-dica texto-erro texto-cont"></textarea>
+        <p class="contador" id="texto-cont" aria-live="polite">0 caracteres</p>
+        <p class="erro-campo oculto" id="texto-erro">Escreva pelo menos uma frase explicando o seu pedido.</p>
+      </div>
+
+      <div class="cartao">
+        <h2>Provas (opcional)</h2>
+        <p class="dica" id="anexo-dica">Fotos ou documentos em PDF, JPG ou PNG, até <span class="lim-mb"></span> MB cada.</p>
+        <div class="msg msg-info"><p>Você <strong>não</strong> precisa enviar o documento do carro (CRLV) nem o seu documento de identidade: nós buscamos nas bases oficiais.</p></div>
+        <div class="msg msg-alerta"><p><strong>Teste:</strong> não anexe arquivos reais seus. Use o botão "Usar arquivo de exemplo".</p></div>
+        <label for="arquivo" class="rotulo">Escolher arquivo</label>
+        <input type="file" id="arquivo" accept="application/pdf,image/jpeg,image/png" aria-describedby="anexo-dica anexo-erro">
+        <p class="erro-campo oculto" id="anexo-erro" role="alert"></p>
+        <div class="acoes">
+          <button type="button" class="btn" id="anexo-exemplo">Usar arquivo de exemplo</button>
+          <label class="opcao" style="margin:0" for="rede-ruim"><input type="checkbox" id="rede-ruim"> <span>Simular rede ruim</span></label>
+        </div>
+        <div id="anexos" aria-live="polite"></div>
+      </div>
+
+      <div class="acoes">
+        <button type="submit" class="btn btn-primario">Continuar</button>
+        <button type="button" class="btn btn-texto" data-ir="passo1">Voltar</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ===== Passo 3: revisar ===== -->
+  <section id="tela-passo3" class="oculto" aria-labelledby="t-passo3">
+    <ol class="passos" aria-label="Etapas do protocolo">
+      <li class="feito">1. Escolher</li><li class="feito">2. Escrever e anexar</li><li aria-current="step">3. Revisar</li><li>4. Assinar</li>
+    </ol>
+    <p class="dica">Etapa 3 de 4</p>
+    <h1 id="t-passo3">Confira antes de enviar</h1>
+    <div class="cartao">
+      <dl class="resumo" id="p3-resumo"></dl>
+      <div class="acoes">
+        <button type="button" class="btn btn-texto" data-ir="passo1">Alterar o pedido</button>
+        <button type="button" class="btn btn-texto" data-ir="passo2">Alterar texto ou provas</button>
+      </div>
+    </div>
+    <div class="acoes">
+      <button type="button" class="btn btn-primario" data-ir="passo4">Está certo, continuar</button>
+    </div>
+  </section>
+
+  <!-- ===== Passo 4: assinar ===== -->
+  <section id="tela-passo4" class="oculto" aria-labelledby="t-passo4">
+    <ol class="passos" aria-label="Etapas do protocolo">
+      <li class="feito">1. Escolher</li><li class="feito">2. Escrever e anexar</li><li class="feito">3. Revisar</li><li aria-current="step">4. Assinar</li>
+    </ol>
+    <p class="dica">Etapa 4 de 4</p>
+    <h1 id="t-passo4">Assinar e enviar</h1>
+    <div class="cartao">
+      <p>Ao assinar, você declara que as informações são verdadeiras e envia o pedido. Depois de enviado, o pedido não pode ser apagado; se precisar completar, você poderá juntar novos documentos.</p>
+      <p class="dica">No sistema real, a assinatura usa a sua conta gov.br (nível prata ou ouro). Neste protótipo ela é simulada: nenhuma senha é pedida.</p>
+      <form id="form-assinar" novalidate>
+        <label class="opcao" for="declaro">
+          <input type="checkbox" id="declaro" aria-describedby="declaro-erro">
+          <span>Declaro que as informações são verdadeiras.</span>
+        </label>
+        <p class="erro-campo oculto" id="declaro-erro">Marque a declaração para assinar.</p>
+        <div class="acoes">
+          <button type="submit" class="btn btn-primario btn-bloco">Assinar e enviar</button>
+          <button type="button" class="btn btn-texto" data-ir="passo3">Voltar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== Recibo ===== -->
+  <section id="tela-recibo" class="oculto" aria-labelledby="t-recibo">
+    <div class="msg msg-sucesso"><p><strong>Pedido enviado.</strong> Guarde o número abaixo.</p></div>
+    <h1 id="t-recibo">Recibo de protocolo</h1>
+    <div class="cartao" id="recibo"></div>
+    <div class="acoes">
+      <button type="button" class="btn btn-primario" id="ver-processo">Acompanhar meu processo</button>
+      <button type="button" class="btn" onclick="window.print()">Salvar recibo em PDF</button>
+    </div>
+  </section>
+
+  <!-- ===== Meus processos ===== -->
+  <section id="tela-meus" class="oculto" aria-labelledby="t-meus">
+    <h1 id="t-meus">Meus processos</h1>
+    <div id="meus-lista"></div>
+    <div class="acoes"><button type="button" class="btn" data-ir="inicio">Fazer novo pedido</button></div>
+  </section>
+
+  <!-- ===== Linha do tempo ===== -->
+  <section id="tela-processo" class="oculto" aria-labelledby="t-processo">
+    <h1 id="t-processo">Processo <span id="proc-num"></span></h1>
+    <div class="cartao" id="proc-situacao"></div>
+    <div class="cartao">
+      <h2>Linha do tempo</h2>
+      <ol class="linha-tempo" id="proc-linha"></ol>
+    </div>
+    <div class="acoes"><button type="button" class="btn" data-ir="meus">Voltar para meus processos</button></div>
+  </section>
+</main>
+
+<script src="../assets/proto.js"></script>
+<script src="portal.js"></script>
+</body>
+</html>

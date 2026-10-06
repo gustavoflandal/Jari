@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatar e votar — Back-office (protótipo SIREJ)</title>
+<link rel="stylesheet" href="../assets/proto.css">
+<style>
+  main { max-width: 96rem; }
+  .barra-sessao { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; background: var(--azul-escuro); color: var(--branco); padding: 0.5rem 1rem; font-size: 0.9375rem; }
+  .barra-sessao strong { color: var(--branco); }
+  .fila { display: flex; gap: 0.25rem; flex-wrap: wrap; list-style: none; padding: 0; margin: 0 0 1rem; }
+  .fila li { font-size: 0.8125rem; padding: 0.25rem 0.5rem; border-radius: 100em; background: var(--cinza-10); }
+  .fila li[aria-current="true"] { background: var(--azul); color: var(--branco); font-weight: 700; }
+  .fila li.feito { background: var(--verde-claro); color: #0b4f13; }
+  .colunas { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 64rem) { .colunas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .coluna-autos { position: sticky; top: 0.5rem; align-self: start; max-height: calc(100vh - 1rem); overflow: auto; } }
+  .dossie dl.dados { font-size: 0.9375rem; }
+  .abas { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem; }
+  .abas [role=tab] { font: inherit; font-size: 0.875rem; padding: 0.375rem 0.75rem; border: 1px solid var(--cinza-20); background: var(--branco); border-radius: var(--raio) var(--raio) 0 0; cursor: pointer; color: var(--cinza-90); }
+  .abas [role=tab][aria-selected=true] { border-color: var(--azul); border-bottom: 3px solid var(--azul); font-weight: 700; color: var(--azul-escuro); }
+  .visualizador { position: relative; background: #6b6b6b; padding: 1rem; border-radius: var(--raio); overflow: auto; max-height: 34rem; }
+  .pagina { position: relative; background: var(--branco); margin: 0 auto; padding: 2rem; width: 100%; max-width: 40rem; transform-origin: top center; box-shadow: 0 2px 8px rgba(0,0,0,0.4); font-family: Georgia, "Times New Roman", serif; font-size: 0.9375rem; }
+  .marca-dagua { position: absolute; inset: 0; pointer-events: none; background-repeat: repeat; }
+  .zoom { display: flex; gap: 0.5rem; align-items: center; margin: 0.5rem 0; flex-wrap: wrap; }
+  .editor-barra { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; border: 1px solid var(--cinza-60); border-bottom: 0; border-radius: var(--raio) var(--raio) 0 0; padding: 0.25rem; background: var(--cinza-10); }
+  .editor-barra button { min-height: 36px; min-width: 36px; font: inherit; border: 1px solid transparent; background: transparent; border-radius: 4px; cursor: pointer; color: var(--cinza-90); }
+  .editor-barra button:hover { border-color: var(--cinza-60); background: var(--branco); }
+  .editor-barra select { width: auto; min-height: 36px; font-size: 0.875rem; }
+  .editor { min-height: 16rem; border: 1px solid var(--cinza-60); border-radius: 0 0 var(--raio) var(--raio); padding: 0.75rem; background: var(--branco); font-family: Georgia, "Times New Roman", serif; font-size: 1rem; line-height: 1.6; }
+  .editor[aria-invalid=true] { border: 2px solid var(--vermelho); }
+  .salvo { font-size: 0.8125rem; color: var(--cinza-60); min-height: 1.25rem; }
+  .eixo { border: 1px solid var(--cinza-20); border-radius: var(--raio); padding: 0.75rem; margin-bottom: 0.75rem; }
+  .eixo .opcoes-linha { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .eixo .opcao { margin: 0; flex: 1 1 12rem; }
+  .voto-relator { border-left: 6px solid var(--azul); background: var(--azul-claro); padding: 0.75rem 1rem; border-radius: var(--raio); margin-bottom: 1rem; }
+  .resumo-erros { border: 2px solid var(--vermelho); background: var(--vermelho-claro); border-radius: var(--raio); padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .resumo-erros ul { margin: 0.25rem 0 0; padding-left: 1.25rem; }
+  .resumo-erros a { color: #7a0d14; font-weight: 700; }
+  .aviso-topo { position: sticky; top: 0; z-index: 10; }
+</style>
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<div class="faixa-prototipo" role="note">PROTÓTIPO — SEM VALOR JURÍDICO · dados fictícios</div>
+<header class="cabecalho">
+  <span class="marca">SIREJ · Back-office</span>
+  <span class="orgao">JARI do Órgão Exemplo (fictício)</span>
+  <span class="usuario">Membro Fictício B · relatoria</span>
+</header>
+<div class="barra-sessao" role="region" aria-label="Sessão em andamento">
+  <span><strong>Sessão ordinária de 14/10/2026</strong> · 14ª Junta (fictícia)</span>
+  <span>Sessão aberta pelo presidente às 09:12; seus processos foram revelados nesse momento.</span>
+  <span>Você ocupa a posição B · Turma 1</span>
+</div>
+
+<main id="conteudo" tabindex="-1">
+  <div id="aviso" class="aviso-topo" aria-live="polite"></div>
+
+  <section id="tela-trabalho" aria-labelledby="t-proc">
+    <nav aria-label="Seus processos nesta sessão">
+      <ol class="fila" id="fila"></ol>
+    </nav>
+    <h1 id="t-proc"></h1>
+    <p id="papel" class="dica"></p>
+
+    <div class="colunas">
+      <!-- ===== Coluna esquerda: dossiê + autos ===== -->
+      <section class="coluna-autos" aria-labelledby="t-autos">
+        <div class="cartao dossie">
+          <h2>Resumo do caso</h2>
+          <div id="dossie"></div>
+        </div>
+        <div class="cartao">
+          <h2 id="t-autos">Autos</h2>
+          <p class="dica">Só visualização: não há download nem impressão. Cada acesso fica registrado.</p>
+          <div class="abas" role="tablist" aria-label="Documentos dos autos" id="abas"></div>
+          <div class="zoom">
+            <button type="button" class="btn btn-texto" id="zoom-menos" aria-label="Diminuir zoom">− Diminuir</button>
+            <span id="zoom-valor" aria-live="polite">100%</span>
+            <button type="button" class="btn btn-texto" id="zoom-mais" aria-label="Aumentar zoom">+ Aumentar</button>
+          </div>
+          <div class="visualizador" id="visualizador" role="tabpanel" tabindex="0" aria-label="Documento aberto"></div>
+        </div>
+      </section>
+
+      <!-- ===== Coluna direita: editor e voto ===== -->
+      <section aria-labelledby="t-voto">
+        <form class="cartao" id="form-voto" novalidate>
+          <h2 id="t-voto"></h2>
+          <div id="erros" tabindex="-1"></div>
+          <div id="area-revisor"></div>
+
+          <div id="area-texto">
+            <p class="rotulo" id="rotulo-editor">Relatório e voto</p>
+            <p class="dica" id="dica-editor">Escreva como num editor de texto. O texto é salvo automaticamente.</p>
+            <div class="editor-barra" role="toolbar" aria-label="Formatação" aria-controls="editor">
+              <button type="button" data-cmd="bold" aria-label="Negrito"><strong>N</strong></button>
+              <button type="button" data-cmd="italic" aria-label="Itálico"><em>I</em></button>
+              <button type="button" data-cmd="insertUnorderedList" aria-label="Lista com marcadores">• Lista</button>
+              <label class="sr-only" for="modelo">Inserir modelo de texto</label>
+              <select id="modelo">
+                <option value="">Inserir modelo…</option>
+                <option value="padrao">Relatório e voto (estrutura)</option>
+                <option value="intempestivo">Intempestividade</option>
+                <option value="forca">Força maior</option>
+              </select>
+            </div>
+            <div class="editor" id="editor" contenteditable="true" role="textbox" aria-multiline="true"
+                 aria-labelledby="rotulo-editor" aria-describedby="dica-editor salvo"></div>
+            <p class="salvo" id="salvo" aria-live="polite"></p>
+          </div>
+
+          <fieldset id="area-checklist">
+            <legend>Verificações obrigatórias</legend>
+            <div id="checklist"></div>
+          </fieldset>
+
+          <fieldset id="area-resultado">
+            <legend>Resultado</legend>
+            <p class="dica">Escolha um dos resultados previstos no regimento.</p>
+            <div id="resultados"></div>
+          </fieldset>
+
+          <div class="campo" id="area-dispositivo">
+            <label for="dispositivo">Dispositivo normativo que fundamenta o voto</label>
+            <p class="dica" id="dispositivo-dica">Lista ilustrativa para o teste.</p>
+            <select id="dispositivo" aria-describedby="dispositivo-dica">
+              <option value="">Selecione…</option>
+              <option>CTB, art. 280 (requisitos do auto de infração)</option>
+              <option>CTB, art. 281, parágrafo único (arquivamento do auto)</option>
+              <option>CTB, art. 285 (prazo do recurso)</option>
+              <option>CTB, art. 218 (velocidade)</option>
+              <option>CTB, art. 181 (estacionamento)</option>
+              <option>CTB, art. 208 (avanço de sinal)</option>
+            </select>
+          </div>
+
+          <div class="acoes">
+            <button type="submit" class="btn btn-primario" id="btn-assinar">Assinar voto e abrir o próximo</button>
+          </div>
+          <p class="dica">O voto assinado não pode ser editado. Erro material é corrigido por retificação, que fica registrada.</p>
+
+          <details id="impedimento" class="cartao" style="margin-top:1rem">
+            <summary>Declarar impedimento ou suspeição neste processo</summary>
+            <div class="campo" style="margin-top:0.75rem">
+              <label for="imp-motivo">Motivo</label>
+              <select id="imp-motivo">
+                <option value="">Selecione…</option>
+                <optgroup label="Impedimento">
+                  <option>Sou o apenado, ou cônjuge ou parente dele</option>
+                  <option>Fui testemunha do fato</option>
+                  <option>Atuei como perito ou produzi prova determinante</option>
+                  <option>Orientei o recorrente</option>
+                </optgroup>
+                <optgroup label="Suspeição">
+                  <option>Amizade ou inimizade íntima com o interessado</option>
+                  <option>Sou credor ou devedor do interessado</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="imp-texto">Explique em poucas palavras</label>
+              <textarea id="imp-texto" style="min-height:5rem"></textarea>
+            </div>
+            <p class="erro-campo oculto" id="imp-erro" role="alert">Escolha o motivo e escreva a explicação.</p>
+            <button type="button" class="btn btn-perigo" id="imp-enviar">Assinar declaração</button>
+            <p class="dica">O sistema recompõe a turma pela regra de substituição. Ninguém escolhe o substituto.</p>
+          </details>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <section id="tela-fim" class="oculto" aria-labelledby="t-fim">
+    <h1 id="t-fim">Você terminou os seus processos desta sessão</h1>
+    <div class="cartao" id="fim-resumo"></div>
+    <p>Os resultados só são proclamados pelo presidente depois dos votos da turma.</p>
+  </section>
+</main>
+
+<script src="../assets/proto.js"></script>
+<script src="relator.js"></script>
+</body>
+</html>

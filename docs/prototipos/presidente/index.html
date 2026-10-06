@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do presidente — Back-office (protótipo SIREJ)</title>
+<link rel="stylesheet" href="../assets/proto.css">
+<style>
+  main { max-width: 90rem; }
+  .barra-sessao { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; background: var(--azul-escuro); color: var(--branco); padding: 0.5rem 1rem; font-size: 0.9375rem; }
+  .layout { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 60rem) { .layout { grid-template-columns: 17rem minmax(0, 1fr); } .roteiro { position: sticky; top: 0.5rem; align-self: start; } }
+  .roteiro ol { list-style: none; margin: 0; padding: 0; counter-reset: passo; }
+  .roteiro li { margin-bottom: 0.25rem; }
+  .roteiro button {
+    width: 100%; text-align: left; font: inherit; font-size: 0.9375rem; padding: 0.5rem 0.75rem; min-height: 44px;
+    border: 1px solid var(--cinza-20); border-left: 6px solid var(--cinza-20); border-radius: var(--raio);
+    background: var(--branco); color: var(--cinza-90); cursor: pointer;
+  }
+  .roteiro button[disabled] { cursor: not-allowed; color: var(--cinza-60); background: var(--cinza-5); }
+  .roteiro button.feito { border-left-color: var(--verde); }
+  .roteiro button.pulado { border-left-color: var(--cinza-60); }
+  .roteiro button[aria-current=step] { border-color: var(--azul); border-left-color: var(--azul); background: var(--azul-claro); font-weight: 700; color: var(--azul-escuro); }
+  .roteiro .tipo { display: block; font-size: 0.75rem; font-weight: 400; color: var(--cinza-70); }
+  .quorum { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+  .quorum .grande { font-size: 1.25rem; font-weight: 800; }
+  .selo { background: var(--cinza-10); border-radius: var(--raio); padding: 0.75rem; }
+  .turmas { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .turmas { grid-template-columns: 1fr 1fr; } }
+  .voto-ok { color: #0b4f13; font-weight: 700; }
+  .voto-pend { color: var(--cinza-60); }
+  td .btn { min-height: 36px; padding: 0.25rem 0.75rem; font-size: 0.875rem; }
+  input[type=checkbox] { width: 1.25rem; height: 1.25rem; accent-color: var(--azul); }
+</style>
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<div class="faixa-prototipo" role="note">PROTÓTIPO — SEM VALOR JURÍDICO · dados fictícios</div>
+<header class="cabecalho">
+  <span class="marca">SIREJ · Back-office</span>
+  <span class="orgao">JARI do Órgão Exemplo (fictício)</span>
+  <span class="usuario">Membro Fictício A · presidente da 14ª Junta</span>
+</header>
+<div class="barra-sessao" role="region" aria-label="Dados da sessão">
+  <span><strong>Sessão ordinária de 14/10/2026, 09:00</strong></span>
+  <span>14ª Junta (fictícia) · presencial</span>
+  <span>Designação: modo sigiloso</span>
+</div>
+
+<main id="conteudo" tabindex="-1">
+  <h1>Condução da sessão</h1>
+  <div class="layout">
+    <nav class="roteiro cartao" aria-labelledby="t-roteiro">
+      <h2 id="t-roteiro">Roteiro da reunião</h2>
+      <p class="dica">Passos obrigatórios precisam ser concluídos para avançar.</p>
+      <ol id="roteiro"></ol>
+    </nav>
+    <div>
+      <div id="aviso" aria-live="polite"></div>
+      <section class="cartao" id="passo" aria-labelledby="t-passo"></section>
+    </div>
+  </div>
+</main>
+
+<script src="../assets/proto.js"></script>
+<script src="presidente.js"></script>
+</body>
+</html>
