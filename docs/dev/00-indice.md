@@ -22,8 +22,11 @@ Esta pasta é a **fonte de verdade** para quem desenvolve o SIREJ, humano ou age
 | 14 | [Backlog em pacotes de trabalho](14-backlog-pacotes.md) | Para pegar uma tarefa |
 | 15 | [Protocolo dos agentes](15-protocolo-agentes.md) | Sempre, antes de começar |
 | 16 | [Dúvidas abertas](16-duvidas-abertas.md) | Ao encontrar lacuna; para registrar a sua |
+| 17 | [Comparação de regimentos](17-comparacao-regimentos.md) | Ao mexer em parametrização ou ao configurar um órgão novo; para saber de que artigo vem cada valor do `sp.yaml` |
 | 18 | [Administração (M9)](18-administracao.md) | Ao mexer em parametrização, calendário, papéis, modelos de documento, temporalidade ou no console |
 | 19 | [Operação e infraestrutura](19-operacao-e-infraestrutura.md) | Ao mexer em pipeline, instalador, observabilidade, backup, atualização ou hospedagem |
+
+Os protótipos navegáveis de interface (portal, relator, presidente), com roteiro de teste com usuários e registro de achados, estão em [`docs/prototipos/`](../prototipos/README.md).
 
 Os prompts para executar cada fase do plano com agentes estão em [`docs/prompts/`](../prompts/README.md).
 
@@ -40,6 +43,7 @@ Os prompts para executar cada fase do plano com agentes estão em [`docs/prompts
 | `docs/fontes/enunciado-projeto-sistema-jari.md` | Enunciado v1.0: contexto, escopo funcional, RN01–RN30, anexo de SP |
 | `docs/fontes/arquitetura-infraestrutura-sirej.md` | Arquitetura e infraestrutura v1.0 |
 | `docs/fontes/JARI_CET.pdf` | Edital 001/2026-JARI/CET e Regimento das JARIs de SP (Comunicado 007/23) |
+| `docs/fontes/regimentos/<orgao>/` | Texto dos regimentos dos órgãos-alvo (SP extraído do edital; Curitiba pendente, D-36) |
 | `docs/fontes/Estudo_JARI.pdf` | Notas de pesquisa |
 | `docs/plano/plano-projeto-sirej.md` | Plano do projeto (trilhas, fases, riscos) |
 

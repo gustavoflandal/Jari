@@ -37,7 +37,7 @@ Pode rodar em paralelo, depois do PT-03: PT-04, PT-05, PT-06, PT-07, PT-09, PT-1
 |---|---|---|---|---|---|
 | PT-01 | Esqueleto do monorepo e CI | — | — | — | Maven multi-módulo com um módulo vazio por contexto do doc 03; frontend com `apps/portal`, `apps/backoffice`, `packages/tipos`; pipeline com build, testes, SAST/SCA; `./mvnw verify` e `npm test` verdes |
 | PT-02 | Regras de arquitetura | compartilhado | 01 | — | `ApplicationModules.verify()`; as 7 regras ArchUnit do doc 12 implementadas (com testes que provam que pegam violação); `Relogio`, `@Imutavel`, tipos de valor (Cpf, Cnpj, Placa, Hash) |
-| PT-03 | Configuração do regimento | configuracao | 02 | todas parametrizadas | JSON Schema; carga de `sp.yaml` e `curitiba.yaml` com `herda`; as 8 regras de consistência do doc 06 (com teste de falha para cada uma); `regimento_versao` imutável com hash; `RegimentoVigente`; `RegimentoFixtures` |
+| PT-03 | Configuração do regimento | configuracao | 02 | todas parametrizadas | JSON Schema; carga de `sp.yaml` e `curitiba.yaml` com `herda`; todas as regras de consistência do doc 06 (hoje 10, com teste de falha para cada uma); `regimento_versao` imutável com hash; `RegimentoVigente`; `RegimentoFixtures` |
 | PT-04 | Trilha de auditoria | auditoria | 02 | RN23 | Registro encadeado; gravação na mesma transação do chamador; tabela imutável no banco; job de verificação detecta adulteração simulada; ancoragem diária com carimbo simulado |
 
 ### A1 — Núcleo demonstrável
