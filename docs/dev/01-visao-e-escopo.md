@@ -9,7 +9,7 @@ Um sistema web que conduz o recurso contra penalidade de trânsito do protocolo 
 - **Vários clientes, uma base de código.** Cada órgão contratante (prefeitura ou DETRAN) recebe a sua própria instalação, com configuração própria. Não há multi-tenant em runtime: uma instalação atende um órgão. Ver ADR-0007.
 - **Regimentos diferentes.** Cada órgão tem regimento, CETRAN, feriados, prazos e sistema de multas próprios. Tudo o que varia é configuração (doc 06).
 - **Escopo por edital.** O produto é modular. Núcleo sempre presente: Secretaria (M3), Relatoria e Julgamento (M4), Administração (M9). Demais módulos são ativados por configuração (`modulos.*`).
-- **Referência:** a configuração `config/regimentos/sp.yaml` (JARI do Município de São Paulo) é a referência. Tudo deve funcionar primeiro nela. A segunda configuração, `curitiba.yaml`, prova a parametrização.
+- **Referência:** a configuração `config/regimentos/sp.yaml` (JARI do Município de São Paulo) é a referência. Tudo deve funcionar primeiro nela. `curitiba.yaml` é só um exemplo do mecanismo de herança, sem valor normativo: desde 06/10/2026 o foco é o modelo de SP, que outros órgãos adotam (plano v0.5).
 
 ## O que a escala exige
 

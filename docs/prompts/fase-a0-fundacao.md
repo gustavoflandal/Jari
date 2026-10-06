@@ -5,7 +5,7 @@ Cole o bloco abaixo em uma sessão nova, na raiz do repositório. Substitua as c
 | Chave | O que colocar |
 |---|---|
 | `{{DATA_INICIO}}` | Data de início da fase |
-| `{{ORGAOS_ALVO}}` | De 3 a 5 órgãos cujos regimentos serão comparados (ex.: São Paulo, Curitiba, ...) |
+| `{{ORGAOS_ALVO}}` | Órgãos cujos regimentos serão comparados. Desde o plano v0.5: São Paulo (o modelo adotado por outros órgãos); outros só com edital previsto |
 | `{{DECISOES_NOVAS}}` | Decisões tomadas depois da última atualização de `docs/dev/`, ou "nenhuma" |
 
 ---
