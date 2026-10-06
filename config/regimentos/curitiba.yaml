@@ -3,6 +3,8 @@
 # Fontes públicas: transito.curitiba.pr.gov.br (JARI e recursos à JARI/CETRAN-PR).
 # Herda de sp.yaml; só sobrescreve o que difere. Itens "A CONFIRMAR" dependem da lei e do edital.
 # Esquema e semântica: docs/dev/06-parametrizacao.md
+# Comparação com SP e o que falta da norma: docs/dev/17-comparacao-regimentos.md e
+# docs/fontes/regimentos/curitiba/README.md (texto da norma ausente; doc 16, D-36).
 
 herda: sp
 
