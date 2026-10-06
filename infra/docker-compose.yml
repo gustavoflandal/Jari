@@ -1,0 +1,134 @@
+# Infraestrutura de desenvolvimento do SIREJ (docs/dev/19-operacao-e-infraestrutura.md, seção 2):
+# PostgreSQL 17, S3 com Object Lock, Keycloak (OIDC) e Redis. Só para desenvolvimento: credenciais padrão fracas.
+#
+# Subir:   docker compose -f infra/docker-compose.yml up -d
+# Derrubar: docker compose -f infra/docker-compose.yml down        (acrescente -v para apagar os dados)
+#
+# O MinIO de código aberto foi arquivado e não é mais distribuído; o RustFS (S3 compatível) o substitui, com a imagem
+# fixada pelo digest testado (bucket com Object Lock e retenção COMPLIANCE recusando a exclusão).
+name: project-jari
+
+services:
+  # PostgreSQL: bancos sirej e keycloak (o segundo é criado por postgres/init/10-keycloak.sql na primeira subida)
+  postgres:
+    image: postgres:17-alpine
+    container_name: project-jari-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sirej}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sirej}
+      POSTGRES_DB: ${POSTGRES_DB:-sirej}
+      PGTZ: UTC
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-sirej} -d ${POSTGRES_DB:-sirej}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project-jari-network
+
+  # Redis (sessão e cache; perder o conteúdo não perde dado de negócio)
+  redis:
+    image: redis:7-alpine
+    container_name: project-jari-redis
+    command: redis-server --appendonly yes --appendfsync everysec --requirepass ${REDIS_PASSWORD:-sirej}
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a ${REDIS_PASSWORD:-sirej} ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project-jari-network
+
+  # Armazenamento S3 compatível com Object Lock (ADR-0005)
+  s3:
+    image: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c
+    container_name: project-jari-s3
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY:-sirej}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY:-sirej-s3-dev}
+    ports:
+      - '${S3_PORT:-9000}:9000'
+      - '${S3_CONSOLE_PORT:-9001}:9001'
+    volumes:
+      - s3_data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'nc -z localhost 9000']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project-jari-network
+
+  # Criação do bucket de documentos com Object Lock (só pode ser ligado na criação do bucket)
+  s3-init:
+    image: amazon/aws-cli:latest
+    container_name: project-jari-s3-init
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:-sirej}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:-sirej-s3-dev}
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      /bin/sh -c "
+      aws --endpoint-url http://project-jari-s3:9000 s3api head-bucket --bucket ${S3_BUCKET:-sirej-documentos} 2>/dev/null ||
+      aws --endpoint-url http://project-jari-s3:9000 s3api create-bucket --bucket ${S3_BUCKET:-sirej-documentos} --object-lock-enabled-for-bucket;
+      exit 0;
+      "
+    networks:
+      - project-jari-network
+
+  # Keycloak (OIDC) em modo de desenvolvimento, com banco próprio no mesmo PostgreSQL
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.0
+    container_name: project-jari-keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://project-jari-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HTTP_ENABLED: 'true'
+      KC_HOSTNAME_STRICT: 'false'
+    ports:
+      - '${KEYCLOAK_PORT:-8080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          exec 3<>/dev/tcp/127.0.0.1/8080 &&
+          printf 'GET /realms/master HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          head -n 1 <&3 | grep -q ' 200 '
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    networks:
+      - project-jari-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  s3_data:
+    driver: local
+
+networks:
+  project-jari-network:
+    driver: bridge
