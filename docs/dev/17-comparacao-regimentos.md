@@ -124,7 +124,7 @@ O regimento de SP **não fixa** nenhum prazo processual do recurso. Os prazos do
 | Item | São Paulo (norma e artigo) | sp.yaml | sp.yaml confere? | Doc 06 comporta? | Curitiba |
 |---|---|---|---|---|---|
 | Modo | A Secretaria não fornece, e zela para que não se forneçam, informações sobre os recursos e sua distribuição a membro, presidente, funcionário ou empregado antes da reunião da junta (art. 29, XII) | `designacao.modo: SIGILOSO` | sim. O regimento protege contra membros e servidores; o produto estende a todos os perfis (invariante 1), o que é mais restritivo e compatível | sim | `SIGILOSO`, marcado "A CONFIRMAR; padrão do produto" no `curitiba.yaml`: não é fato da norma; texto ausente |
-| Acesso dos membros fora da reunião | A Secretaria não permite acesso imotivado de pessoas, inclusive membros e presidentes, às instalações fora dos dias e horários de reuniões, salvo autorização expressa do Coordenador (art. 29, XIII) | `autos.acessoMembrosForaDaSessao: PERMITIDO` PROVISÓRIO (D-01) | **diverge**: o texto exige autorização do Coordenador — D-26 | parcial — proposta P6 | texto ausente |
+| Acesso dos membros fora da reunião | A Secretaria não permite acesso imotivado de pessoas, inclusive membros e presidentes, às instalações fora dos dias e horários de reuniões, salvo autorização expressa do Coordenador (art. 29, XIII) | `autos.acessoMembrosForaDaSessao: MEDIANTE_AUTORIZACAO_COORDENADOR` (PT-03; antes `PERMITIDO`, D-01) | sim, desde o PT-03 (D-26) | sim (P6 feita no PT-03) | texto ausente |
 | Retirada de autos | Vedada a retirada de processos das instalações (art. 19) | `autos.downloadMembros: false` | sim, por analogia (download equivale a retirada) | sim | texto ausente |
 | Marca d'água | Omisso | `autos.marcaDagua: true` | sem artigo: controle do produto (ADR-0010) | sim | texto ausente |
 | Verificação da distribuição pelos membros | Cada membro verifica anomalias na distribuição para sua turma antes de relatar (art. 27, II), a distribuição interna e as turmas (art. 27, III), a sequência de distribuição (art. 27, VI e VII), e comunica por escrito ao Coordenador, via Secretaria, anomalia não sanada (art. 27, XII) | — | n/a | **não** — proposta P9, D-31 | texto ausente |
@@ -168,7 +168,7 @@ Seções que o regimento de SP **não regula** (valores vêm de outra norma ou d
 
 | Chave | Situação | Encaminhamento |
 |---|---|---|
-| `autos.acessoMembrosForaDaSessao: PERMITIDO` | **Diverge** do art. 29, XIII (acesso fora das reuniões só com autorização expressa do Coordenador) | D-26 (revisão da D-01); proposta P6 |
+| `autos.acessoMembrosForaDaSessao` | Era `PERMITIDO`, divergente do art. 29, XIII. **Resolvido no PT-03:** valor `MEDIANTE_AUTORIZACAO_COORDENADOR` | D-26 (revisão da D-01); P6 feita |
 | `administracao.aprovadores` e doc 18 (`COORDENADOR` incompatível com `MEMBRO`) | **Diverge** do art. 28, caput (o coordenador é um dos membros das juntas) | D-27; proposta P7 |
 | `administracao.aprovadores.REGIMENTO: [COORDENADOR]` | Sem artigo: o regimento é ato da autoridade de trânsito (preâmbulo, art. 1º) e os casos omissos são dela (art. 31) | D-28; proposta P8 |
 | `sessao.modalidades` com `HIBRIDA` | Sem artigo; o texto pressupõe reunião nas instalações (arts. 19, 27, II, 29, XIII) | D-25; comentário no `sp.yaml` |
@@ -179,7 +179,7 @@ Seções que o regimento de SP **não regula** (valores vêm de outra norma ou d
 | `votacao.exigeDispositivoNormativo: true` | Regimento exige motivação (arts. 16, 27, VI); o dispositivo normativo vem do enunciado (RN07) | Mantido; mais restritivo que o texto, sem conflito |
 | `autos.marcaDagua`, `prazos.alertas`, letras A–F | Escolhas do produto | Mantidos |
 
-Nenhum valor do `sp.yaml` foi alterado nesta análise. Foram acrescentados só comentários apontando para este documento e para as novas `D-xx`.
+Nenhum valor do `sp.yaml` foi alterado nesta análise. Foram acrescentados só comentários apontando para este documento e para as novas `D-xx`. Depois dela, o PT-03 mudou um valor (`autos.acessoMembrosForaDaSessao`, D-26) e completou os comentários: toda linha de valor cita artigo, norma externa ou `D-xx` (valores sem artigo nem dúvida própria citam a D-47).
 
 ## 4. Conflitos com invariantes
 
@@ -204,7 +204,7 @@ Nenhum valor do `sp.yaml` foi alterado nesta análise. Foram acrescentados só c
 
 ## 5. Parâmetros novos propostos
 
-Nenhum destes parâmetros foi incluído no doc 06 nem no `sp.yaml`: dependem de decisão do orquestrador. Cada um tem `D-xx` no doc 16. Tipos seguem a notação do doc 06.
+Nenhum destes parâmetros foi incluído no doc 06 nem no `sp.yaml`, salvo a P6 (D-26 já mandava fazer no PT-03): dependem de decisão do orquestrador. Cada um tem `D-xx` no doc 16. Tipos seguem a notação do doc 06.
 
 | Id | Chave proposta | Tipo e valores | Valor para SP (artigo) | D-xx |
 |---|---|---|---|---|
@@ -213,7 +213,7 @@ Nenhum destes parâmetros foi incluído no doc 06 nem no `sp.yaml`: dependem de 
 | P3 | `sessao.extraordinaria` | `{ permitida: boolean, convocadaPor: [papéis], pauta: SOMENTE_JA_REVELADOS \| LOTE_DA_SEMANA }` | `{ true, [COORDENADOR], SOMENTE_JA_REVELADOS }` (arts. 14, §1º, 27, VIII, 28, III); `pauta` sem artigo, provisório | D-29 |
 | P4 | `plenaria` | `{ periodicidade, convocadaPor, antecedenciaConvocacao: {dias}, antecedenciaCopiaAta: {dias}, roteiro: [passos], contaPresenca: boolean }` | `{ MENSAL, COORDENADOR, 7, 14, [ABERTURA_E_MESA, APROVACAO_ATA_ANTERIOR, ORDEM_DO_DIA], true }` (art. 21; "uma semana" e "duas semanas" convertidas em 7 e 14 dias) | D-30 |
 | P5 | `mandato.perda.janelaIntercaladas` e `mandato.perda.reunioesContadas` | `{ meses: int, inicio: POSSE \| ANO_CIVIL }`; lista de `ORDINARIA \| EXTRAORDINARIA \| PLENARIA` | `{ 12, POSSE }`; `[ORDINARIA, PLENARIA]` (art. 12, II) | D-30 |
-| P6 | novo valor em `autos.acessoMembrosForaDaSessao` | `PERMITIDO \| MEDIANTE_AUTORIZACAO_COORDENADOR \| PROIBIDO` | `MEDIANTE_AUTORIZACAO_COORDENADOR` (art. 29, XIII) | D-26 |
+| P6 (feita no PT-03) | novo valor em `autos.acessoMembrosForaDaSessao` | `PERMITIDO \| MEDIANTE_AUTORIZACAO_COORDENADOR \| PROIBIDO` | `MEDIANTE_AUTORIZACAO_COORDENADOR` (art. 29, XIII) | D-26 |
 | P7 | `administracao.coordenadorAcumulaMandato` | boolean | texto: `true` (art. 28, caput); provisório: `false` (D-18) | D-27 |
 | P8 | `administracao.exigeAtoNormativo` | lista de tipos de proposta | `[REGIMENTO]` (preâmbulo e art. 1º: o regimento é Comunicado da autoridade; art. 31) | D-28 |
 | P9 | `relatoria.verificacaoDistribuicao` | `{ obrigatoriaAntesDeRelatar: boolean, canalAnomalia: SECRETARIA_PARA_COORDENADOR \| COORDENADOR }` | `{ true, SECRETARIA_PARA_COORDENADOR }` (art. 27, II, III, VI, VII e XII) | D-31 |
@@ -222,11 +222,11 @@ Nenhum destes parâmetros foi incluído no doc 06 nem no `sp.yaml`: dependem de 
 | P12 | `pecas.RECURSO_2A_INSTANCIA.instrutor` e `segundaInstancia.cienciaAosMembros` | papel (`PRESIDENTE_JUNTA \| SECRETARIA \| COORDENADOR`); boolean | `PRESIDENTE_JUNTA` (art. 25, IX); `true` (art. 27, V) | D-34 |
 | P13 | `publicidade` | `{ editalPauta: { publicar: boolean, antecedencia: {dias}, incluiDesignacao: boolean }, estatisticas: { periodicidade, destinatario }, relatorioAnual: boolean }` | `editalPauta`: omisso, provisório `{ false, null, false }`; `estatisticas: { MENSAL, ENTIDADE_EXECUTIVA }`, `relatorioAnual: true` (art. 28, XII) | D-35 |
 
-Regras de consistência sugeridas (numeradas a partir das 10 atuais do doc 06):
+Regras de consistência sugeridas (numeradas a partir das 11 atuais do doc 06):
 
-11. `publicidade.editalPauta.incluiDesignacao: true` só é aceito com `designacao.modo: ABERTO` (invariante 1).
-12. Com `designacao.modo: SIGILOSO`, `sessao.extraordinaria.pauta` só aceita `SOMENTE_JA_REVELADOS` (nenhuma sessão antecipa a revelação de lote selado).
-13. `votacao.excecaoMaioriaSimples.exigePresidenteOuVice: true` exige `sessao.quorumAbertura.exigePresidenteOuVice: true`.
+12. `publicidade.editalPauta.incluiDesignacao: true` só é aceito com `designacao.modo: ABERTO` (invariante 1).
+13. Com `designacao.modo: SIGILOSO`, `sessao.extraordinaria.pauta` só aceita `SOMENTE_JA_REVELADOS` (nenhuma sessão antecipa a revelação de lote selado).
+14. `votacao.excecaoMaioriaSimples.exigePresidenteOuVice: true` exige `sessao.quorumAbertura.exigePresidenteOuVice: true`.
 
 ## 6. Inconsistências internas do texto de SP
 

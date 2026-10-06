@@ -1,0 +1,4 @@
+# Regimento inválido, só para testes (PT-03): viola a regra de consistência 1 do doc 06.
+herda: sp
+distribuicao:
+  falhaFechada: false

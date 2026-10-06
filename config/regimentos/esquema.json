@@ -1,0 +1,416 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sirej.com.br/esquemas/regimento.json",
+  "title": "Regimento de JARI (configuração do SIREJ)",
+  "description": "Esquema do regimento depois de resolvida a herança (chave herda). Semântica de cada seção em docs/dev/06-parametrizacao.md. As regras de consistência do doc 06 são verificadas depois do esquema, em código. Toda seção e toda chave são obrigatórias e nenhuma chave fora do esquema é aceita: parâmetro novo segue 'Como adicionar um parâmetro' (doc 06).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["orgao", "modulos", "identidade", "calendario", "prazos", "pecas", "composicao", "designacao", "distribuicao", "turmas", "sessao", "votacao", "resultados", "relatoria", "impedimento", "diligencia", "autos", "presenca", "mandato", "documentos", "retencao", "administracao", "temporalidade"],
+  "properties": {
+    "orgao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["codigo", "nome", "esfera", "uf", "municipioIbge", "fusoHorario", "segundaInstancia"],
+      "properties": {
+        "codigo": { "$ref": "#/$defs/texto" },
+        "nome": { "$ref": "#/$defs/texto" },
+        "esfera": { "enum": ["MUNICIPAL", "ESTADUAL"] },
+        "uf": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "municipioIbge": { "type": ["integer", "null"], "minimum": 1000000, "maximum": 9999999 },
+        "fusoHorario": { "type": "string", "pattern": "^[A-Za-z_]+(/[A-Za-z_]+)+$" },
+        "segundaInstancia": { "$ref": "#/$defs/texto" }
+      }
+    },
+    "modulos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["portalRecorrente", "autuacaoInstrucao", "segundaInstancia", "credenciamento", "transparencia", "demandasJudiciais"],
+      "properties": {
+        "portalRecorrente": { "type": "boolean" },
+        "autuacaoInstrucao": { "type": "boolean" },
+        "segundaInstancia": { "type": "boolean" },
+        "credenciamento": { "type": "boolean" },
+        "transparencia": { "type": "boolean" },
+        "demandasJudiciais": { "type": "boolean" }
+      }
+    },
+    "identidade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provedoresCidadao", "nivelMinimoPorAto", "mfaInternos"],
+      "properties": {
+        "provedoresCidadao": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["GOVBR", "IDENTIDADE_PR"] } },
+        "nivelMinimoPorAto": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["CONSULTA", "PROTOCOLO", "ASSINATURA"],
+          "properties": {
+            "CONSULTA": { "$ref": "#/$defs/nivelConfianca" },
+            "PROTOCOLO": { "$ref": "#/$defs/nivelConfianca" },
+            "ASSINATURA": { "$ref": "#/$defs/nivelConfianca" }
+          }
+        },
+        "mfaInternos": { "type": "boolean" }
+      }
+    },
+    "calendario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feriados", "prorrogaVencimentoEmDiaNaoUtil"],
+      "properties": {
+        "feriados": { "type": "array", "uniqueItems": true, "items": { "enum": ["NACIONAL", "ESTADUAL", "MUNICIPAL", "ORGAO"] } },
+        "prorrogaVencimentoEmDiaNaoUtil": { "type": "boolean" }
+      }
+    },
+    "prazos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["defesaAutuacao", "indicacaoCondutor", "recurso1a", "recurso2a", "cienciaPresumidaEletronica", "julgamento", "exigencia", "informacaoAgente", "relatoria", "metaDefesaAutuacao", "alertas"],
+      "properties": {
+        "defesaAutuacao": { "$ref": "#/$defs/prazo" },
+        "indicacaoCondutor": { "$ref": "#/$defs/prazo" },
+        "recurso1a": { "$ref": "#/$defs/prazo" },
+        "recurso2a": { "$ref": "#/$defs/prazo" },
+        "cienciaPresumidaEletronica": { "$ref": "#/$defs/prazo" },
+        "julgamento": { "$ref": "#/$defs/prazo" },
+        "exigencia": { "$ref": "#/$defs/prazo" },
+        "informacaoAgente": { "$ref": "#/$defs/prazo" },
+        "relatoria": { "$ref": "#/$defs/prazo" },
+        "metaDefesaAutuacao": { "$ref": "#/$defs/prazo" },
+        "alertas": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["diasAntes"],
+          "properties": {
+            "diasAntes": { "type": "array", "uniqueItems": true, "items": { "type": "integer" } }
+          }
+        }
+      }
+    },
+    "pecas": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "enum": ["DEFESA_AUTUACAO", "INDICACAO_CONDUTOR", "RECURSO_1A_INSTANCIA", "RECURSO_2A_INSTANCIA", "PEDIDO_EFEITO_SUSPENSIVO", "CONVERSAO_ADVERTENCIA", "JUNTADA_DOCUMENTOS"] },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decisor", "viraProcessoJari"],
+        "properties": {
+          "decisor": { "enum": ["ORGAO_AUTUADOR", "JARI", "CETRAN", "AUTORIDADE", null] },
+          "viraProcessoJari": { "type": "boolean" }
+        }
+      }
+    },
+    "composicao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segmentos", "posicoesPorJunta", "suplentesPorSegmento", "presidenciaLivre", "mandato"],
+      "properties": {
+        "segmentos": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/codigo" } },
+        "posicoesPorJunta": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["letra", "segmento"],
+            "properties": {
+              "letra": { "type": "string", "pattern": "^[A-Z]$" },
+              "segmento": { "$ref": "#/$defs/codigo" }
+            }
+          }
+        },
+        "suplentesPorSegmento": { "type": "integer", "minimum": 0 },
+        "presidenciaLivre": { "type": "boolean" },
+        "mandato": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["meses", "reconducao"],
+          "properties": {
+            "meses": { "type": "integer", "minimum": 1 },
+            "reconducao": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "designacao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["modo", "revelarNomesAposJulgamento"],
+      "properties": {
+        "modo": { "enum": ["SIGILOSO", "ABERTO"] },
+        "revelarNomesAposJulgamento": { "type": "boolean" }
+      }
+    },
+    "distribuicao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["periodicidade", "equidade", "conexao", "conexaoComPendentes", "ordemNaPosicao", "falhaFechada", "redistribuicao"],
+      "properties": {
+        "periodicidade": { "enum": ["SEMANAL"] },
+        "equidade": { "enum": ["POR_POSICAO"] },
+        "conexao": { "type": "array", "uniqueItems": true, "items": { "enum": ["MESMO_REQUERENTE", "MESMO_VEICULO"] } },
+        "conexaoComPendentes": { "enum": ["MESMA_POSICAO"] },
+        "ordemNaPosicao": { "enum": ["DATA_INTERPOSICAO"] },
+        "falhaFechada": { "type": "boolean" },
+        "redistribuicao": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["motivosPermitidos", "exigeCriterioDoCoordenador"],
+          "properties": {
+            "motivosPermitidos": { "type": "array", "uniqueItems": true, "items": { "enum": ["FORCA_MAIOR", "IMPEDIMENTO", "SUSPEICAO"] } },
+            "exigeCriterioDoCoordenador": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "turmas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["membrosPorTurma", "umPorSegmento", "maximoSimultaneas", "rodizio", "presidenteEViceEmTurmasDiferentes"],
+      "properties": {
+        "membrosPorTurma": { "type": "integer", "minimum": 1 },
+        "umPorSegmento": { "type": "boolean" },
+        "maximoSimultaneas": { "type": "integer", "minimum": 1 },
+        "rodizio": { "enum": ["SEM_REPETICAO_ATE_ESGOTAR"] },
+        "presidenteEViceEmTurmasDiferentes": { "type": "boolean" }
+      }
+    },
+    "sessao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quorumAbertura", "executorDistribuicaoInterna", "substituicaoAusente", "relatorAusente", "roteiro", "modalidades", "sustentacaoOral"],
+      "properties": {
+        "quorumAbertura": { "$ref": "#/$defs/quorum" },
+        "executorDistribuicaoInterna": { "enum": ["PRESIDENTE"] },
+        "substituicaoAusente": { "enum": ["MESMO_SEGMENTO_NO_2O_OU_3O_VOTO"] },
+        "relatorAusente": { "enum": ["RETORNA_A_PAUTA"] },
+        "roteiro": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["passo", "obrigatorio"],
+            "properties": {
+              "passo": { "enum": ["ABERTURA", "APROVACAO_ATA_ANTERIOR", "DISTRIBUICAO_INTERNA_E_TURMAS", "DISTRIBUICAO_AOS_MEMBROS", "JULGAMENTO", "PROPOSICOES", "ENCERRAMENTO"] },
+              "obrigatorio": { "type": "boolean" }
+            }
+          }
+        },
+        "modalidades": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["PRESENCIAL", "HIBRIDA", "VIRTUAL"] } },
+        "sustentacaoOral": { "type": "boolean" }
+      }
+    },
+    "votacao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["votosMinimos", "excecaoMaioriaSimples", "ordem", "votoRelatorVisivelAposConclusao", "exigeDispositivoNormativo"],
+      "properties": {
+        "votosMinimos": { "type": "integer", "minimum": 1 },
+        "excecaoMaioriaSimples": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["permitida", "minimo", "exigePresidenteOuVice"],
+          "properties": {
+            "permitida": { "type": "boolean" },
+            "minimo": { "type": "integer" },
+            "exigePresidenteOuVice": { "type": "boolean" }
+          }
+        },
+        "ordem": { "enum": ["SEQUENCIAL", "PARALELA"] },
+        "votoRelatorVisivelAposConclusao": { "type": "boolean" },
+        "exigeDispositivoNormativo": { "type": "boolean" }
+      }
+    },
+    "resultados": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["codigo", "alteraPenalidade"],
+        "properties": {
+          "codigo": { "$ref": "#/$defs/codigo" },
+          "alteraPenalidade": { "type": "boolean" }
+        }
+      }
+    },
+    "relatoria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checklist"],
+      "properties": {
+        "checklist": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/codigo" } }
+      }
+    },
+    "impedimento": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["motivos"],
+      "properties": {
+        "motivos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["codigo", "tipo"],
+            "properties": {
+              "codigo": { "$ref": "#/$defs/codigo" },
+              "tipo": { "enum": ["IMPEDIMENTO", "SUSPEICAO"] }
+            }
+          }
+        }
+      }
+    },
+    "diligencia": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["presencial"],
+      "properties": {
+        "presencial": { "$ref": "#/$defs/quorum" }
+      }
+    },
+    "autos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["downloadMembros", "marcaDagua", "acessoMembrosForaDaSessao"],
+      "properties": {
+        "downloadMembros": { "type": "boolean" },
+        "marcaDagua": { "type": "boolean" },
+        "acessoMembrosForaDaSessao": { "enum": ["PERMITIDO", "MEDIANTE_AUTORIZACAO_COORDENADOR", "PROIBIDO"] }
+      }
+    },
+    "presenca": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cancelaPorRecusaImotivada"],
+      "properties": {
+        "cancelaPorRecusaImotivada": { "type": "boolean" }
+      }
+    },
+    "mandato": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["perda"],
+      "properties": {
+        "perda": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["faltasSeguidas", "faltasIntercaladasAno", "hipotesesComProcedimento"],
+          "properties": {
+            "faltasSeguidas": { "type": "integer", "minimum": 1 },
+            "faltasIntercaladasAno": { "type": "integer", "minimum": 1 },
+            "hipotesesComProcedimento": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[IVXLC]+$" } }
+          }
+        }
+      }
+    },
+    "documentos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formatosAceitos", "tamanhoMaximoMb", "obtidosDeOficio"],
+      "properties": {
+        "formatosAceitos": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z]+/[a-z0-9.+-]+$" } },
+        "tamanhoMaximoMb": { "type": "integer", "minimum": 1 },
+        "obtidosDeOficio": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/codigo" } }
+      }
+    },
+    "retencao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anos"],
+      "properties": {
+        "anos": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "administracao": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aprovadores", "antecedenciaMinima", "papeisSensiveis", "vigenciaMaximaPapel"],
+      "properties": {
+        "aprovadores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["REGIMENTO", "CALENDARIO", "MODELO", "IMPORTACAO"],
+          "properties": {
+            "REGIMENTO": { "$ref": "#/$defs/papeis" },
+            "CALENDARIO": { "$ref": "#/$defs/papeis" },
+            "MODELO": { "$ref": "#/$defs/papeis" },
+            "IMPORTACAO": { "$ref": "#/$defs/papeis" }
+          }
+        },
+        "antecedenciaMinima": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["diasUteis"],
+          "properties": {
+            "diasUteis": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "papeisSensiveis": { "$ref": "#/$defs/papeis" },
+        "vigenciaMaximaPapel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["meses"],
+          "properties": {
+            "meses": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "temporalidade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classes", "eliminacaoFisica"],
+      "properties": {
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["codigo", "correnteAnos", "intermediariaAnos", "destinacao"],
+            "properties": {
+              "codigo": { "$ref": "#/$defs/codigo" },
+              "correnteAnos": { "type": "integer", "minimum": 0 },
+              "intermediariaAnos": { "type": "integer", "minimum": 0 },
+              "destinacao": { "enum": ["ELIMINACAO", "GUARDA_PERMANENTE"] }
+            }
+          }
+        },
+        "eliminacaoFisica": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "texto": { "type": "string", "minLength": 1 },
+    "codigo": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+    "nivelConfianca": { "enum": ["bronze", "prata", "ouro"] },
+    "papeis": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["RECORRENTE", "PROCURADOR", "PROTOCOLO", "ANALISTA_AUTUADOR", "AUTORIDADE", "SECRETARIA", "MEMBRO", "PRESIDENTE", "COORDENADOR", "ADMIN", "AUDITOR", "CONSULTA_PUBLICA"] }
+    },
+    "quorum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimoMembros", "segmentosDistintos"],
+      "properties": {
+        "minimoMembros": { "type": "integer", "minimum": 1 },
+        "segmentosDistintos": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "prazo": {
+      "description": "Prazo: dias (corridos), sessões ou origem explícita da contagem. A regra de consistência 6 do doc 06 exige valor positivo ou origem; dias null só em metas (chave meta*).",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "dias": { "type": ["integer", "null"] },
+        "sessoes": { "type": "integer" },
+        "origem": { "enum": ["IMPRESSO_NA"] },
+        "conta": { "enum": ["CIENCIA_NA", "CIENCIA_NP", "PUBLICACAO_OU_NOTIFICACAO"] },
+        "acao": { "enum": ["PROPOR_EFEITO_SUSPENSIVO"] }
+      }
+    }
+  }
+}

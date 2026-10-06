@@ -1,0 +1,155 @@
+# Regimento SINTÉTICO, só para testes (PT-03). Não é de nenhum órgão.
+# Prova que nada do regimento de SP está fixo no código: outro rol de resultados, outros prazos, outra composição
+# (2 segmentos, turma de 5 sem um por segmento), designação aberta e outros aprovadores.
+# Não usa herda: todo valor é declarado aqui.
+
+orgao:
+  codigo: ORGAO-SINTETICO
+  nome: Órgão Sintético de Trânsito
+  esfera: ESTADUAL
+  uf: ZZ
+  municipioIbge: null
+  fusoHorario: America/Manaus
+  segundaInstancia: CETRAN-ZZ
+
+modulos:
+  portalRecorrente: true
+  autuacaoInstrucao: false
+  segundaInstancia: false
+  credenciamento: false
+  transparencia: true
+  demandasJudiciais: false
+
+identidade:
+  provedoresCidadao: [GOVBR]
+  nivelMinimoPorAto:
+    CONSULTA: prata
+    PROTOCOLO: ouro
+    ASSINATURA: ouro
+  mfaInternos: true
+
+calendario:
+  feriados: [NACIONAL, ESTADUAL]
+  prorrogaVencimentoEmDiaNaoUtil: true
+
+prazos:
+  defesaAutuacao: { dias: 20, conta: CIENCIA_NA }
+  indicacaoCondutor: { dias: 20, conta: CIENCIA_NA }
+  recurso1a: { dias: 45, conta: CIENCIA_NP }
+  recurso2a: { dias: 40, conta: PUBLICACAO_OU_NOTIFICACAO }
+  cienciaPresumidaEletronica: { dias: 25 }
+  julgamento: { dias: 60, acao: PROPOR_EFEITO_SUSPENSIVO }
+  exigencia: { dias: 7 }
+  informacaoAgente: { dias: 14 }
+  relatoria: { sessoes: 2 }
+  metaDefesaAutuacao: { dias: 90 }
+  alertas: { diasAntes: [7, 2] }
+
+pecas:
+  RECURSO_1A_INSTANCIA: { decisor: JARI, viraProcessoJari: true }
+  JUNTADA_DOCUMENTOS: { decisor: null, viraProcessoJari: false }
+
+composicao:
+  segmentos: [SERVIDORES, USUARIOS]
+  posicoesPorJunta:
+    - { letra: P, segmento: SERVIDORES }
+    - { letra: Q, segmento: SERVIDORES }
+    - { letra: R, segmento: SERVIDORES }
+    - { letra: S, segmento: USUARIOS }
+    - { letra: T, segmento: USUARIOS }
+  suplentesPorSegmento: 2
+  presidenciaLivre: false
+  mandato: { meses: 24, reconducao: false }
+
+designacao:
+  modo: ABERTO
+  revelarNomesAposJulgamento: true
+
+distribuicao:
+  periodicidade: SEMANAL
+  equidade: POR_POSICAO
+  conexao: [MESMO_VEICULO]
+  conexaoComPendentes: MESMA_POSICAO
+  ordemNaPosicao: DATA_INTERPOSICAO
+  falhaFechada: true
+  redistribuicao:
+    motivosPermitidos: [IMPEDIMENTO]
+    exigeCriterioDoCoordenador: true
+
+turmas:
+  membrosPorTurma: 5
+  umPorSegmento: false
+  maximoSimultaneas: 1
+  rodizio: SEM_REPETICAO_ATE_ESGOTAR
+  presidenteEViceEmTurmasDiferentes: true
+
+sessao:
+  quorumAbertura: { minimoMembros: 5, segmentosDistintos: 2 }
+  executorDistribuicaoInterna: PRESIDENTE
+  substituicaoAusente: MESMO_SEGMENTO_NO_2O_OU_3O_VOTO
+  relatorAusente: RETORNA_A_PAUTA
+  roteiro:
+    - { passo: ABERTURA, obrigatorio: true }
+    - { passo: JULGAMENTO, obrigatorio: true }
+    - { passo: ENCERRAMENTO, obrigatorio: true }
+  modalidades: [PRESENCIAL, VIRTUAL]
+  sustentacaoOral: true
+
+votacao:
+  votosMinimos: 5
+  excecaoMaioriaSimples: { permitida: false, minimo: 3, exigePresidenteOuVice: false }
+  ordem: PARALELA
+  votoRelatorVisivelAposConclusao: false
+  exigeDispositivoNormativo: true
+
+resultados:
+  - { codigo: DEFERIMENTO, alteraPenalidade: true }
+  - { codigo: INDEFERIMENTO, alteraPenalidade: false }
+  - { codigo: NAO_CONHECIMENTO, alteraPenalidade: false }
+
+relatoria:
+  checklist: [ITEM_SINTETICO]
+
+impedimento:
+  motivos:
+    - { codigo: PARENTESCO, tipo: IMPEDIMENTO }
+
+diligencia:
+  presencial: { minimoMembros: 3, segmentosDistintos: 2 }
+
+autos:
+  downloadMembros: true
+  marcaDagua: true
+  acessoMembrosForaDaSessao: PROIBIDO
+
+presenca:
+  cancelaPorRecusaImotivada: false
+
+mandato:
+  perda:
+    faltasSeguidas: 2
+    faltasIntercaladasAno: 6
+    hipotesesComProcedimento: [I]
+
+documentos:
+  formatosAceitos: [application/pdf]
+  tamanhoMaximoMb: 50
+  obtidosDeOficio: []
+
+retencao:
+  anos: 10
+
+administracao:
+  aprovadores:
+    REGIMENTO: [AUTORIDADE]
+    CALENDARIO: [SECRETARIA]
+    MODELO: [COORDENADOR]
+    IMPORTACAO: [AUTORIDADE]
+  antecedenciaMinima: { diasUteis: 3 }
+  papeisSensiveis: [ADMIN]
+  vigenciaMaximaPapel: { meses: 6 }
+
+temporalidade:
+  classes:
+    - { codigo: CLASSE_SINTETICA, correnteAnos: 4, intermediariaAnos: 6, destinacao: GUARDA_PERMANENTE }
+  eliminacaoFisica: false
