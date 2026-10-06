@@ -48,11 +48,12 @@ class EstruturaDoRepositorioTest {
     }
 
     @Test
-    @DisplayName("PT-01: pipeline com SCA que bloqueia severidade alta")
+    @DisplayName("PT-01: pipeline com SCA do backend e do frontend que bloqueia ao menos severidade alta")
     void PT01_pipeline_com_sca() throws IOException {
         String ci = Files.readString(RAIZ.resolve(".github/workflows/ci.yml"));
 
-        assertThat(ci).contains("actions/dependency-review-action@", "fail-on-severity: high",
+        assertThat(ci).contains("google/osv-scanner-action/osv-scanner-action@",
+                "--lockfile=backend/app/target/classes/META-INF/sbom/application.cdx.json",
                 "npm audit --audit-level=high");
     }
 

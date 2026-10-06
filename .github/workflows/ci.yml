@@ -30,6 +30,13 @@ jobs:
           cache: maven
       - name: Build, testes, ApplicationModules.verify()
         run: ./mvnw -B -ntp verify
+      # SCA do backend sobre o SBOM (dependências diretas e transitivas de execução).
+      # Falha com qualquer vulnerabilidade conhecida (mais restritivo que "alta").
+      - name: SCA das dependências Maven (OSV-Scanner sobre o SBOM)
+        uses: google/osv-scanner-action/osv-scanner-action@a345acffa64b0eaede81a3d9aae6141214d9c8fc # v2.6.0
+        with:
+          scan-args: |-
+            --lockfile=backend/app/target/classes/META-INF/sbom/application.cdx.json
       - name: Publicar SBOM do backend (CycloneDX)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -65,14 +72,3 @@ jobs:
           name: sbom-frontend
           path: frontend/sbom-frontend.cdx.json
           if-no-files-found: error
-
-  dependency-review:
-    name: SCA (dependency review)
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        with:
-          fail-on-severity: high
