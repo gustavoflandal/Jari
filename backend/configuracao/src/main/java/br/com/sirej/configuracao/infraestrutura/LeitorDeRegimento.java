@@ -1,9 +1,13 @@
 package br.com.sirej.configuracao.infraestrutura;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import br.com.sirej.compartilhado.Hash;
 import br.com.sirej.configuracao.Regimento;
@@ -12,43 +16,31 @@ import br.com.sirej.configuracao.RegimentoInvalidoException.Violacao;
 import br.com.sirej.configuracao.dominio.Heranca;
 import br.com.sirej.configuracao.dominio.JsonCanonico;
 import br.com.sirej.configuracao.dominio.RegrasDeConsistencia;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.StreamReadFeature;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * Lê e valida um regimento (docs/dev/06, "Ciclo de vida", item 1), na ordem:
  * <ol>
- *   <li>lê o YAML (chave repetida reprova) e resolve {@code herda};</li>
+ *   <li>lê o YAML (só tipos simples; chave repetida reprova) e resolve {@code herda};</li>
  *   <li>regra de consistência 8 sobre as chaves cruas;</li>
  *   <li>JSON Schema ({@code esquema.json});</li>
  *   <li>converte para o {@link Regimento} tipado e aplica as demais regras de consistência.</li>
  * </ol>
  * Qualquer violação lança {@link RegimentoInvalidoException} com todas as violações da etapa. O resultado traz o
- * conteúdo canônico e o seu SHA-256.
+ * conteúdo canônico e o seu SHA-256. O JSON gravado no banco é lido pelo mesmo leitor (JSON é YAML).
  */
 public final class LeitorDeRegimento {
 
     /** Extensão dos arquivos de regimento. */
     public static final String EXTENSAO = ".yaml";
 
-    private static final TypeReference<Map<String, Object>> ARVORE = new TypeReference<>() {
-    };
-
     private final FonteDeRegimentos fonte;
-    private final YAMLMapper yaml;
-    private final JsonMapper json;
     private final ValidadorDeEsquema esquema;
 
     public LeitorDeRegimento(FonteDeRegimentos fonte) {
         this.fonte = fonte;
-        this.yaml = YAMLMapper.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
-        this.json = JsonMapper.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
         String textoDoEsquema = fonte.arquivo(ValidadorDeEsquema.ARQUIVO).orElseThrow(() ->
                 new RegimentoInvalidoException("esquema do regimento não encontrado: " + ValidadorDeEsquema.ARQUIVO));
-        this.esquema = new ValidadorDeEsquema(textoDoEsquema, json);
+        this.esquema = new ValidadorDeEsquema(carregar(ValidadorDeEsquema.ARQUIVO, textoDoEsquema));
     }
 
     /** Lê o regimento pelo nome (ex.: {@code sp}), resolve a herança e valida tudo. */
@@ -59,21 +51,12 @@ public final class LeitorDeRegimento {
 
     /** Valida um conteúdo já resolvido (por exemplo, o JSON canônico gravado numa versão). */
     public RegimentoLido lerConteudoCanonico(String nome, String conteudoJson, boolean cofreDeChavesDisponivel) {
-        return validar(nome, arvoreJson(nome, conteudoJson), cofreDeChavesDisponivel);
+        return validar(nome, objeto(nome, conteudoJson), cofreDeChavesDisponivel);
     }
 
     /** SHA-256 do conteúdo canônico de um JSON, sem validar nada (conferência de integridade). */
     public Hash hashDoConteudo(String nome, String conteudoJson) {
-        return JsonCanonico.hash(arvoreJson(nome, conteudoJson));
-    }
-
-    private Map<String, Object> arvoreJson(String nome, String conteudoJson) {
-        try {
-            return json.readValue(conteudoJson, ARVORE);
-        } catch (JacksonException e) {
-            throw new RegimentoInvalidoException(nome, List.of(new Violacao("leitura", "(raiz)",
-                    "conteúdo JSON ilegível: " + e.getOriginalMessage())));
-        }
+        return JsonCanonico.hash(objeto(nome, conteudoJson));
     }
 
     private RegimentoLido validar(String nome, Map<String, Object> arvore, boolean cofreDeChavesDisponivel) {
@@ -85,29 +68,38 @@ public final class LeitorDeRegimento {
         if (!doEsquema.isEmpty()) {
             throw new RegimentoInvalidoException(nome, doEsquema);
         }
-        Regimento regimento = json.convertValue(arvore, Regimento.class);
-        List<Violacao> consistencia = new ArrayList<>(RegrasDeConsistencia.verificar(regimento, cofreDeChavesDisponivel));
+        Regimento regimento = ConversorDeRegistros.paraRegistro(arvore, Regimento.class);
+        List<Violacao> consistencia = RegrasDeConsistencia.verificar(regimento, cofreDeChavesDisponivel);
         if (!consistencia.isEmpty()) {
             throw new RegimentoInvalidoException(nome, consistencia);
         }
-        String canonico = JsonCanonico.de(arvore);
-        return new RegimentoLido(nome, canonico, JsonCanonico.hash(arvore), regimento);
+        return new RegimentoLido(nome, JsonCanonico.de(arvore), JsonCanonico.hash(arvore), regimento);
     }
 
     private Optional<Map<String, Object>> arvoreCrua(String nome) {
-        return fonte.arquivo(nome + EXTENSAO).map(texto -> {
-            try {
-                Map<String, Object> arvore = yaml.readValue(texto, ARVORE);
-                if (arvore == null) {
-                    throw new RegimentoInvalidoException(nome, List.of(new Violacao("leitura", "(raiz)",
-                            "arquivo vazio")));
-                }
-                return arvore;
-            } catch (JacksonException e) {
-                throw new RegimentoInvalidoException(nome, List.of(new Violacao("leitura", "(raiz)",
-                        "YAML ilegível ou com chave repetida: " + e.getOriginalMessage())));
-            }
-        });
+        return fonte.arquivo(nome + EXTENSAO).map(texto -> objeto(nome, texto));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> objeto(String nome, String texto) {
+        Object arvore = carregar(nome, texto);
+        if (!(arvore instanceof Map<?, ?> mapa)) {
+            throw new RegimentoInvalidoException(nome, List.of(new Violacao("leitura", "(raiz)",
+                    "o conteúdo precisa ser um objeto com as seções do regimento")));
+        }
+        return (Map<String, Object>) mapa;
+    }
+
+    private static Object carregar(String nome, String texto) {
+        LoaderOptions opcoes = new LoaderOptions();
+        opcoes.setAllowDuplicateKeys(false);
+        opcoes.setAllowRecursiveKeys(false);
+        try {
+            return new Yaml(new SafeConstructor(opcoes)).load(texto);
+        } catch (YAMLException e) {
+            throw new RegimentoInvalidoException(nome, List.of(new Violacao("leitura", "(raiz)",
+                    "YAML ilegível ou com chave repetida: " + e.getMessage())));
+        }
     }
 
     /**

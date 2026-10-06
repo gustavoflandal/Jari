@@ -44,14 +44,13 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Leitura do YAML e validação contra o JSON Schema (config/regimentos/esquema.json). -->
+        <!--
+            Leitura do YAML e do JSON gravado. SnakeYAML já vem com o spring-boot-starter; o esquema
+            (config/regimentos/esquema.json) é validado por código próprio do módulo, sem Jackson (SCA do PT-03).
+        -->
         <dependency>
-            <groupId>tools.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.networknt</groupId>
-            <artifactId>json-schema-validator</artifactId>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
         </dependency>
 
         <dependency>

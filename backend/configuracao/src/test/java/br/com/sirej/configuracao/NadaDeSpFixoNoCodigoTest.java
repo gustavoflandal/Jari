@@ -16,10 +16,9 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.yaml.snakeyaml.Yaml;
 
 import br.com.sirej.configuracao.infraestrutura.LeitorDeRegimento;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * PT-03, invariante 8: o código não conhece o regimento de SP. Uma variação sintética, sem herança, com outro rol
@@ -63,9 +62,7 @@ class NadaDeSpFixoNoCodigoTest {
     @Test
     @DisplayName("PT-03: nenhum texto de valor do sp.yaml aparece no código de produção de configuracao")
     void PT03_codigo_de_producao_nao_contem_valores_de_sp() throws IOException {
-        Map<String, Object> sp = new YAMLMapper().readValue(
-                Files.readString(RaizDoRepositorio.caminho("config/regimentos/sp.yaml")), new TypeReference<>() {
-                });
+        Map<String, Object> sp = new Yaml().load(Files.readString(RaizDoRepositorio.caminho("config/regimentos/sp.yaml")));
         Set<String> valores = new TreeSet<>();
         coletarTextos(sp, valores);
         valores.removeAll(VOCABULARIO_DO_PRODUTO);

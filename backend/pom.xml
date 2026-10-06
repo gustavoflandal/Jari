@@ -24,8 +24,11 @@
         <spring-modulith.version>2.1.1</spring-modulith.version>
         <!-- Mesma versão que o Spring Modulith traz; declarada para os testes de arquitetura do PT-02. -->
         <archunit.version>1.4.2</archunit.version>
-        <!-- Validação do regimento contra config/regimentos/esquema.json (PT-03). Linha 3.0.5 usa Jackson 3.1, o mesmo do Boot 4.1. -->
-        <json-schema-validator.version>3.0.5</json-schema-validator.version>
+        <!--
+            Jackson 3 vem transitivo do Flyway (flyway-core). A 3.1.5 do Boot 4.1.1 tem vulnerabilidades conhecidas
+            apontadas pelo SCA (OSV); fixa a última correção da mesma linha 3.1.
+        -->
+        <jackson-bom.version>3.1.7</jackson-bom.version>
     </properties>
 
     <!-- Um módulo por contexto do doc 03, com os nomes exatos de lá; app é o módulo técnico de inicialização. -->
@@ -68,11 +71,6 @@
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit</artifactId>
                 <version>${archunit.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>json-schema-validator</artifactId>
-                <version>${json-schema-validator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

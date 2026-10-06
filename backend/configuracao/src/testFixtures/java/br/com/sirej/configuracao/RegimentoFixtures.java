@@ -15,10 +15,9 @@ import br.com.sirej.compartilhado.Hash;
 import br.com.sirej.configuracao.RegimentoInvalidoException.Violacao;
 import br.com.sirej.configuracao.dominio.JsonCanonico;
 import br.com.sirej.configuracao.dominio.RegrasDeConsistencia;
+import br.com.sirej.configuracao.infraestrutura.ConversorDeRegistros;
 import br.com.sirej.configuracao.infraestrutura.LeitorDeRegimento;
 import br.com.sirej.configuracao.infraestrutura.LeitorDeRegimento.RegimentoLido;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Regimentos para testes de todos os módulos (docs/dev/06, "Acesso no código"; docs/dev/12, "Testes obrigatórios
@@ -39,9 +38,6 @@ public final class RegimentoFixtures {
 
     private static final String PACOTE = "regimentos/";
     private static final Map<String, RegimentoLido> CACHE = new HashMap<>();
-    private static final JsonMapper JSON = JsonMapper.builder().build();
-    private static final TypeReference<Map<String, Object>> ARVORE = new TypeReference<>() {
-    };
 
     private RegimentoFixtures() {
     }
@@ -81,7 +77,7 @@ public final class RegimentoFixtures {
 
     /** {@link RegimentoVigente} fixo, com uma única versão vigente desde sempre. */
     public static RegimentoVigente vigente(Regimento regimento) {
-        Hash hash = JsonCanonico.hash(JSON.convertValue(regimento, ARVORE));
+        Hash hash = JsonCanonico.hash(ConversorDeRegistros.paraArvore(regimento));
         RegimentoVersao versao = new RegimentoVersao(UUID.nameUUIDFromBytes(hash.bytes()), hash, Instant.EPOCH,
                 "TESTE", regimento);
         return new RegimentoVigente() {
