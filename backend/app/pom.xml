@@ -58,6 +58,17 @@
             <artifactId>spring-modulith-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- PostgreSQL 17 descartável para o teste de subida do contexto (PT-04: módulos com banco). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!--
             Testes de arquitetura do PT-02 (docs/dev/12). As bibliotecas Spring abaixo só servem para compilar as

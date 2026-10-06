@@ -20,6 +20,8 @@ Cada porta é uma interface Java declarada no módulo de negócio que a consome.
 | `CetranPort` | `segundainstancia` | bidirecional | `remeterAutos`, `receberDecisao` | Pode ser pacote de arquivos se o CETRAN não tiver sistema |
 | `MensageriaCortesiaPort` | `notificacao` | saída | `email`, `push`, `sms` | Não oficial |
 | `CadinPort` | `credenciamento` | saída | `consultar(cnpj/cpf)` | |
+| `CarimboTempoPort` | `auditoria` | saída | `carimbar(hash)` | Ancoragem diária da trilha (D-45); o adaptador real pode delegar à `AssinaturaPort.carimbar`. `CarimboTempoSimulado` só com `sirej.auditoria.adaptadores-simulados=true` |
+| `ArmazenamentoAncoraPort` | `auditoria` | saída | `exportar(ancora)` | Armazenamento WORM fora da produção (doc 08). `ArmazenamentoAncoraSimulado` só com a mesma propriedade; sem adaptador, a ancoragem falha fechada |
 
 ## Regras
 

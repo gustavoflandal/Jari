@@ -78,6 +78,9 @@ Use exatamente estes termos em código, banco, API, eventos e interface. O nome 
 | Proposta de alteração | `PropostaAlteracao` | Pedido de mudança de regimento, calendário ou modelo; só vale depois de aprovada por outra pessoa e de chegar a vigência. |
 | Vigência | `Vigencia` | Instante a partir do qual uma versão vale; sempre futuro em relação à aprovação. |
 | Versão do regimento | `RegimentoVersao` | Configuração imutável, com hash, gravada em cada ato como `config_versao`. |
+| Trilha de auditoria | `TrilhaAuditoria` | Sequência append-only de registros de atos (`RegistroAuditoria`), cada um com o hash do anterior; gravada na transação do ato. |
+| Âncora diária | `AncoraDiaria` | Hash do último registro de um dia encerrado, com carimbo do tempo, exportado para fora da produção; prova que a trilha até ali não foi reescrita. |
+| Quebra da cadeia | `QuebraDaCadeia` | Primeiro ponto em que a verificação encontra a trilha adulterada, com o motivo (hash divergente, encadeamento rompido, âncora divergente ou sem registro). |
 | Suspensão de expediente | `SuspensaoExpediente` | Período sem expediente (indisponibilidade, calamidade) que prorroga prazos. |
 | Atribuição de papel | `AtribuicaoPapel` | Papel + escopo + vigência de um usuário; concedida ou derivada de mandato. |
 | Modelo de documento | `ModeloDocumento` | Texto-base versionado de ata, acórdão, notificação etc., com campos de lista fechada. |
