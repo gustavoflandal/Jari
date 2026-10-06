@@ -43,6 +43,8 @@ Decisões formais nos ADRs (`docs/adr/`). Este documento diz **onde cada coisa m
 
 ⚠ = módulo de segurança reforçada (doc 07 e 08).
 
+Cada módulo acima é um módulo Maven em `backend/<modulo>` (artefato `sirej-<modulo>`) e um módulo Spring Modulith no pacote `br.com.sirej.<modulo>`. Além deles existe o módulo Maven técnico `backend/app` (artefato `sirej-app`): contém só a classe `@SpringBootApplication` no pacote raiz `br.com.sirej`, depende de todos os módulos de contexto e roda `ApplicationModules.of(SirejApplication.class).verify()` no build. Ele não é módulo Spring Modulith e não pode conter regra de negócio. O `pom.xml` da raiz só agrega `backend/`, para que `./mvnw verify` rode a partir da raiz.
+
 ## Regras de dependência
 
 1. Um módulo só usa outro pela **API pública** (pacote raiz do módulo ou subpacote `api`). Pacotes `internal` são privados. Verificado por `ApplicationModules.verify()` e ArchUnit.
