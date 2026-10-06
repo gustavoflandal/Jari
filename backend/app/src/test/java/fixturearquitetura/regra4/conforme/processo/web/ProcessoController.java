@@ -12,8 +12,9 @@ public class ProcessoController {
 
     @PreAuthorize("hasRole('SECRETARIA') and @escopo.junta(#id)")
     @GetMapping("/processos/{id}")
-    public String consultar(String id) {
-        return normalizar(id);
+    public boolean consultar(String id) {
+        // Fixture: não ecoa a entrada; o método privado prova que só os públicos precisam de autorização.
+        return normalizar(id).isEmpty();
     }
 
     @SomenteSecretaria

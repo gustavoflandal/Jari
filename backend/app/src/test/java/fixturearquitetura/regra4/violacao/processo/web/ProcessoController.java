@@ -12,8 +12,8 @@ public class ProcessoController {
 
     /** Violação: endpoint sem autorização declarada. */
     @GetMapping("/processos/{id}")
-    public String consultar(String id) {
-        return id;
+    public void consultar(String id) {
+        // Fixture: não ecoa a entrada.
     }
 
     @PreAuthorize("hasRole('SECRETARIA')")

@@ -11,7 +11,7 @@ public class ProtocoloController {
 
     @PreAuthorize("hasRole('CIDADAO')")
     @PostMapping("/portal/rascunhos/{id}/protocolo")
-    public String protocolar(String id) {
-        return id;
+    public void protocolar(String id) {
+        // Fixture: não ecoa a entrada.
     }
 }
