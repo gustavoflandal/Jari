@@ -16,3 +16,6 @@ coverage/
 # Nunca versionar segredos (docs/dev/13)
 .env
 .env.*
+
+# Worktrees dos agentes do Claude Code
+.claude/worktrees/
