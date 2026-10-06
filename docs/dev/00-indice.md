@@ -23,6 +23,7 @@ Esta pasta é a **fonte de verdade** para quem desenvolve o SIREJ, humano ou age
 | 15 | [Protocolo dos agentes](15-protocolo-agentes.md) | Sempre, antes de começar |
 | 16 | [Dúvidas abertas](16-duvidas-abertas.md) | Ao encontrar lacuna; para registrar a sua |
 | 18 | [Administração (M9)](18-administracao.md) | Ao mexer em parametrização, calendário, papéis, modelos de documento, temporalidade ou no console |
+| 19 | [Operação e infraestrutura](19-operacao-e-infraestrutura.md) | Ao mexer em pipeline, instalador, observabilidade, backup, atualização ou hospedagem |
 
 Os prompts para executar cada fase do plano com agentes estão em [`docs/prompts/`](../prompts/README.md).
 
