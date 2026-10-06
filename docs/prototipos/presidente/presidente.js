@@ -372,7 +372,7 @@
     Array.prototype.forEach.call(document.querySelectorAll("[data-retirar]"), function (b) {
       b.addEventListener("click", function () {
         var p = st.processos[+b.getAttribute("data-retirar")];
-        p.retirado = "Sem maioria: volta à pauta da próxima sessão.";
+        p.retirado = "Sem maioria (D-37): volta à pauta da próxima sessão, mesma posição.";
         aviso("Processo " + p.numero + " retirado de pauta. O motivo fica registrado nos autos.", "alerta");
         passoJulgamento(i);
         P.focar($("t-passo"));
