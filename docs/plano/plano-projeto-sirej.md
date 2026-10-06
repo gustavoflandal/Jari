@@ -1,6 +1,6 @@
 # Plano do Projeto SIREJ (Sistema Integrado de Recursos de Infrações de Trânsito / JARI)
 
-**Versão:** 0.3 (Curitiba como primeiro alvo)
+**Versão:** 0.4 (Curitiba como primeiro alvo, edital ainda não publicado)
 **Data:** 06/10/2026
 **Base documental analisada:**
 - `enunciado-projeto-sistema-jari.md` (v1.0, 14/09/2026)
@@ -15,6 +15,7 @@
 |---|---|---|
 | 0.1 | 06/10/2026 | Primeira versão, assumindo a CET/SP como contratante |
 | 0.2 | 06/10/2026 | Revisão com as respostas de Gustavo: empresa concorrente em licitações, clientes em outros estados, instalação única por órgão |
+| 0.4 | 06/10/2026 | Edital de Curitiba ainda não publicado; SP como configuração de referência; Trilha A começa já |
 | 0.3 | 06/10/2026 | Respostas L1 a L5: editais em andamento, órgãos municipais e estaduais, Curitiba como primeiro alvo, produto partindo do zero com investimento da empresa |
 
 ---
@@ -78,20 +79,17 @@ O que as fontes públicas mostram em 06/10/2026:
 
 Fontes: [JARI — Trânsito Curitiba](https://transito.curitiba.pr.gov.br/institucional/junta-administrativa-de-recursos-de-infracoes-jari/20), [Recursos à JARI e ao CETRAN-PR](https://transito.curitiba.pr.gov.br/multas/recursos-de-multas-a-jari-e-ao-cetran-pr/68).
 
-Não encontrei o edital do sistema de JARI de Curitiba nos portais públicos. Os pregões de 2026 localizados no portal de transparência tratam de outros objetos (PE 054/2026-SMDT, manutenção semafórica; PE 009/2026-SMATI, conectividade). O texto da Lei 15.154/2017 não pôde ser baixado automaticamente e precisa ser lido.
+O edital de Curitiba ainda não foi publicado (informação de Gustavo em 06/10/2026). O texto da Lei 15.154/2017 não pôde ser baixado automaticamente e precisa ser lido.
 
 **O que isso muda:**
 1. A escala é cerca de 7 vezes menor que a de SP (4 juntas contra 27). A primeira instalação pode ser enxuta, e o dimensionamento de SP fica como teto.
 2. Suplentes fixos por junta (3 por junta) precisam entrar no modelo de composição e de substituição.
 3. O protocolo hoje passa pela identidade digital do Paraná, não pelo gov.br. O produto precisa de um adaptador de identidade, além do gov.br.
-4. O prazo do edital decide a estratégia, porque o produto parte do zero:
-
-| Situação do edital de Curitiba | Estratégia recomendada |
-|---|---|
-| Proposta ou PoC em menos de 4 meses, exigindo produto pronto | Não disputar este edital; usá-lo para aprender o termo de referência e mirar o próximo |
-| Proposta em menos de 4 meses, mas sem PoC e com implantação durante o contrato | Disputar, com o desenvolvimento cabendo no prazo de implantação do contrato; risco alto de prazo |
-| PoC entre 4 e 6 meses | Trilha A acelerada com escopo de Curitiba: núcleo enxuto, equipe completa desde o mês 1, PoC por volta do mês 5 |
-| Mais de 6 meses | Trilha A normal, com Curitiba parametrizado desde a A0 |
+**Estratégia, com o edital ainda não publicado:** a empresa está se antecipando, o que favorece seguir a Trilha A normal.
+- O modelo de São Paulo é a configuração de referência do produto: tudo o que o regimento de SP exige funciona primeiro.
+- Curitiba entra como segunda configuração na A0, a partir da Lei 15.154/2017, para provar que a parametrização funciona fora de SP.
+- Se o edital sair antes do mês 9, a Trilha A é acelerada com o escopo do termo de referência.
+- Enquanto o edital não sai, vale acompanhar o portal de licitações de Curitiba e participar de consulta ou audiência pública, se houver.
 
 ---
 
@@ -358,11 +356,13 @@ D1 a D8 (seção 2) e E1 (o plano serve para proposta e concorrência licitatór
 L1 a L5 foram respondidas em 06/10/2026 (seção 2).
 
 ### 15.2 Edital de Curitiba (CT)
-- CT1. Qual é o número do edital de Curitiba, e você pode anexar o edital e o termo de referência aqui?
-- CT2. Quais são as datas de entrega da proposta, da sessão de lances e da prova de conceito?
-- CT3. Qual o prazo de implantação exigido após a assinatura do contrato?
-- CT4. O edital exige produto pronto na prova de conceito ou aceita desenvolvimento durante o contrato?
+O edital ainda não foi publicado; CT1 a CT4 ficam para quando sair.
+- CT1. Número do edital, edital e termo de referência (quando publicados).
+- CT2. Datas da proposta, da sessão de lances e da prova de conceito.
+- CT3. Prazo de implantação após a assinatura do contrato.
+- CT4. Se a PoC exige produto pronto ou aceita desenvolvimento durante o contrato.
 - CT5. Quais outros editais em andamento a empresa acompanha (órgão e data)?
+- CT6. Há previsão de quando o edital de Curitiba sai, ou consulta pública antes dele?
 
 ### 15.3 Estratégia de licitação e produto (L)
 - L6. Os editais-alvo costumam exigir prova de conceito? Com que prazo?
@@ -424,8 +424,7 @@ Segunda instância
 
 ## 16. Próximos passos
 
-1. Receber o edital e o termo de referência de Curitiba (CT1 a CT4) e escolher a estratégia da tabela da seção 2.1.
-2. Montar a matriz de aderência do edital de Curitiba.
-3. Ler a Lei municipal 15.154/2017 e incluí-la, com o regimento de SP e o de um DETRAN, na comparação de regimentos da A0.
-4. Montar a equipe da Trilha A e começar a A0.
-5. Fechar a especificação do algoritmo de distribuição e do selo, por ser o componente de maior risco.
+1. Montar a equipe da Trilha A e começar a A0 (L13).
+2. Ler a Lei municipal 15.154/2017 e montar a comparação de regimentos: SP como referência, Curitiba e um DETRAN.
+3. Fechar a especificação do algoritmo de distribuição e do selo, o componente de maior risco.
+4. Acompanhar a publicação do edital de Curitiba e, quando sair, montar a matriz de aderência.

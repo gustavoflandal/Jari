@@ -6,7 +6,7 @@ Sistema Integrado de Recursos de Infrações de Trânsito (JARI): processo admin
 
 | Documento | Conteúdo |
 |---|---|
-| [docs/plano/plano-projeto-sirej.md](docs/plano/plano-projeto-sirej.md) | Plano do projeto v0.3 (licitação, Curitiba como primeiro alvo): trilhas de produto, proposta e contrato, equipe, riscos e perguntas em aberto |
+| [docs/plano/plano-projeto-sirej.md](docs/plano/plano-projeto-sirej.md) | Plano do projeto v0.4 (licitação, Curitiba como primeiro alvo, SP como referência): trilhas de produto, proposta e contrato, equipe, riscos e perguntas em aberto |
 | [docs/fontes/enunciado-projeto-sistema-jari.md](docs/fontes/enunciado-projeto-sistema-jari.md) | Enunciado do projeto v1.0 |
 | [docs/fontes/arquitetura-infraestrutura-sirej.md](docs/fontes/arquitetura-infraestrutura-sirej.md) | Arquitetura técnica e infraestrutura v1.0 |
 | [docs/fontes/Estudo_JARI.pdf](docs/fontes/Estudo_JARI.pdf) | Notas de pesquisa que originaram o enunciado |
