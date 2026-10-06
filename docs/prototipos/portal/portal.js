@@ -165,8 +165,14 @@
     Array.prototype.forEach.call(document.querySelectorAll("main > section"), function (s) { s.classList.add("oculto"); });
     var sec = $("tela-" + nome);
     sec.classList.remove("oculto");
-    var render = { aits: renderAits, passo1: renderPasso1, passo2: renderPasso2, passo3: renderPasso3, meus: renderMeus, processo: renderProcesso };
-    if (Object.prototype.hasOwnProperty.call(render, nome)) render[nome]();
+    switch (nome) {
+      case "aits": renderAits(); break;
+      case "passo1": renderPasso1(); break;
+      case "passo2": renderPasso2(); break;
+      case "passo3": renderPasso3(); break;
+      case "meus": renderMeus(); break;
+      case "processo": renderProcesso(); break;
+    }
     document.title = TITULOS[nome] + " — Portal (protótipo SIREJ)";
     window.scrollTo(0, 0);
     P.focar(sec.querySelector("h1"));
