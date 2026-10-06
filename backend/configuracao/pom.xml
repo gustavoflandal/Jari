@@ -12,12 +12,123 @@
 
     <artifactId>sirej-configuracao</artifactId>
     <name>SIREJ :: configuracao</name>
-    <description>Módulo configuracao (docs/dev/03-arquitetura.md).</description>
+    <description>Módulo configuracao (docs/dev/03-arquitetura.md): carga, validação e versionamento do regimento (docs/dev/06).</description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>br.com.sirej</groupId>
+            <artifactId>sirej-compartilhado</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Persistência de regimento_versao (docs/dev/05): JDBC + Flyway + PostgreSQL. Sem JPA: a tabela é imutável. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Leitura do YAML e validação contra o JSON Schema (config/regimentos/esquema.json). -->
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <!--
+            Os regimentos de referência e o esquema (config/regimentos, na raiz do repositório) entram no pacote em
+            classpath:regimentos/. É o "YAML do pacote" do doc 18, seção 6.
+        -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../../config/regimentos</directory>
+                <targetPath>regimentos</targetPath>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- testFixtures: RegimentoFixtures e adaptadores *Simulado para os testes dos outros módulos (docs/dev/06). -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>fontes-testfixtures</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/testFixtures/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jar-testfixtures</id>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>testfixtures</classifier>
+                            <includes>
+                                <include>br/com/sirej/configuracao/RegimentoFixtures*.class</include>
+                                <include>br/com/sirej/configuracao/*Simulado*.class</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

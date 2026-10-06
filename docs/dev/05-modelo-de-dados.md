@@ -17,7 +17,7 @@ PostgreSQL 17+, migrações Flyway. Um **schema por módulo** (`processo`, `dist
 ### configuracao
 | Tabela | Campos principais | Notas |
 |---|---|---|
-| `regimento_versao` **[imutável]** | id, conteudo jsonb, hash, vigente_desde, aplicado_por, proposta_id | Cada mudança de configuração é uma nova versão; atos gravam a versão vigente |
+| `regimento_versao` **[imutável]** | id, conteudo jsonb, hash, vigente_desde, aplicado_por, proposta_id, criado_em, criado_por | Cada mudança de configuração é uma nova versão; atos gravam a versão vigente. `hash` = SHA-256 do JSON canônico de `conteudo` (doc 06). Triggers recusam `UPDATE`, `DELETE` e `TRUNCATE`; o papel `sirej_aplicacao` só tem `SELECT` e `INSERT` (PT-03) |
 | `proposta_alteracao` | id, tipo (REGIMENTO/CALENDARIO/MODELO/IMPORTACAO), secao, conteudo jsonb, diff jsonb, impacto jsonb, justificativa, ato_normativo jsonb, documento_id, vigencia_pretendida, situacao, proposta_por, versao | Mutável só em `RASCUNHO`; transições por comando (doc 18, seção 3) |
 | `decisao_proposta` **[imutável]** | id, proposta_id, decisao (SUBMETIDA/APROVADA/REJEITADA/CANCELADA/PUBLICADA), motivo, ator_id, em | Uma linha por transição |
 | `calendario_registro` **[imutável]** | id, tipo (FERIADO/PONTO_FACULTATIVO/SUSPENSAO_EXPEDIENTE), data_inicio, data_fim, abrangencia, descricao, proposta_id | Substitui a antiga tabela `feriado` |

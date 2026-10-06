@@ -24,6 +24,8 @@
         <spring-modulith.version>2.1.1</spring-modulith.version>
         <!-- Mesma versão que o Spring Modulith traz; declarada para os testes de arquitetura do PT-02. -->
         <archunit.version>1.4.2</archunit.version>
+        <!-- Validação do regimento contra config/regimentos/esquema.json (PT-03). Linha 3.0.5 usa Jackson 3.1, o mesmo do Boot 4.1. -->
+        <json-schema-validator.version>3.0.5</json-schema-validator.version>
     </properties>
 
     <!-- Um módulo por contexto do doc 03, com os nomes exatos de lá; app é o módulo técnico de inicialização. -->
@@ -66,6 +68,11 @@
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit</artifactId>
                 <version>${archunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${json-schema-validator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

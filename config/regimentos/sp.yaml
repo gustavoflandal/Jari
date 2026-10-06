@@ -1,177 +1,181 @@
 # Configuração de referência: JARI do Município de São Paulo (CET)
 # Base normativa: Decreto 60.982/2021; Regimento das JARIs (Comunicado CET 007/23);
 # Edital 001/2026-JARI/CET. Artigos citados referem-se ao Regimento.
-# Esquema e semântica: docs/dev/06-parametrizacao.md
+# Esquema: config/regimentos/esquema.json. Semântica: docs/dev/06-parametrizacao.md
 # Texto do regimento: docs/fontes/regimentos/sp/regimento-jari-sp.md
 # Conferência valor a valor contra o regimento: docs/dev/17-comparacao-regimentos.md
+#
+# Todo valor tem comentário com o artigo de origem, a norma externa ou a dúvida (D-xx) que o sustenta.
+# "D-47" marca valor de seção que o regimento de SP não regula (doc 17, seção 3): padrão do produto até o órgão
+# decidir. O teste PT03_cada_valor_do_sp_yaml_cita_artigo_ou_duvida verifica esta regra.
 
 orgao:
-  codigo: CET-SP
-  nome: Companhia de Engenharia de Tráfego
-  esfera: MUNICIPAL
-  uf: SP
-  municipioIbge: 3550308
-  fusoHorario: America/Sao_Paulo
-  segundaInstancia: CETRAN-SP
+  codigo: CET-SP                                  # art. 2º (CET, entidade executiva municipal de trânsito)
+  nome: Companhia de Engenharia de Tráfego        # art. 2º
+  esfera: MUNICIPAL                               # art. 2º; Decreto 60.982/2021
+  uf: SP                                          # art. 1º (Município de São Paulo)
+  municipioIbge: 3550308                          # art. 1º; código IBGE do Município de São Paulo (D-47)
+  fusoHorario: America/Sao_Paulo                  # art. 1º; fuso do Município (D-47)
+  segundaInstancia: CETRAN-SP                     # arts. 5º, par. único, e 25, IX
 
 modulos:
-  portalRecorrente: true        # M1
-  autuacaoInstrucao: true       # M2
-  segundaInstancia: true        # M5
-  credenciamento: true          # M6
-  transparencia: true           # M7
-  demandasJudiciais: true       # M8
+  portalRecorrente: true        # M1; D-47
+  autuacaoInstrucao: true       # M2; D-47
+  segundaInstancia: true        # M5; art. 25, IX; D-47
+  credenciamento: true          # M6; art. 9º; D-47
+  transparencia: true           # M7; art. 28, XII; D-47
+  demandasJudiciais: true       # M8; D-47
 
 identidade:
-  provedoresCidadao: [GOVBR]
+  provedoresCidadao: [GOVBR]    # D-47; D-12
   nivelMinimoPorAto:            # bronze | prata | ouro (gov.br)
-    CONSULTA: bronze
-    PROTOCOLO: prata
-    ASSINATURA: prata
-  mfaInternos: true
+    CONSULTA: bronze            # D-47
+    PROTOCOLO: prata            # D-47
+    ASSINATURA: prata           # D-47
+  mfaInternos: true             # doc 08; D-47
 
 calendario:
-  feriados: [NACIONAL, ESTADUAL, MUNICIPAL, ORGAO]
-  prorrogaVencimentoEmDiaNaoUtil: true
+  feriados: [NACIONAL, ESTADUAL, MUNICIPAL, ORGAO]   # doc 18, seção 5; D-47
+  prorrogaVencimentoEmDiaNaoUtil: true               # RN31; D-47
 
 prazos:                         # dias corridos, salvo indicação
                                 # o regimento de SP não fixa prazos processuais; CTB/CONTRAN a conferir (doc 16, D-21)
-  defesaAutuacao: { origem: IMPRESSO_NA }        # prazo vem da notificação
-  indicacaoCondutor: { dias: 15, conta: CIENCIA_NA }          # art. 257 §7º CTB
-  recurso1a: { dias: 30, conta: CIENCIA_NP }                  # art. 285 CTB
-  recurso2a: { dias: 30, conta: PUBLICACAO_OU_NOTIFICACAO }   # arts. 288/289 CTB
-  cienciaPresumidaEletronica: { dias: 30 }                    # Res. CONTRAN 918/2022
-  julgamento: { dias: 30, acao: PROPOR_EFEITO_SUSPENSIVO }    # art. 285 CTB
-  exigencia: { dias: 10 }                                     # PROVISÓRIO: confirmar com o órgão
-  informacaoAgente: { dias: 10 }                              # PROVISÓRIO
-  relatoria: { sessoes: 1 }                                   # art. 12, VI: não definido em norma; PROVISÓRIO
-  metaDefesaAutuacao: { dias: null }                          # sem prazo legal; meta interna a definir
-  alertas: { diasAntes: [10, 5, 1] }
+  defesaAutuacao: { origem: IMPRESSO_NA }                     # prazo vem da notificação; CTB (D-21)
+  indicacaoCondutor: { dias: 15, conta: CIENCIA_NA }          # art. 257 §7º CTB (D-21)
+  recurso1a: { dias: 30, conta: CIENCIA_NP }                  # art. 285 CTB (D-21)
+  recurso2a: { dias: 30, conta: PUBLICACAO_OU_NOTIFICACAO }   # arts. 288/289 CTB (D-21)
+  cienciaPresumidaEletronica: { dias: 30 }                    # Res. CONTRAN 918/2022 (D-21)
+  julgamento: { dias: 30, acao: PROPOR_EFEITO_SUSPENSIVO }    # art. 285 CTB (D-21)
+  exigencia: { dias: 10 }                                     # PROVISÓRIO: confirmar com o órgão (D-13)
+  informacaoAgente: { dias: 10 }                              # PROVISÓRIO (D-13)
+  relatoria: { sessoes: 1 }                                   # art. 12, VI: não definido em norma; PROVISÓRIO (D-06)
+  metaDefesaAutuacao: { dias: null }                          # sem prazo legal; meta interna a definir (D-47)
+  alertas: { diasAntes: [10, 5, 1] }                          # RN37; escolha do produto (D-47)
 
-pecas:
-  DEFESA_AUTUACAO: { decisor: ORGAO_AUTUADOR, viraProcessoJari: false }
-  INDICACAO_CONDUTOR: { decisor: ORGAO_AUTUADOR, viraProcessoJari: false }
-  RECURSO_1A_INSTANCIA: { decisor: JARI, viraProcessoJari: true }
-  RECURSO_2A_INSTANCIA: { decisor: CETRAN, viraProcessoJari: false }
-  PEDIDO_EFEITO_SUSPENSIVO: { decisor: AUTORIDADE, viraProcessoJari: false }
-  CONVERSAO_ADVERTENCIA: { decisor: AUTORIDADE, viraProcessoJari: false }
-  JUNTADA_DOCUMENTOS: { decisor: null, viraProcessoJari: false }
+pecas:                          # decisor do recurso à JARI: art. 4º, I; demais tipos: CTB e D-47
+  DEFESA_AUTUACAO: { decisor: ORGAO_AUTUADOR, viraProcessoJari: false }          # D-47
+  INDICACAO_CONDUTOR: { decisor: ORGAO_AUTUADOR, viraProcessoJari: false }       # D-47
+  RECURSO_1A_INSTANCIA: { decisor: JARI, viraProcessoJari: true }                # art. 4º, I
+  RECURSO_2A_INSTANCIA: { decisor: CETRAN, viraProcessoJari: false }             # art. 25, IX (D-34)
+  PEDIDO_EFEITO_SUSPENSIVO: { decisor: AUTORIDADE, viraProcessoJari: false }     # art. 285 CTB (D-47)
+  CONVERSAO_ADVERTENCIA: { decisor: AUTORIDADE, viraProcessoJari: false }        # D-47
+  JUNTADA_DOCUMENTOS: { decisor: null, viraProcessoJari: false }                 # D-47
 
 composicao:
-  segmentos: [COMUNIDADE, ENTIDADE_EXECUTIVA, SOCIEDADE_CIVIL]   # art. 6º
-  posicoesPorJunta:
-    - { letra: A, segmento: COMUNIDADE }
-    - { letra: B, segmento: COMUNIDADE }
-    - { letra: C, segmento: ENTIDADE_EXECUTIVA }
-    - { letra: D, segmento: ENTIDADE_EXECUTIVA }
-    - { letra: E, segmento: SOCIEDADE_CIVIL }
-    - { letra: F, segmento: SOCIEDADE_CIVIL }
+  segmentos: [COMUNIDADE, ENTIDADE_EXECUTIVA, SOCIEDADE_CIVIL]   # art. 6º, I a III
+  posicoesPorJunta:             # 2 por segmento: art. 6º, I a III; letras A–F: convenção do produto (doc 17, 2.3)
+    - { letra: A, segmento: COMUNIDADE }            # art. 6º, I
+    - { letra: B, segmento: COMUNIDADE }            # art. 6º, I
+    - { letra: C, segmento: ENTIDADE_EXECUTIVA }    # art. 6º, II
+    - { letra: D, segmento: ENTIDADE_EXECUTIVA }    # art. 6º, II
+    - { letra: E, segmento: SOCIEDADE_CIVIL }       # art. 6º, III
+    - { letra: F, segmento: SOCIEDADE_CIVIL }       # art. 6º, III
   suplentesPorSegmento: 0       # art. 6º §4 permite; SP não fixa número (doc 16, D-24)
   presidenciaLivre: true        # art. 6º §1: qualquer membro
   mandato: { meses: 12, reconducao: true }                   # art. 11
 
 designacao:
   modo: SIGILOSO                # art. 29, XII
-  revelarNomesAposJulgamento: true   # PROVISÓRIO: política de publicidade do órgão
+  revelarNomesAposJulgamento: true   # PROVISÓRIO: política de publicidade do órgão (D-09)
 
 distribuicao:
   periodicidade: SEMANAL        # art. 22
-  equidade: POR_POSICAO         # igual número por membro
+  equidade: POR_POSICAO         # igual número por membro; art. 22
   conexao: [MESMO_REQUERENTE, MESMO_VEICULO]   # art. 22
   conexaoComPendentes: MESMA_POSICAO           # PROVISÓRIO (doc 16, D-03)
   ordemNaPosicao: DATA_INTERPOSICAO            # art. 23
   falhaFechada: true                           # art. 22 §1 — não pode ser false
   redistribuicao:
     motivosPermitidos: [FORCA_MAIOR, IMPEDIMENTO, SUSPEICAO]   # art. 24
-    exigeCriterioDoCoordenador: true
+    exigeCriterioDoCoordenador: true                          # art. 24, par. único
 
 turmas:
-  membrosPorTurma: 3
+  membrosPorTurma: 3            # art. 17
   umPorSegmento: true           # art. 17
   maximoSimultaneas: 2          # art. 17 §2
   rodizio: SEM_REPETICAO_ATE_ESGOTAR   # art. 17 §3
   presidenteEViceEmTurmasDiferentes: false   # PROVISÓRIO (doc 16, D-02)
 
 sessao:
-  quorumAbertura: { minimoMembros: 3, segmentosDistintos: 3 }   # art. 13
+  quorumAbertura: { minimoMembros: 3, segmentosDistintos: 3 }   # art. 13 (D-22)
   executorDistribuicaoInterna: PRESIDENTE                       # art. 15, 25 II
   substituicaoAusente: MESMO_SEGMENTO_NO_2O_OU_3O_VOTO          # art. 17 §4
-  relatorAusente: RETORNA_A_PAUTA
-  roteiro:                       # art. 15; obrigatorio=true bloqueia avanço
-    - { passo: ABERTURA, obrigatorio: true }
-    - { passo: APROVACAO_ATA_ANTERIOR, obrigatorio: false }
-    - { passo: DISTRIBUICAO_INTERNA_E_TURMAS, obrigatorio: true }
-    - { passo: DISTRIBUICAO_AOS_MEMBROS, obrigatorio: true }
-    - { passo: JULGAMENTO, obrigatorio: true }
-    - { passo: PROPOSICOES, obrigatorio: false }
-    - { passo: ENCERRAMENTO, obrigatorio: true }
+  relatorAusente: RETORNA_A_PAUTA                               # art. 29, IV (D-10)
+  roteiro:                       # art. 15; obrigatorio=true bloqueia avanço (D-07)
+    - { passo: ABERTURA, obrigatorio: true }                         # art. 15, I (D-07)
+    - { passo: APROVACAO_ATA_ANTERIOR, obrigatorio: false }          # art. 15, II
+    - { passo: DISTRIBUICAO_INTERNA_E_TURMAS, obrigatorio: true }    # art. 15, III e par. único
+    - { passo: DISTRIBUICAO_AOS_MEMBROS, obrigatorio: true }         # art. 15, IV e par. único
+    - { passo: JULGAMENTO, obrigatorio: true }                       # art. 15, V (D-07)
+    - { passo: PROPOSICOES, obrigatorio: false }                     # art. 15, VI
+    - { passo: ENCERRAMENTO, obrigatorio: true }                     # art. 15, VII (D-07)
   modalidades: [PRESENCIAL, HIBRIDA]   # virtual exige alteração regimental; HIBRIDA: PROVISÓRIO, sem artigo (doc 16, D-25)
   sustentacaoOral: false               # art. 20
 
 votacao:
-  votosMinimos: 3
-  excecaoMaioriaSimples: { permitida: true, minimo: 2, exigePresidenteOuVice: true }   # art. 6º §3, 17 §1
+  votosMinimos: 3                # art. 17
+  excecaoMaioriaSimples: { permitida: true, minimo: 2, exigePresidenteOuVice: true }   # art. 6º §3, 17 §1 (D-05, D-24)
   ordem: SEQUENCIAL              # RELATOR -> REVISOR -> TERCEIRO; PROVISÓRIO (doc 16, D-04)
-  votoRelatorVisivelAposConclusao: true
-  exigeDispositivoNormativo: true
+  votoRelatorVisivelAposConclusao: true   # art. 27, VII (D-04)
+  exigeDispositivoNormativo: true         # arts. 16 e 27, VI (motivação); RN07 do enunciado
 
 resultados:                      # art. 27, VI — rol fechado
-  - { codigo: REJEICAO_ADMINISTRATIVA, alteraPenalidade: false }
-  - { codigo: NAO_CONHECIMENTO_INTEMPESTIVIDADE, alteraPenalidade: false }
-  - { codigo: NAO_CONHECIMENTO_ILEGITIMIDADE, alteraPenalidade: false }
-  - { codigo: MANUTENCAO_PENALIDADE, alteraPenalidade: false }
-  - { codigo: CANCELAMENTO_PENALIDADE, alteraPenalidade: true }
+  - { codigo: REJEICAO_ADMINISTRATIVA, alteraPenalidade: false }              # art. 27, VI, a
+  - { codigo: NAO_CONHECIMENTO_INTEMPESTIVIDADE, alteraPenalidade: false }    # art. 27, VI, b
+  - { codigo: NAO_CONHECIMENTO_ILEGITIMIDADE, alteraPenalidade: false }       # art. 27, VI, c
+  - { codigo: MANUTENCAO_PENALIDADE, alteraPenalidade: false }                # art. 27, VI, d
+  - { codigo: CANCELAMENTO_PENALIDADE, alteraPenalidade: true }               # art. 27, VI, e
 
 relatoria:
-  checklist: [REGULARIDADE_PROCEDIMENTO, FORCA_MAIOR_ALEGADA, ANTECEDENTES_RECORRENTE]   # RN13
+  checklist: [REGULARIDADE_PROCEDIMENTO, FORCA_MAIOR_ALEGADA, ANTECEDENTES_RECORRENTE]   # RN13 do enunciado; arts. 16 e 27, VI
 
-impedimento:                     # art. 27 §§1-2
+impedimento:                     # art. 27 §§1-2 (D-32)
   motivos:
-    - { codigo: APENADO_OU_PARENTE, tipo: IMPEDIMENTO }
-    - { codigo: TESTEMUNHA, tipo: IMPEDIMENTO }
-    - { codigo: PERITO_OU_PROVA_DETERMINANTE, tipo: IMPEDIMENTO }
-    - { codigo: ORIENTOU_RECORRENTE, tipo: IMPEDIMENTO }
-    - { codigo: AMIZADE_OU_INIMIZADE_INTIMA, tipo: SUSPEICAO }
-    - { codigo: CREDOR_OU_DEVEDOR, tipo: SUSPEICAO }
+    - { codigo: APENADO_OU_PARENTE, tipo: IMPEDIMENTO }              # art. 27 §1, a
+    - { codigo: TESTEMUNHA, tipo: IMPEDIMENTO }                      # art. 27 §1, b
+    - { codigo: PERITO_OU_PROVA_DETERMINANTE, tipo: IMPEDIMENTO }    # art. 27 §1, c
+    - { codigo: ORIENTOU_RECORRENTE, tipo: IMPEDIMENTO }             # art. 27 §1, d
+    - { codigo: AMIZADE_OU_INIMIZADE_INTIMA, tipo: SUSPEICAO }       # art. 27 §2, a
+    - { codigo: CREDOR_OU_DEVEDOR, tipo: SUSPEICAO }                 # art. 27 §2, b
 
 diligencia:
   presencial: { minimoMembros: 2, segmentosDistintos: 2 }   # art. 20 par. único
 
 autos:
   downloadMembros: false         # art. 19
-  marcaDagua: true
-  acessoMembrosForaDaSessao: PERMITIDO   # PROVISÓRIO: art. 29 XIII (doc 16, D-01); o texto exige autorização do Coordenador (D-26)
+  marcaDagua: true               # escolha do produto, ADR-0010 (D-47)
+  acessoMembrosForaDaSessao: MEDIANTE_AUTORIZACAO_COORDENADOR   # art. 29, XIII (D-26, revisa D-01)
 
 presenca:
   cancelaPorRecusaImotivada: true   # art. 14 §2
 
 mandato:
   perda:                          # art. 12; o sistema só evidencia (RN30)
-    faltasSeguidas: 3
-    faltasIntercaladasAno: 4
-    hipotesesComProcedimento: [III, IV, V, VI, VII, VIII, IX]
+    faltasSeguidas: 3                                         # art. 12, II (D-30)
+    faltasIntercaladasAno: 4                                  # art. 12, II (D-30)
+    hipotesesComProcedimento: [III, IV, V, VI, VII, VIII, IX] # art. 12, par. único
 
 documentos:
-  formatosAceitos: [application/pdf, image/jpeg, image/png]
-  tamanhoMaximoMb: 20
-  obtidosDeOficio: [CRLV, DOCUMENTO_IDENTIDADE, CNPJ]   # Lei 14.129/2021
+  formatosAceitos: [application/pdf, image/jpeg, image/png]   # D-47
+  tamanhoMaximoMb: 20                                         # D-47
+  obtidosDeOficio: [CRLV, DOCUMENTO_IDENTIDADE, CNPJ]         # Lei 14.129/2021 (D-47)
 
 retencao:
-  anos: 5
+  anos: 5                         # prescrição quinquenal (doc 05, "Retenção"); D-47
 
 administracao:                    # doc 18; o regimento de SP é omisso sobre o tema
   aprovadores:                    # quem aprova cada tipo de proposta (nunca o proponente)
     REGIMENTO: [COORDENADOR]      # regimento é ato da autoridade de trânsito (art. 1º, 31); D-28. Coordenador é membro de junta (art. 28); D-27
-    CALENDARIO: [COORDENADOR]
-    MODELO: [COORDENADOR]
-    IMPORTACAO: [COORDENADOR]
+    CALENDARIO: [COORDENADOR]     # doc 18, seção 2 (D-47)
+    MODELO: [COORDENADOR]         # doc 18, seção 2 (D-47)
+    IMPORTACAO: [COORDENADOR]     # doc 18, seção 2 (D-28, D-50)
   antecedenciaMinima: { diasUteis: 1 }          # PROVISÓRIO (doc 16, D-16)
-  papeisSensiveis: [ADMIN, AUDITOR, COORDENADOR] # dupla aprovação (RN42)
+  papeisSensiveis: [ADMIN, AUDITOR, COORDENADOR] # dupla aprovação (RN42; D-47)
   vigenciaMaximaPapel: { meses: 12 }            # PROVISÓRIO (doc 16, D-18)
 
 temporalidade:                    # RN44; códigos de classe são do produto até o órgão fornecer o plano de classificação
   classes:
-    - { codigo: PROCESSO_RECURSO, correnteAnos: 1, intermediariaAnos: 4, destinacao: ELIMINACAO }      # PROVISÓRIO
-    - { codigo: ATA_SESSAO, correnteAnos: 1, intermediariaAnos: 4, destinacao: GUARDA_PERMANENTE }     # PROVISÓRIO
-    - { codigo: ACORDAO, correnteAnos: 1, intermediariaAnos: 4, destinacao: GUARDA_PERMANENTE }        # PROVISÓRIO
+    - { codigo: PROCESSO_RECURSO, correnteAnos: 1, intermediariaAnos: 4, destinacao: ELIMINACAO }      # PROVISÓRIO (D-47)
+    - { codigo: ATA_SESSAO, correnteAnos: 1, intermediariaAnos: 4, destinacao: GUARDA_PERMANENTE }     # PROVISÓRIO (D-47)
+    - { codigo: ACORDAO, correnteAnos: 1, intermediariaAnos: 4, destinacao: GUARDA_PERMANENTE }        # PROVISÓRIO (D-47)
   eliminacaoFisica: false         # D-19: o sistema não elimina; só lista elegíveis

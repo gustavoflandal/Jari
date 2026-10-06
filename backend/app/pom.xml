@@ -58,6 +58,24 @@
             <artifactId>spring-modulith-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Contexto completo com PostgreSQL 17 (Testcontainers) e o cofre de chaves simulado do configuracao (PT-03). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>br.com.sirej</groupId>
+            <artifactId>sirej-configuracao</artifactId>
+            <version>${project.version}</version>
+            <classifier>testfixtures</classifier>
+            <scope>test</scope>
+        </dependency>
 
         <!--
             Testes de arquitetura do PT-02 (docs/dev/12). As bibliotecas Spring abaixo só servem para compilar as

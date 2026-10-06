@@ -8,21 +8,24 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 
 - `config/regimentos/sp.yaml` — configuração de **referência**. Todos os testes de regra rodam contra ela.
 - `config/regimentos/curitiba.yaml` — segunda configuração; herda de `sp` e sobrescreve.
-- Cada instalação carrega **uma** configuração (`SIREJ_REGIMENTO=sp`).
+- `config/regimentos/esquema.json` — JSON Schema (draft 2020-12) do regimento resolvido. Toda seção e toda chave são obrigatórias; chave fora do esquema é recusada.
+- Cada instalação carrega **uma** configuração (`SIREJ_REGIMENTO=sp`). Sem essa variável a aplicação não sobe. Os arquivos de `config/regimentos` vão no pacote (`classpath:regimentos/`); `SIREJ_REGIMENTOS_LOCAL` aponta outro diretório, com recurso ao pacote para o `herda`. O esquema vem sempre do pacote.
+- **Herança** (`herda: <nome>`): objetos são mesclados chave a chave, recursivamente; listas e valores simples do filho substituem os do pai por inteiro; `null` explícito também substitui; vários níveis são aceitos; ciclo ou pai inexistente reprova (D-51).
+- Todo valor do `sp.yaml` tem comentário com o artigo de origem, a norma externa ou a `D-xx` (teste `PT03_cada_valor_do_sp_yaml_cita_artigo_ou_duvida`).
 
 ## Ciclo de vida
 
-1. No startup, o módulo `configuracao` lê o YAML, resolve `herda`, valida contra o esquema (JSON Schema em `config/regimentos/esquema.json`, a criar no PT-03) e contra as **regras de consistência** abaixo. Falha de validação impede a subida da aplicação.
-2. A configuração validada vira uma `regimento_versao` imutável, com hash. Se o conteúdo não mudou, reaproveita a versão existente.
+1. No startup, o módulo `configuracao` lê o YAML (chave repetida reprova), resolve `herda`, aplica a regra de consistência 8 às chaves cruas, valida contra o esquema (`config/regimentos/esquema.json`) e aplica as demais **regras de consistência** abaixo. Falha de validação impede a subida da aplicação, com mensagem que cita a regra (`[regra 3 do doc 06] turmas.membrosPorTurma: ...`) ou `[esquema]`.
+2. A configuração validada vira uma `regimento_versao` imutável, com hash: SHA-256 (`Hash` do `compartilhado`) do **conteúdo canônico** (JSON do regimento resolvido, chaves em ordem, sem espaços; comentários e ordem do YAML não mudam o hash). Com o banco vazio, vira a primeira versão (`aplicado_por = INSTALADOR`) e publica `RegimentoVersaoPublicada` na mesma transação (D-48). Se o conteúdo não mudou, reaproveita a versão existente; se mudou, vale o item 5. Na subida, o hash de cada versão gravada é conferido contra o conteúdo (adulteração impede a subida) e a versão é validada de novo.
 3. Todo ato que depende de regra grava a `config_versao` vigente (movimentação, voto, decisão, lote de distribuição). Assim, um processo antigo pode ser reconstituído com a regra da época.
 4. Alteração em produção: proposta pela Administração (M9), aprovada por outra pessoa, com vigência futura, auditada. Sem deploy. Regras de vigência e não retroatividade no doc 18, seção 4 (RN38, RN39).
 5. Depois da instalação, o **banco é a fonte de verdade**. Um YAML diferente no pacote não é aplicado sozinho: gera alerta e só entra por importação aprovada (ADR-0011).
 
 ## Acesso no código
 
-- Use `RegimentoVigente` (API pública do módulo `configuracao`), nunca leia o YAML diretamente.
+- Use `RegimentoVigente` (API pública do módulo `configuracao`), nunca leia o YAML diretamente. `versao()` dá a versão vigente (id para gravar como `config_versao`, hash, vigência); `versao(id)` dá uma versão histórica. O regimento é carregado no início do ciclo de vida da aplicação: nenhum bean o lê durante a própria inicialização.
 - Objetos de configuração são imutáveis e tipados (`record`). Ex.: `regimento.prazos().recurso1a().dias()`.
-- Em testes, use `RegimentoFixtures.sp()` e variações (`RegimentoFixtures.sp().comVotacao(...)`) para cobrir as alternativas.
+- Em testes, use `RegimentoFixtures.sp()` e variações (`RegimentoFixtures.sp().comVotacao(...)`) para cobrir as alternativas; `RegimentoFixtures.vigente(regimento)` dá um `RegimentoVigente` fixo e `RegimentoFixtures.violacoes(regimento)` confere uma variação contra as regras. Ficam em `backend/configuracao/src/testFixtures` e são publicados como `sirej-configuracao` com classificador `testfixtures` (dependência de teste: `<classifier>testfixtures</classifier>`), junto com `VerificadorCofreChavesSimulado`.
 
 ## Seções e semântica
 
@@ -44,7 +47,7 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 | `relatoria` | Itens do checklist do relator | RN13 |
 | `impedimento` | Motivos tipificados de impedimento e suspeição | RN34 |
 | `diligencia` | Requisitos da diligência presencial | RN28 |
-| `autos` | Download por membros, marca d'água, acesso fora da sessão | RN29 |
+| `autos` | Download por membros, marca d'água, acesso fora da sessão (`PERMITIDO`, `MEDIANTE_AUTORIZACAO_COORDENADOR` ou `PROIBIDO`; D-26) | RN29 |
 | `presenca`, `mandato` | Cancelamento de presença, métricas de perda de mandato | RN30, RN36 |
 | `documentos` | Formatos, tamanho, documentos obtidos de ofício | RN33 |
 | `retencao` | Anos de retenção | — |
@@ -53,15 +56,17 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 
 ## Regras de consistência (validação obrigatória)
 
+Implementadas em `configuracao` (`RegrasDeConsistencia`); cada uma tem teste de falha e teste positivo em `RegrasDeConsistenciaTest`.
+
 1. `distribuicao.falhaFechada` só aceita `true`. Qualquer outro valor impede a subida (invariante 2).
 2. `resultados` não vazio, códigos únicos, ao menos um com `alteraPenalidade: true`.
 3. `turmas.membrosPorTurma` ímpar e igual ao número de segmentos quando `umPorSegmento: true`.
 4. `votacao.votosMinimos` ≤ `turmas.membrosPorTurma`; `excecaoMaioriaSimples.minimo` ≥ 2.
-5. `composicao.posicoesPorJunta` tem ao menos `membrosPorTurma` posições, cada segmento declarado em `segmentos`.
-6. Todo prazo tem `dias` > 0 ou origem explícita (`IMPRESSO_NA`); `null` só para metas sem prazo legal.
-7. `designacao.modo = SIGILOSO` exige KMS configurado na instalação (verificação de conectividade no startup).
+5. `composicao.posicoesPorJunta` tem ao menos `membrosPorTurma` posições, cada segmento declarado em `segmentos`, sem letra repetida (D-53).
+6. Todo prazo tem `dias` > 0 (ou `sessoes` > 0) ou origem explícita (`IMPRESSO_NA`); `null` só para metas sem prazo legal (chaves `meta*`); antecedências de `prazos.alertas` > 0 (D-53).
+7. `designacao.modo = SIGILOSO` exige KMS configurado na instalação (verificação de conectividade no startup, por `VerificadorCofreChaves`; sem implementação registrada, conta como ausente; D-49).
 8. Não existe chave para voto de qualidade, peso de voto ou desempate. Se aparecer no YAML, a validação falha (invariante 3).
-9. Cada tipo em `administracao.aprovadores` tem ao menos um papel, e nenhum deles é `ADMIN` para `REGIMENTO` (quem parametriza não aprova a própria área; RN38).
+9. Cada tipo em `administracao.aprovadores` tem ao menos um papel, e nenhum deles é `ADMIN` para `REGIMENTO` nem para `IMPORTACAO` (quem parametriza não aprova a própria área; RN38; D-50).
 10. Toda classe de `temporalidade` tem guarda total (corrente + intermediária) ≥ `retencao.anos`; `temporalidade.eliminacaoFisica` só aceita `false` enquanto a D-19 estiver aberta.
 
 ## Valores PROVISÓRIOS
