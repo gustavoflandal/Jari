@@ -1,6 +1,6 @@
 # Plano do Projeto SIREJ (Sistema Integrado de Recursos de Infrações de Trânsito / JARI)
 
-**Versão:** 0.4 (Curitiba como primeiro alvo, edital ainda não publicado)
+**Versão:** 0.5 (modelo de São Paulo como alvo; edital de Curitiba sem previsão)
 **Data:** 06/10/2026
 **Base documental analisada:**
 - `enunciado-projeto-sistema-jari.md` (v1.0, 14/09/2026)
@@ -15,6 +15,7 @@
 |---|---|---|
 | 0.1 | 06/10/2026 | Primeira versão, assumindo a CET/SP como contratante |
 | 0.2 | 06/10/2026 | Revisão com as respostas de Gustavo: empresa concorrente em licitações, clientes em outros estados, instalação única por órgão |
+| 0.5 | 06/10/2026 | Sem previsão do edital de Curitiba: foco no modelo de SP, que outros municípios e estados adotam por ter sido o primeiro a consolidar o processo. Curitiba sai do caminho crítico da A0 |
 | 0.4 | 06/10/2026 | Edital de Curitiba ainda não publicado; SP como configuração de referência; Trilha A começa já |
 | 0.3 | 06/10/2026 | Respostas L1 a L5: editais em andamento, órgãos municipais e estaduais, Curitiba como primeiro alvo, produto partindo do zero com investimento da empresa |
 
@@ -63,7 +64,9 @@ Como cada órgão tem regimento, CETRAN, calendário e sistema de multas própri
 - A "restrição fixa do cliente: Java/JavaScript" da arquitetura precisa ser confirmada como escolha da empresa ou exigência de edital (pergunta L10).
 - Decisões que eram do patrocinador (enunciado 15) passam a ser parâmetros de instalação ou respostas por edital.
 
-### 2.1 Primeiro alvo: Curitiba
+### 2.1 Primeiro alvo: Curitiba (em espera desde a v0.5)
+
+> **Atualização de 06/10/2026 (v0.5):** não há previsão de publicação do edital de Curitiba. O foco passa a ser o modelo de São Paulo, que outros municípios e estados adotam por ter sido o primeiro a consolidar o processo. Curitiba sai do caminho crítico: `curitiba.yaml` fica só como exemplo do mecanismo de herança (`herda: sp`), sem valor normativo, e a análise da norma volta quando o edital tiver previsão (D-36). O texto abaixo fica como registro.
 
 O que as fontes públicas mostram em 06/10/2026:
 
@@ -87,7 +90,7 @@ O edital de Curitiba ainda não foi publicado (informação de Gustavo em 06/10/
 3. O protocolo hoje passa pela identidade digital do Paraná, não pelo gov.br. O produto precisa de um adaptador de identidade, além do gov.br.
 **Estratégia, com o edital ainda não publicado:** a empresa está se antecipando, o que favorece seguir a Trilha A normal.
 - O modelo de São Paulo é a configuração de referência do produto: tudo o que o regimento de SP exige funciona primeiro.
-- Curitiba entra como segunda configuração na A0, a partir da Lei 15.154/2017, para provar que a parametrização funciona fora de SP.
+- ~~Curitiba entra como segunda configuração na A0~~ (v0.5: em espera; ver a atualização no início desta seção).
 - Se o edital sair antes do mês 9, a Trilha A é acelerada com o escopo do termo de referência.
 - Enquanto o edital não sai, vale acompanhar o portal de licitações de Curitiba e participar de consulta ou audiência pública, se houver.
 
@@ -177,7 +180,7 @@ Cruzei o enunciado e a arquitetura com o texto integral do Regimento de SP (Anex
 
 | Etapa | Meses | Entregas | Critério de saída |
 |---|---|---|---|
-| A0 Fundação | 1–2 | Comparação de regimentos de 3 a 5 órgãos-alvo; modelo de parametrização; ADRs; especificação do algoritmo de distribuição e do selo; monorepo, CI/CD com SAST/SCA/SBOM; protótipos testados | Modelo de configuração cobre os regimentos comparados |
+| A0 Fundação | 1–2 | Regimento de SP conferido artigo a artigo contra a configuração (doc 17); modelo de parametrização; ADRs; especificação do algoritmo de distribuição e do selo; monorepo, CI/CD com SAST/SCA/SBOM; protótipos testados | `sp.yaml` carrega e passa em todas as regras de consistência, cada valor tem artigo de origem ou D-xx, e as variações testadas (fixtures e `herda`) provam a parametrização |
 | A1 Núcleo demonstrável | 3–6 | Processo e movimentação por eventos, documentos por hash, auditoria encadeada, motor de prazos, protocolo assinado com recibo, distribuição semanal com selo e falha fechada, abertura de sessão com revelação, turmas com rodízio, ambiente do relator, votação, ata e acórdão, M9 | Uma sessão completa simulada, ponta a ponta, em ambiente de demonstração |
 | A2 Pronto para PoC | 7–9 | M1 completo, assinatura gov.br e ICP-Brasil, interface padrão de integração com sistema de multas + adaptador de referência (arquivo e API simulada), instalador automatizado, sandbox de treinamento, roteiro de PoC ensaiado, pentest | PoC executada internamente dentro do prazo típico de edital |
 | A3 Módulos complementares | 10–18 | M2, M5, integrações padrão (SNE/CDT, RENAINF, Diário Oficial), M6, M7, M8, precedentes, apoio de IA à triagem | Cada módulo com caderno de aderência pronto para propostas |
@@ -286,7 +289,7 @@ Total: 4 a 6 pessoas por contrato, apoiadas pelo time de produto.
 | Marco | Quando (est.) | Critério |
 |---|---|---|
 | Plano aprovado | Produto, mês 1 | Empresa aprova trilhas, investimento e órgãos-alvo |
-| Modelo de configuração validado | Produto, mês 2 | Regimentos de 3 a 5 órgãos cabem na parametrização |
+| Modelo de configuração validado | Produto, mês 2 | Regimento de SP coberto pela parametrização, lacunas registradas como D-xx; outros órgãos entram quando houver edital com previsão |
 | Núcleo demonstrável | Produto, mês 6 | Sessão completa simulada, com designação revelada só na abertura e verificável |
 | Pronto para PoC | Produto, mês 9 | PoC ensaiada dentro do prazo típico de edital |
 | Configuração aprovada | Contrato, mês 2 | Órgão aprova a parametrização |
@@ -425,6 +428,6 @@ Segunda instância
 ## 16. Próximos passos
 
 1. Montar a equipe da Trilha A e começar a A0 (L13).
-2. Ler a Lei municipal 15.154/2017 e montar a comparação de regimentos: SP como referência, Curitiba e um DETRAN.
+2. ~~Comparação de regimentos~~ Feito para SP (doc 17). Fechar as D-21 a D-38 com quem conhece a prática da CET.
 3. Fechar a especificação do algoritmo de distribuição e do selo, o componente de maior risco.
-4. Acompanhar a publicação do edital de Curitiba e, quando sair, montar a matriz de aderência.
+4. Acompanhar editais de órgãos que adotam o modelo de SP; o de Curitiba fica em observação até ter previsão.
