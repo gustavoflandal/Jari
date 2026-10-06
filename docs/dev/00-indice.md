@@ -22,6 +22,7 @@ Esta pasta é a **fonte de verdade** para quem desenvolve o SIREJ, humano ou age
 | 14 | [Backlog em pacotes de trabalho](14-backlog-pacotes.md) | Para pegar uma tarefa |
 | 15 | [Protocolo dos agentes](15-protocolo-agentes.md) | Sempre, antes de começar |
 | 16 | [Dúvidas abertas](16-duvidas-abertas.md) | Ao encontrar lacuna; para registrar a sua |
+| 18 | [Administração (M9)](18-administracao.md) | Ao mexer em parametrização, calendário, papéis, modelos de documento, temporalidade ou no console |
 
 Os prompts para executar cada fase do plano com agentes estão em [`docs/prompts/`](../prompts/README.md).
 

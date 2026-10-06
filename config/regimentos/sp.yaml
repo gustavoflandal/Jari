@@ -155,3 +155,20 @@ documentos:
 
 retencao:
   anos: 5
+
+administracao:                    # doc 18; o regimento de SP é omisso sobre o tema
+  aprovadores:                    # quem aprova cada tipo de proposta (nunca o proponente)
+    REGIMENTO: [COORDENADOR]
+    CALENDARIO: [COORDENADOR]
+    MODELO: [COORDENADOR]
+    IMPORTACAO: [COORDENADOR]
+  antecedenciaMinima: { diasUteis: 1 }          # PROVISÓRIO (doc 16, D-16)
+  papeisSensiveis: [ADMIN, AUDITOR, COORDENADOR] # dupla aprovação (RN42)
+  vigenciaMaximaPapel: { meses: 12 }            # PROVISÓRIO (doc 16, D-18)
+
+temporalidade:                    # RN44; códigos de classe são do produto até o órgão fornecer o plano de classificação
+  classes:
+    - { codigo: PROCESSO_RECURSO, correnteAnos: 1, intermediariaAnos: 4, destinacao: ELIMINACAO }      # PROVISÓRIO
+    - { codigo: ATA_SESSAO, correnteAnos: 1, intermediariaAnos: 4, destinacao: GUARDA_PERMANENTE }     # PROVISÓRIO
+    - { codigo: ACORDAO, correnteAnos: 1, intermediariaAnos: 4, destinacao: GUARDA_PERMANENTE }        # PROVISÓRIO
+  eliminacaoFisica: false         # D-19: o sistema não elimina; só lista elegíveis

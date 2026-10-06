@@ -19,9 +19,9 @@ Decisões formais nos ADRs (`docs/adr/`). Este documento diz **onde cada coisa m
 | Módulo (pacote) | Responsabilidade | Módulo de produto |
 |---|---|---|
 | `compartilhado` | Tipos de valor (Cpf, Cnpj, Placa, Renavam, Hash, NumeroProcesso), `Relogio` injetável, erros base. Sem regra de negócio. | — |
-| `configuracao` | Carga, validação e versionamento do regimento; calendário de feriados; feature flags de módulo | M9 |
+| `configuracao` | Carga, validação e versionamento do regimento; propostas de alteração com aprovação e vigência; calendário; modelos de documento; importação e exportação (doc 18) | M9 |
 | `auditoria` | Trilha append-only encadeada, ancoragem diária, consulta de trilha | M9 |
-| `identidade` | Usuários internos e externos, perfis, papéis por escopo, MFA, integração com o provedor OIDC | M9 |
+| `identidade` | Usuários internos e externos, atribuições de papel por escopo, segregação de funções, MFA, integração com o provedor OIDC (doc 18) | M9 |
 | `pessoas` | Pessoa, veículo, procuração, representação | M1 |
 | `documentos` | Upload, antivírus, PDF/A, hash, armazenamento S3, renditions, visualização com marca d'água, desentranhamento | transversal |
 | `assinatura` | Assinatura PAdES, carimbo do tempo, validação | transversal |

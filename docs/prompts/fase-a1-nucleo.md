@@ -19,7 +19,7 @@ Rode no máximo {{AGENTES_EM_PARALELO}} agentes de pacote ao mesmo tempo.
 CONTEXTO OBRIGATÓRIO (leia antes de agir):
 - CLAUDE.md, docs/dev/00-indice.md, docs/dev/15-protocolo-agentes.md.
 - docs/dev/14-backlog-pacotes.md (seção A1 e o grafo de dependências).
-- docs/dev/04-dominio-e-regras.md, 07-distribuicao-e-selo.md, 08-seguranca.md, 12-testes-e-qualidade.md.
+- docs/dev/04-dominio-e-regras.md, 07-distribuicao-e-selo.md, 08-seguranca.md, 12-testes-e-qualidade.md, 18-administracao.md.
 - docs/dev/16-duvidas-abertas.md e docs/dev/17-comparacao-regimentos.md (se existir).
 - docs/plano/plano-projeto-sirej.md, seções 6.1 (A1) e 10 (marco "Núcleo demonstrável").
 - docs/prompts/agente-pt.md (modelo para cada agente de pacote).
@@ -32,13 +32,13 @@ Núcleo M3 + M4 + M9 funcionando com adaptadores simulados: processo por eventos
 auditoria encadeada, prazos, protocolo assinado com recibo, distribuição semanal com selo e falha fechada,
 abertura de sessão com revelação, turmas com rodízio, ambiente do relator, votação, ata e acórdão.
 
-CRITÉRIO DE SAÍDA (marco "Núcleo demonstrável"):
+CRITÉRIO DE SAÍDA (marco "Núcleo demonstrável", verificado pelo PT-34):
 Uma sessão completa simulada, ponta a ponta, em ambiente de demonstração, com a designação revelada
 só na abertura e verificável. Concretamente, um teste de integração (Testcontainers, adaptadores
 simulados, regimento sp.yaml) executa: protocolo → triagem → instrução → distribuição semanal → pauta →
 abertura com quórum e revelação → turmas → relatoria e votação → proclamação → ata e acórdão assinados →
 publicação, e no fim verifica o selo publicamente e a integridade da cadeia de auditoria.
-Esse teste é o último pacote da fase (ver onda 9).
+O teste também aprova uma mudança de prazo pela Administração antes do protocolo e prova que ela respeitou a vigência.
 
 ONDAS (abra uma onda quando as dependências dela estiverem mescladas; dentro da onda, em paralelo):
 - Onda 1: PT-05 prazos, PT-06 identidade, PT-07 documentos, PT-09 pessoas, PT-12 composição.
@@ -49,9 +49,13 @@ ONDAS (abra uma onda quando as dependências dela estiverem mescladas; dentro da
 - Onda 6: PT-14 instrução (dep. 10, 13), PT-18 sessão, pauta e abertura (dep. 12, 17).
 - Onda 7: PT-19 distribuição interna e turmas (dep. 18).
 - Onda 8: PT-20 relatoria, votação e proclamação (dep. 19, 22), depois PT-21 impedimento e diligência.
-- Onda 9: PT-23 ata, acórdão e publicação; PT-25 back-office (dep. APIs de 13, 18–21); depois PT-24
-  notificações; por fim o pacote do teste ponta a ponta do critério de saída (registre-o no doc 14
-  como PT-A1-E2E antes de abrir o agente; módulo: testes de integração; sem código de produto novo).
+- Onda 9: PT-23 ata, acórdão e publicação (dep. 21, 31); PT-25 back-office (dep. APIs de 13, 18–21); PT-24 notificações.
+- Onda 10: PT-34 sessão completa ponta a ponta (critério de saída; dep. 23, 24, 29).
+Administração (M9, doc 18), fora do caminho crítico, em paralelo assim que as dependências permitirem:
+- PT-29 governança de configuração e calendário (dep. 03, 04, 05, 06), logo depois da onda 1.
+- PT-30 papéis e segregação (dep. 06, 12, 29), PT-31 modelos de documento (dep. 07, 29), PT-32 temporalidade (dep. 08, 29).
+- PT-33 console administrativo (dep. APIs de 04, 29, 30, 31).
+PT-31 precisa estar mesclado antes do PT-23.
 A cadeia PT-15 → 16 → 17 → 18 → 19 → 20 é o caminho crítico. Priorize-a sempre que houver vaga.
 
 PONTOS DE ATENÇÃO POR PACOTE (passe no campo {{OBSERVACOES_DO_ORQUESTRADOR}}):
@@ -80,11 +84,14 @@ PONTOS DE ATENÇÃO POR PACOTE (passe no campo {{OBSERVACOES_DO_ORQUESTRADOR}}):
 - PT-22: assinatura e carimbo simulados nesta fase; a implementação gov.br e ICP-Brasil reais é da A2.
 - PT-25: axe-core sem violações; relatar → votar → próximo em um clique.
 
-LACUNA CONHECIDA DO DOC 14: o plano coloca M9 (administração: perfis por escopo, parametrização sem deploy,
-feriados) na A1, e o doc 14 não tem pacote para a tela de administração. Antes da onda 9, proponha o pacote
-(título, módulo, dependências, critérios de aceite) no doc 14 por PR e peça aprovação humana.
-Regra para esse pacote: alterar parâmetro gera nova versão do regimento com vigência futura, auditada;
-nunca altera processo em curso de forma retroativa sem regra de transição configurada.
+- PT-29: não existe fluxo de emergência sem aprovação; vigência nunca retroage; recálculo de calendário só
+  prorroga prazo. O YAML do pacote não é aplicado sozinho depois da instalação (ADR-0011).
+- PT-30: MEMBRO e PRESIDENTE só por mandato; nenhuma tela ou API concede papel de julgador.
+  Teste para cada linha da tabela de incompatibilidades do doc 18.
+- PT-31: modelo de pauta não aceita campo de designação no modo sigiloso.
+- PT-32: nenhuma rota de eliminação; o sistema só lista elegíveis.
+- PT-33: ADMIN não vê processo, documento dos autos, dado de recorrente nem designação.
+- PT-34: não escreve código de produto; se o teste revelar defeito, abra pacote de correção no módulo dono.
 
 QUANDO PARAR E PERGUNTAR:
 - Dois PTs precisam mudar a API pública do mesmo módulo de formas incompatíveis.

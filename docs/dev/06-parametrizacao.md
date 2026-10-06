@@ -15,7 +15,8 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 1. No startup, o módulo `configuracao` lê o YAML, resolve `herda`, valida contra o esquema (JSON Schema em `config/regimentos/esquema.json`, a criar no PT-03) e contra as **regras de consistência** abaixo. Falha de validação impede a subida da aplicação.
 2. A configuração validada vira uma `regimento_versao` imutável, com hash. Se o conteúdo não mudou, reaproveita a versão existente.
 3. Todo ato que depende de regra grava a `config_versao` vigente (movimentação, voto, decisão, lote de distribuição). Assim, um processo antigo pode ser reconstituído com a regra da época.
-4. Alteração em produção: nova versão via Administração (M9), com autor e motivo, auditada. Sem deploy. Mudanças que afetam distribuição ou sessão só valem a partir do **próximo** lote ou sessão.
+4. Alteração em produção: proposta pela Administração (M9), aprovada por outra pessoa, com vigência futura, auditada. Sem deploy. Regras de vigência e não retroatividade no doc 18, seção 4 (RN38, RN39).
+5. Depois da instalação, o **banco é a fonte de verdade**. Um YAML diferente no pacote não é aplicado sozinho: gera alerta e só entra por importação aprovada (ADR-0011).
 
 ## Acesso no código
 
@@ -47,6 +48,8 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 | `presenca`, `mandato` | Cancelamento de presença, métricas de perda de mandato | RN30, RN36 |
 | `documentos` | Formatos, tamanho, documentos obtidos de ofício | RN33 |
 | `retencao` | Anos de retenção | — |
+| `administracao` | Aprovadores por tipo de mudança, antecedência mínima da vigência, papéis sensíveis, vigência máxima de papel | RN38, RN39, RN42 |
+| `temporalidade` | Classes documentais, prazos de guarda e destinação | RN44 |
 
 ## Regras de consistência (validação obrigatória)
 
@@ -58,6 +61,8 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 6. Todo prazo tem `dias` > 0 ou origem explícita (`IMPRESSO_NA`); `null` só para metas sem prazo legal.
 7. `designacao.modo = SIGILOSO` exige KMS configurado na instalação (verificação de conectividade no startup).
 8. Não existe chave para voto de qualidade, peso de voto ou desempate. Se aparecer no YAML, a validação falha (invariante 3).
+9. Cada tipo em `administracao.aprovadores` tem ao menos um papel, e nenhum deles é `ADMIN` para `REGIMENTO` (quem parametriza não aprova a própria área; RN38).
+10. Toda classe de `temporalidade` tem guarda total (corrente + intermediária) ≥ `retencao.anos`; `temporalidade.eliminacaoFisica` só aceita `false` enquanto a D-19 estiver aberta.
 
 ## Valores PROVISÓRIOS
 

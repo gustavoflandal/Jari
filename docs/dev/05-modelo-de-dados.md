@@ -17,8 +17,20 @@ PostgreSQL 17+, migrações Flyway. Um **schema por módulo** (`processo`, `dist
 ### configuracao
 | Tabela | Campos principais | Notas |
 |---|---|---|
-| `regimento_versao` **[imutável]** | id, conteudo jsonb, hash, vigente_desde, aplicado_por | Cada mudança de configuração é uma nova versão; atos gravam a versão vigente |
-| `feriado` | data, abrangencia (NACIONAL/ESTADUAL/MUNICIPAL/ORGAO), descricao | |
+| `regimento_versao` **[imutável]** | id, conteudo jsonb, hash, vigente_desde, aplicado_por, proposta_id | Cada mudança de configuração é uma nova versão; atos gravam a versão vigente |
+| `proposta_alteracao` | id, tipo (REGIMENTO/CALENDARIO/MODELO/IMPORTACAO), secao, conteudo jsonb, diff jsonb, impacto jsonb, justificativa, ato_normativo jsonb, documento_id, vigencia_pretendida, situacao, proposta_por, versao | Mutável só em `RASCUNHO`; transições por comando (doc 18, seção 3) |
+| `decisao_proposta` **[imutável]** | id, proposta_id, decisao (SUBMETIDA/APROVADA/REJEITADA/CANCELADA/PUBLICADA), motivo, ator_id, em | Uma linha por transição |
+| `calendario_registro` **[imutável]** | id, tipo (FERIADO/PONTO_FACULTATIVO/SUSPENSAO_EXPEDIENTE), data_inicio, data_fim, abrangencia, descricao, proposta_id | Substitui a antiga tabela `feriado` |
+| `calendario_revogacao` **[imutável]** | id, registro_id, proposta_id, em | Revogação é novo registro (RN41) |
+| `modelo_documento_versao` **[imutável]** | id, tipo, conteudo, campos text[], hash, vigente_desde, proposta_id | RN43 |
+| `importacao_configuracao` **[imutável]** | id, origem (INSTALADOR/CONSOLE), hash_yaml, regimento_versao_id, em | Alerta de pacote divergente compara com a última linha |
+
+### identidade
+| Tabela | Campos principais | Notas |
+|---|---|---|
+| `atribuicao_papel` **[imutável]** | id, usuario_id, papel, escopo_tipo (ORGAO/JUNTA/SESSAO), escopo_id, inicio, fim, origem (CONCEDIDA/DERIVADA_MANDATO), mandato_id, proposta_por, aprovada_por | RN42 |
+| `revogacao_papel` **[imutável]** | id, atribuicao_id, motivo, ator_id, em | Revogação, suspensão por conflito e fim de mandato |
+| `recertificacao` **[imutável]** | id, atribuicao_id, ciclo, decisao, ator_id, em | Revisão mensal |
 
 ### pessoas
 | Tabela | Campos principais |

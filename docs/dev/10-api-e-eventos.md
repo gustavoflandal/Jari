@@ -22,7 +22,10 @@
 | sessao | `POST /backoffice/sessoes` · `POST /backoffice/sessoes/{id}/presencas` · `POST /backoffice/sessoes/{id}/abertura` · `POST /backoffice/sessoes/{id}/encerramento` · `GET /backoffice/sessoes/{id}/pauta` |
 | julgamento | `GET /backoffice/sessoes/{id}/meus-processos` · `PUT /backoffice/processos/{id}/relatorio` (rascunho) · `POST /backoffice/processos/{id}/votos` · `POST /backoffice/processos/{id}/impedimentos` · `POST /backoffice/processos/{id}/proclamacao` |
 | distribuicao | Nenhum endpoint que dispare ou altere distribuição. `GET /backoffice/lotes` (metadados, sem designações) · `GET /publico/selos/{id}/verificacao` |
-| auditoria | `GET /backoffice/auditoria?alvo=` (papel `AUDITOR`) |
+| auditoria | `GET /backoffice/auditoria?alvo=` (papel `AUDITOR`) · `POST /backoffice/admin/auditoria/verificacoes` · `POST /backoffice/admin/auditoria/exportacoes` |
+| configuracao (doc 18) | `GET /backoffice/admin/regimento` · `GET /backoffice/admin/regimento/versoes` · `GET /backoffice/admin/regimento/versoes/{id}/yaml` · `POST /backoffice/admin/propostas` · `PUT /backoffice/admin/propostas/{id}` (rascunho) · `GET /backoffice/admin/propostas/{id}/impacto` · `POST /backoffice/admin/propostas/{id}/submissao` · `POST /backoffice/admin/propostas/{id}/aprovacao` · `POST /backoffice/admin/propostas/{id}/rejeicao` · `POST /backoffice/admin/propostas/{id}/cancelamento` · `GET /backoffice/admin/calendario?ano=` · `GET /backoffice/admin/modelos` · `POST /backoffice/admin/modelos/{tipo}/pre-visualizacao` |
+| identidade (doc 18) | `GET /backoffice/admin/usuarios?busca=` · `GET /backoffice/admin/usuarios/{id}/atribuicoes` · `POST /backoffice/admin/atribuicoes` · `POST /backoffice/admin/atribuicoes/{id}/aprovacao` · `POST /backoffice/admin/atribuicoes/{id}/revogacao` · `GET /backoffice/admin/recertificacoes` |
+| integracao | `GET /backoffice/admin/integracoes` · `POST /backoffice/admin/integracoes/fila-de-mortos/{id}/reenfileiramento` |
 
 ## Eventos de domínio (dentro do monólito)
 
@@ -46,6 +49,12 @@ Nome no passado, em português, `record` imutável com `ocorridoEm`, `ator`, `co
 | `ImpedimentoDeclarado` | julgamento | distribuicao, composicao (métrica) |
 | `PrazoAlertado`, `PrazoVencido` | prazos | notificacao, secretaria |
 | `CumprimentoSolicitado`, `CumprimentoConfirmado`, `RestituicaoSolicitada` | instrucao | integracao, processo |
+| `PropostaSubmetida`, `PropostaAprovada`, `PropostaRejeitada` | configuracao | notificacao (aprovadores e proponente), auditoria |
+| `RegimentoVersaoPublicada`, `ModeloDocumentoPublicado` | configuracao | todos os módulos com cache de configuração |
+| `CalendarioAlterado` | configuracao | prazos (recálculo que só prorroga, RN41) |
+| `PapelAtribuido`, `PapelRevogado` | identidade | auditoria, notificacao |
+| `MandatoIniciado`, `MandatoEncerrado` | composicao | identidade (derivação de `MEMBRO`/`PRESIDENTE`) |
+| `FaseArquivisticaAlterada` | processo | documentos, publicidade |
 
 ## Eventos de integração (outbox)
 
