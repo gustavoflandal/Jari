@@ -39,6 +39,7 @@ Nome no passado, em português, `record` imutável com `ocorridoEm`, `ator`, `co
 | `InstrucaoConcluida` | instrucao | processo |
 | `ProcessoDistribuido` (sem designação no payload no modo sigiloso) | distribuicao | processo, prazos |
 | `DistribuicaoSuspensa` | distribuicao | notificacao (coordenador), auditoria |
+| `SeloInutilizado` (D-20) | distribuicao | processo, notificacao (coordenador), auditoria |
 | `ProcessoPautado` | sessao | processo, notificacao |
 | `SessaoAberta`, `DesignacaoRevelada`, `TurmasFormadas` | sessao / distribuicao | julgamento, processo |
 | `ProcessoRetiradoDePauta` | sessao | processo, distribuicao |

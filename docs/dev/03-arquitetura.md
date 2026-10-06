@@ -58,7 +58,7 @@ Decisões formais nos ADRs (`docs/adr/`). Este documento diz **onde cada coisa m
 - **Evento de aplicação** (Spring Modulith `@ApplicationModuleListener`, persistido no registro de eventos) para reações assíncronas dentro do monólito.
 - **Evento de integração** (outbox) para sistemas externos.
 
-Lista de eventos no doc 10.
+Lista de eventos no doc 10. Componentes de execução, ambientes e operação no doc 19.
 
 ## Transações críticas (atômicas)
 

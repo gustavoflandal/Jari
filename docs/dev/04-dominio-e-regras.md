@@ -45,6 +45,7 @@ Estados (`SituacaoProcesso`):
 | `TRANSITADO` | `ProcessoEncerrado` | Decisão não altera a penalidade | `ENCERRADO` |
 | `EM_CUMPRIMENTO` | `CumprimentoConfirmado` | Confirmação do sistema de multas | `ENCERRADO` |
 | qualquer aberto | `RemetidoPorIncompetencia` | RN09 | `ENCERRADO` (com remessa registrada) |
+| `DISTRIBUIDO`, `PAUTADO` | `SeloInutilizado` | PROVISÓRIO (D-20): perda definitiva da chave do lote, declarada por controle dual e auditada | `AGUARDANDO_DISTRIBUICAO` (entra no lote seguinte) |
 
 Regras da máquina:
 

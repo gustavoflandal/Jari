@@ -25,6 +25,7 @@ Formato: id · origem · dúvida · opção provisória · por quê.
 | D-17 | PT-29 | Indisponibilidade do portal no fim de prazo prorroga automaticamente? | O sistema gera a proposta de suspensão; a publicação exige aprovação | Nenhuma decisão automática; a prorrogação precisa de ato |
 | D-18 | PT-30 | Vigência máxima de papel concedido e incompatibilidade de `COORDENADOR` com julgador | 12 meses; `COORDENADOR` incompatível com `MEMBRO`/`PRESIDENTE` | Opção mais restritiva; o regimento de SP não trata do tema |
 | D-19 | PT-32 | Eliminação física de documentos após a guarda | Não implementar; só lista de elegíveis | Exige termo, publicação e comissão do órgão; a invariante 5 prevalece até decisão |
+| D-20 | Doc 19 | Perda definitiva da chave de envelope de um lote selado | Lote declarado inutilizável por controle dual; processos voltam a `AGUARDANDO_DISTRIBUICAO` por evento auditado e entram no lote seguinte (transição provisória no doc 04) | Mesma lógica da falha fechada (RN24); nenhuma rota manual |
 
 ## Como registrar uma nova dúvida
 
