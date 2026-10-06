@@ -104,8 +104,12 @@ PostgreSQL 17+, migrações Flyway. Um **schema por módulo** (`processo`, `dist
 ### auditoria
 | Tabela | Campos principais | Notas |
 |---|---|---|
-| `registro_auditoria` **[imutável]** | seq bigserial, em, ator_id, ator_papel, ip, acao, alvo_tipo, alvo_id, detalhe jsonb, hash_anterior, hash | Particionada por mês; `hash = sha256(hash_anterior ‖ canonical(registro))` |
-| `ancora_diaria` **[imutável]** | dia, hash_final, carimbo_tempo, exportado_em, destino | |
+| `registro_auditoria` **[imutável]** | seq bigint (sequência `registro_auditoria_seq`), em, ator_id, ator_papel, ip inet, acao, alvo_tipo, alvo_id, detalhe jsonb, hash_anterior, hash | Particionada por mês (intervalo de `em`, limites em UTC; PK `(seq, em)`); `hash = sha256(hash_anterior ‖ canonical(registro))`; detalhe é objeto plano de texto (D-43) |
+| `ancora_diaria` **[imutável]** | dia, seq_final, hash_final, carimbo_tempo, carimbo_emissor, carimbo_em, exportado_em, destino | `seq_final` = último registro antes do fim do dia (0 se a trilha estava vazia) |
+
+Partições: a migração cria do mês anterior a 12 meses à frente; a função `auditoria.garantir_particao(dia)` (`SECURITY DEFINER`, única permissão de DDL do papel da aplicação) cria as seguintes, chamada na subida e diariamente (`sirej.auditoria.particoes.meses-a-frente`, padrão 3). Sem partição para o instante, a gravação falha e o ato falha junto.
+
+Privilégios: o papel `sirej_aplicacao` (criado pela migração se não existir; o instalador cria o usuário de login como membro dele) tem só `USAGE` no schema e `SELECT`/`INSERT` nas duas tabelas. Triggers `BEFORE UPDATE OR DELETE` (linha) e `BEFORE TRUNCATE` (no pai e em cada partição) recusam a operação para qualquer usuário, inclusive o dono.
 
 ### integracao
 | Tabela | Campos principais |
