@@ -23,6 +23,8 @@ Esta pasta é a **fonte de verdade** para quem desenvolve o SIREJ, humano ou age
 | 15 | [Protocolo dos agentes](15-protocolo-agentes.md) | Sempre, antes de começar |
 | 16 | [Dúvidas abertas](16-duvidas-abertas.md) | Ao encontrar lacuna; para registrar a sua |
 
+Os prompts para executar cada fase do plano com agentes estão em [`docs/prompts/`](../prompts/README.md).
+
 ## Rastreabilidade
 
 - Regras de negócio têm id `RNxx` (doc 04). Requisitos não funcionais têm id `RNFxx` (doc 12). Pacotes de trabalho têm id `PT-xx` (doc 14).
