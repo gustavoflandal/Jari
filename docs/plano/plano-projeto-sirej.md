@@ -1,6 +1,6 @@
 # Plano do Projeto SIREJ (Sistema Integrado de Recursos de Infrações de Trânsito / JARI)
 
-**Versão:** 0.1 (rascunho para validação)
+**Versão:** 0.2 (revisada para o cenário de licitação)
 **Data:** 06/10/2026
 **Base documental analisada:**
 - `enunciado-projeto-sistema-jari.md` (v1.0, 14/09/2026)
@@ -8,389 +8,377 @@
 - `Estudo_JARI.pdf` (notas de pesquisa que originaram o enunciado)
 - `JARI_CET.pdf` (Edital nº 001/2026-JARI/CET com Anexo III: Regimento das JARIs, Comunicado 007/23)
 
-> Este plano é um rascunho. Prazos, equipe e custos são **estimativas** feitas a partir dos documentos, sem informação do contratante. Tudo que depende de resposta está marcado e listado na seção 14.
+> Prazos, equipe e custos são **estimativas** feitas a partir dos documentos. Tudo que depende de resposta está listado na seção 15.
+
+### Histórico
+| Versão | Data | Mudança |
+|---|---|---|
+| 0.1 | 06/10/2026 | Primeira versão, assumindo a CET/SP como contratante |
+| 0.2 | 06/10/2026 | Revisão com as respostas de Gustavo: empresa concorrente em licitações, clientes em outros estados, instalação única por órgão |
 
 ---
 
 ## 1. Sumário executivo
 
-O SIREJ é um sistema web de processo administrativo eletrônico que conduz o rito recursal de infrações de trânsito de ponta a ponta: protocolo pelo cidadão, triagem, distribuição, relatoria, sessão colegiada da JARI, publicação, 2ª instância (CETRAN) e cumprimento da decisão. O caso de referência é a JARI do Município de São Paulo (CET), com 27 juntas, cerca de 162 membros e de 18 a 26 mil recursos por mês.
+O SIREJ é um produto que a empresa vai oferecer em licitações de órgãos de trânsito de vários estados. Ele conduz o rito recursal de infrações de ponta a ponta: protocolo pelo cidadão, triagem, distribuição, relatoria, sessão colegiada da JARI, publicação, 2ª instância (CETRAN) e cumprimento da decisão. A JARI de São Paulo (CET), com 27 juntas e 18 a 26 mil recursos por mês, serve como **referência normativa e de dimensionamento**, não como cliente.
 
-O que define o projeto não é volume, e sim **integridade**: o regimento proíbe que alguém conheça a designação de relator/revisor/terceiro membro antes da reunião e obriga a suspender (nunca contornar manualmente) a distribuição quando o sistema falha. O controle central da arquitetura é um selo criptográfico (commit–reveal com chave em HSM/KMS).
+O que define o produto é **integridade**: o modo sigiloso impede que alguém conheça relator, revisor e 3º membro antes da reunião, e a distribuição é suspensa (nunca contornada manualmente) quando o sistema falha. O controle central é um selo criptográfico (commit–reveal com chave em HSM/KMS).
 
-**Proposta de execução:** 5 fases (F0 a F4), em cerca de **24 meses** até o segundo órgão em produção, com um primeiro ciclo completo de julgamento digital em uma junta-piloto por volta do **mês 12**. Equipe estimada de 14 a 18 pessoas no pico.
+Como cada órgão tem regimento, CETRAN, calendário e sistema de multas próprios, **parametrização deixa de ser boa prática e vira requisito de venda**. Uma única base de código atende a todos, com uma instalação e uma configuração por contratante.
 
-**Pontos que mais pedem decisão agora:** quem é o contratante e qual o papel de vocês (fornecedor, órgão, proposta comercial); esfera e abrangência do rito; política de sigilo da designação; disponibilidade de HSM/KMS e da API do sistema de multas; tamanho do acervo legado.
+**Proposta de execução em três trilhas:**
+1. **Produto base** (investimento da empresa, cerca de 9 meses até estar pronto para prova de conceito).
+2. **Proposta por edital** (2 a 6 semanas por licitação).
+3. **Execução contratual por órgão** (cerca de 9 a 12 meses do contrato até todas as juntas operando).
 
 ---
 
-## 2. Entendimento do escopo
+## 2. Respostas recebidas e impacto no plano
 
-### 2.1 Objetivo
-Conduzir integralmente o rito recursal com autos 100% digitais, controle automático de prazos do CTB, distribuição auditável e sigilosa, sessão colegiada digital, publicidade ativa e notificação eletrônica, com validade jurídica (assinatura, carimbo do tempo, trilha imutável).
+| # | Pergunta | Resposta | Impacto |
+|---|---|---|---|
+| D1 | Papel da empresa | Concorrente na licitação | O plano cobre construção de produto, proposta e execução contratual |
+| D2 | Contratante | Órgãos equivalentes em outros estados | SP vira referência; regimento, CETRAN, feriados e prazos são parâmetros por instalação |
+| D3 | Abrangência do rito | O que cada edital licitar | Produto modular; cada proposta ativa os módulos pedidos no edital |
+| D4 | Sigilo da designação | Configurável | Os dois modos (sigiloso e aberto) são implementados; sigiloso como padrão |
+| D5 | Multi-tenant ou instalação única | Uma instalação por órgão contratante | Sai o multi-tenant em runtime; entra automação de implantação (infraestrutura como código, instalador, migração de configuração) |
+| D6 | HSM/KMS | Provavelmente existirá | Mantém o selo com HSM/KMS; plano B documentado para edital que não ofereça |
+| D7 | API do sistema de multas | Cada estado fornece a sua | Interface de integração padronizada no produto; adaptador por órgão vira item de implantação, com custo próprio |
+| D8 | Finalidade deste plano | Proposta e concorrência licitatória | Inclui matriz de aderência ao edital, prova de conceito, precificação e riscos de licitação |
 
-### 2.2 Dentro do escopo (9 módulos)
+**Mudanças nos documentos de base que isso provoca:**
+- A arquitetura previa multi-tenant desde o início (enunciado 10 e 15.6). Passa a ser uma instalação por contratante, com o mesmo artefato.
+- A "restrição fixa do cliente: Java/JavaScript" da arquitetura precisa ser confirmada como escolha da empresa ou exigência de edital (pergunta L10).
+- Decisões que eram do patrocinador (enunciado 15) passam a ser parâmetros de instalação ou respostas por edital.
+
+---
+
+## 3. Entendimento do escopo
+
+### 3.1 Objetivo
+Conduzir integralmente o rito recursal com autos 100% digitais, controle automático de prazos do CTB, distribuição auditável, sessão colegiada digital, publicidade ativa e notificação eletrônica, com validade jurídica (assinatura, carimbo do tempo, trilha imutável).
+
+### 3.2 Módulos do produto (ativáveis por edital)
 | # | Módulo | Essência |
 |---|---|---|
 | M1 | Portal do Recorrente | gov.br, consulta por CPF/CNPJ/placa, assistente de peticionamento por tipo de peça, upload + PDF/A, assinatura, recibo com hash, linha do tempo, notificações, procurações |
-| M2 | Autuação e Instrução (órgão autuador) | Auto eletrônico, informação do agente, defesa da autuação (CDA), efeito suspensivo, cumprimento de decisão via sistema de multas |
+| M2 | Autuação e Instrução (órgão autuador) | Auto eletrônico, informação do agente, defesa da autuação, efeito suspensivo, cumprimento de decisão via sistema de multas |
 | M3 | Secretaria da JARI | Triagem de admissibilidade, exigência/saneamento, remessa por incompetência (RENAINF), distribuição semanal, selo do processo, pauta, ata, composição e quórum |
-| M4 | Relatoria e Julgamento | Ambiente do relator, dossiê de contexto, editor de voto, precedentes, fluxo relator → revisor → 3º membro, abertura de sessão com revelação, impedimento/suspeição, diligências, assinatura |
+| M4 | Relatoria e Julgamento | Ambiente do relator, dossiê de contexto, editor de voto, precedentes, fluxo de votação, abertura de sessão com revelação, impedimento/suspeição, diligências, assinatura |
 | M5 | Segunda Instância | Peticionamento ao CETRAN, admissibilidade, remessa íntegra, retorno e cumprimento |
-| M6 | Credenciamento e Composição | Edital bienal, inscrição de entidades, CADIN, sorteio de classificação, convocação, habilitação, provas, posse, mandato, perda de mandato, capacitação, presença |
-| M7 | Transparência e Indicadores | Consulta pública, estatísticas mensais e relatório anual, retorno sistêmico (padrões de falha de sinalização), painéis, dados abertos |
+| M6 | Credenciamento e Composição | Edital de credenciamento, inscrição de entidades, sorteio de classificação, convocação, habilitação, provas, posse, mandato, perda de mandato, capacitação, presença |
+| M7 | Transparência e Indicadores | Consulta pública anonimizada, estatísticas regimentais, retorno sistêmico (padrões de falha de sinalização), painéis, dados abertos |
 | M8 | Demandas Judiciais e Informações | Citações/intimações, subsídio de defesa judicial, consultas ao CETRAN/CONTRAN, divulgação de atos |
 | M9 | Administração | Perfis por escopo, parametrização sem deploy (prazos, feriados, regimento), auditoria append-only, temporalidade |
 
-### 2.3 Fora do escopo
+M3, M4 e M9 formam o núcleo, presente em qualquer proposta. Os demais entram conforme o edital.
+
+### 3.3 Fora do escopo
 Processamento de multas (lavratura, cálculo, arrecadação, pontuação), fiscalização eletrônica, cobrança, peticionamento judicial, decisão por IA.
 
-### 2.4 Restrições técnicas já fixadas
-- Plataforma Java/JavaScript: Java 25 LTS, Spring Boot 4.1 + Spring Modulith, PostgreSQL 17+, S3 com Object Lock, Keycloak federando gov.br, React 19 + TypeScript, GovBR-DS, TipTap, PDF.js.
-- Monólito modular, outbox transacional no Postgres (sem broker inicial), portabilidade de hospedagem, HSM/KMS obrigatório para o selo da distribuição.
+### 3.4 Restrições técnicas atuais
+- Java 25 LTS, Spring Boot 4.1 + Spring Modulith, PostgreSQL 17+, S3 com Object Lock, Keycloak federando gov.br, React 19 + TypeScript, GovBR-DS (ou o design system do contratante), TipTap, PDF.js.
+- Monólito modular, outbox transacional no Postgres, portabilidade de hospedagem, HSM/KMS para o selo da distribuição.
+- Uma instalação por contratante, implantável em nuvem pública, empresa pública de TI ou datacenter do órgão.
 
-### 2.5 Os três requisitos que mais moldam o projeto
-1. **Sigilo da designação até a abertura da sessão** (RN20, art. 29, XII): commit–reveal, chave em HSM, auditoria de toda consulta, teste de regressão dedicado.
-2. **Falha fechada da distribuição** (RN24, art. 22, §1): job que aborta sem estado parcial; não existe rota manual.
-3. **Regimento como configuração** (o regimento vigente foi trocado por um simples Comunicado em 2023): prazos, rol de resultados, regras de turma e de distribuição parametrizáveis por tenant.
+### 3.5 Os três requisitos que mais moldam o produto
+1. **Sigilo da designação** quando o modo sigiloso estiver ativo: commit–reveal, chave em HSM, auditoria de toda consulta, teste de regressão dedicado.
+2. **Falha fechada da distribuição**: job que aborta sem estado parcial; não existe rota manual.
+3. **Regimento como configuração**: cada órgão tem o seu, e o de SP foi trocado por um simples Comunicado em 2023.
 
 ---
 
-## 3. Inconsistências e lacunas encontradas na documentação
+## 4. Inconsistências encontradas na documentação
 
-Cruzei o enunciado e a arquitetura com o texto integral do Regimento (Anexo III do edital). Pontos que precisam de decisão ou correção:
+Cruzei o enunciado e a arquitetura com o texto integral do Regimento de SP (Anexo III do edital). Com o produto multiórgão, a maior parte se resolve tornando a regra configurável (coluna "Tratamento").
 
-| # | Ponto | Onde | Impacto |
+| # | Ponto | Onde | Tratamento |
 |---|---|---|---|
-| I1 | **Quórum x três votos.** O enunciado (5.4 e RN14) diz que o sistema "não admite resultado sem as três manifestações assinadas", mas o art. 17, §1 e o art. 6º, §3 permitem, excepcionalmente, deliberar por maioria simples (2 membros) com presença do presidente ou suplente. | 5.4, RN14, RN22 x arts. 6º §3 e 17 §1 | Define o motor de votação e a apuração do resultado |
-| I2 | **Presença do presidente na turma.** Funcionam até 2 turmas simultâneas, mas a deliberação excepcional exige o presidente ou vice. Não está claro se presidente e vice precisam ficar em turmas diferentes, o que restringe o rodízio combinatório de 4 partições. | art. 17 §§1–3 | Algoritmo de formação das turmas |
-| I3 | **Acesso aos autos só no dia da reunião.** Art. 29, XIII restringe acesso às instalações fora dos dias de reunião e art. 19 veda retirar processos. Se isso se aplicar ao sistema, o membro só lê e relata ~38 processos durante a própria reunião. | arts. 19 e 29, XIII | Janela de acesso, carga no horário de sessão, UX do relator |
-| I4 | **"Revisor" não existe no regimento.** O regimento fala em relator e "demais membros da turma" (art. 27, VII). Os papéis de revisor e 3º membro vêm da página institucional. Falta confirmar se a ordem de voto é fixa. | 4.3, RN14 x art. 27 | Fluxo de votação sequencial |
-| I5 | **F1 depende do que só existe em F3.** O MVP externo (F1) prevê consulta de autuações por CPF/placa e o critério "cidadão acompanha um recurso real do início ao fim", mas a integração com o sistema de multas está em F3 e o julgamento em F2. | Seção 12 | Ordem das fases (proposta de ajuste na seção 5) |
-| I6 | **Módulos sem fase.** Credenciamento (M6), Demandas Judiciais (M8) e o retorno sistêmico (M7) não aparecem em nenhuma fase. O cadastro de membros, mandatos e presença é pré-requisito de F2. | Seção 12 | Escopo e cronograma |
-| I7 | **Teste de informática do edital usa Word, não o sistema.** O enunciado diz que o candidato "acessa o sistema", mas o edital (5.7) manda abrir o Word for Windows. Usar o SIREJ na prova é uma mudança de edital. | 5.6 x Edital 5.7 | Escopo de M6 |
-| I8 | **Inscrição de entidades é presencial pelo edital vigente** (protocolo físico na CET). Digitalizar exige ajuste no próximo edital. | Edital 2.1 | Quando M6 pode ser usado de fato |
-| I9 | **Perda de mandato.** O enunciado diz que "hipóteses que dependem de juízo exigem procedimento"; o regimento lista exatamente os incisos III a IX. O inciso X (suspeição imotivada) não está na lista, embora dependa de juízo. | 5.6, RN30 x art. 12, par. único | Regra de evidência x sanção |
-| I10 | **Roteiro da reunião é facultativo** ("poderão obedecer, a critério de cada Presidente"), só os incisos III e IV são compulsórios. O enunciado o trata como fluxo guiado obrigatório. | 5.4 x art. 15 | Rigidez do fluxo de sessão |
-| I11 | **Prazo de relatoria** (art. 12, VI) não está definido em norma. | RN30 | Parâmetro a definir |
-| I12 | **Volume divergente:** 18 mil/mês (enunciado) x 25 mil/mês (arquitetura). | 1.1 x arq. 2 | Dimensionamento (diferença pequena; o alvo 3× cobre os dois) |
-| I13 | **Remissões internas erradas no regimento** (art. 9º → "art. 5º, III"; art. 29 → "art. 4º, V"), já apontadas no enunciado. | Regimento | Registrar na modelagem; sugerir correção ao órgão |
-| I14 | **Art. 30** condiciona o "planejamento mensal de distribuição interna" à distribuição eletrônica, mas não diz o que é esse planejamento. | art. 30 | Requisito não especificado |
-| I15 | **Defesa da autuação (CDA) e assinaturas.** M2 já inclui a análise da defesa da autuação, mas a decisão 15.2 (cobrir ou não todo o rito) segue aberta. | 5.2 x 15.2 | Tamanho de M1/M2 |
+| I1 | O enunciado exige três votos assinados, mas o art. 17, §1 permite deliberar por maioria simples com presidente ou vice | 5.4, RN14 x arts. 6º §3 e 17 §1 | Parâmetro: quórum mínimo de votos por decisão |
+| I2 | Com 2 turmas simultâneas e presença obrigatória do presidente ou vice, não está claro se os dois ficam em turmas diferentes | art. 17 | Parâmetro de restrição na formação de turmas |
+| I3 | Se a restrição de acesso fora dos dias de reunião valer para o sistema, o membro só relata durante a sessão | arts. 19 e 29, XIII | Parâmetro: janela de acesso dos membros aos autos |
+| I4 | "Revisor" não existe no regimento; a ordem de voto vem da página institucional | art. 27, VII | Parâmetro: votação sequencial ou paralela |
+| I5 | A F1 do enunciado previa consulta de autuações e acompanhamento até o fim, mas sistema de multas e julgamento vinham depois | Enunciado 12 | Resolvido: fases substituídas pelas trilhas da seção 6 |
+| I6 | Credenciamento, demandas judiciais e retorno sistêmico não estavam em nenhuma fase | Enunciado 12 | Resolvido: entram no roadmap do produto (seção 6.1) |
+| I7 | A prova de informática do edital de SP usa o Word, não o sistema | Edital 5.7 | Fora do núcleo; oferecer como opcional em M6 |
+| I8 | A inscrição de entidades é presencial pelo edital de SP | Edital 2.1 | Depende de cada órgão; M6 suporta os dois canais |
+| I9 | O art. 12 lista os incisos III a IX como dependentes de procedimento; o X fica de fora | art. 12 | Parâmetro por hipótese de perda de mandato; o sistema só evidencia |
+| I10 | O roteiro de reunião é facultativo; só os incisos III e IV são compulsórios | art. 15 | Parâmetro: passos obrigatórios e opcionais do roteiro |
+| I11 | Prazo de relatoria não definido em norma | art. 12, VI | Parâmetro |
+| I12 | Volume de 18 mil/mês (enunciado) x 25 mil/mês (arquitetura) | 1.1 x arq. 2 | Dimensionamento por instalação, a partir do volume de cada edital |
+| I13 | Remissões internas erradas no regimento de SP | arts. 9º e 29 | Só registro |
+| I14 | O art. 30 cita "planejamento mensal de distribuição interna" sem defini-lo | art. 30 | Não implementar até haver definição de algum contratante |
+| I15 | M2 já incluía a defesa da autuação, mas a abrangência estava em aberto | 5.2 x 15.2 | Resolvido por D3: ativado conforme o edital |
 
 ---
 
-## 4. Premissas adotadas neste rascunho (padrões até haver resposta)
+## 5. Premissas adotadas
 
 | # | Premissa | Por quê |
 |---|---|---|
-| P1 | Órgão-piloto é a CET/São Paulo (municipal), 2ª instância CETRAN-SP | Toda a documentação normativa é de SP |
-| P2 | O rito completo do cidadão entra (defesa da autuação, indicação de condutor, recurso JARI, 2ª instância), mas indicação de condutor e advertência só como **roteamento** | Recomendação do próprio enunciado (A.4) |
-| P3 | Integração com o sistema de multas, sem substituí-lo | Enunciado 3.3 |
-| P4 | Designação sigilosa como padrão; modo aberto como parâmetro de tenant | Enunciado A.5 |
-| P5 | Sessão presencial ou híbrida; **sem sessão virtual** até alteração regimental | Enunciado 15.4 |
-| P6 | Produto multi-tenant no modelo de dados desde o início, mas com um único tenant em produção até F4 | Barato agora, caro depois |
-| P7 | Hospedagem no Cenário B (empresa pública de TI do município) se ela oferecer Postgres, S3 e KMS/HSM; senão Cenário A | Recomendação da arquitetura |
-| P8 | Acervo legado entra apenas como repositório somente leitura com metadados mínimos, em trilha separada | Maior risco de custo, não estimável sem inventário |
-| P9 | Deliberação por maioria simples (2 votos) suportada como exceção registrada, nunca como padrão | Resolve I1 a favor do texto regimental |
+| P1 | São Paulo é referência normativa e de dimensionamento; clientes são órgãos equivalentes de outros estados | Resposta D2 |
+| P2 | Escopo modular; núcleo M3 + M4 + M9 sempre presente, demais módulos por edital | Resposta D3 |
+| P3 | Integração com o sistema de multas de cada órgão por adaptador, sobre uma interface padronizada do produto | Resposta D7 |
+| P4 | Política de designação configurável; modo sigiloso como padrão | Resposta D4; migrar do aberto para o sigiloso depois é caro |
+| P5 | Sessão presencial ou híbrida por padrão; virtual só onde o regimento do contratante permitir | Enunciado 15.4 |
+| P6 | Uma instalação por contratante, mesmo artefato, configuração própria, sem multi-tenant em runtime | Resposta D5 |
+| P7 | Hospedagem e HSM/KMS fornecidos pelo contratante; plano B documentado | Resposta D6 |
+| P8 | Migração de acervo legado é item opcional, precificado à parte | Maior risco de custo, não estimável sem inventário |
+| P9 | Regras de votação, roteiro, turmas e acesso aos autos são parâmetros | Resolve I1 a I4 e I10 |
+| P10 | A empresa constrói o produto base antes do primeiro edital | Editais costumam exigir prova de conceito em prazo curto |
 
 ---
 
-## 5. Fases e entregas (proposta revisada)
+## 6. Trilhas e fases
 
-Ajustes em relação ao enunciado: consulta ao sistema de multas sobe para F1 (somente leitura), cadastro de membros e mandatos entra em F2, e credenciamento e demandas judiciais ganham fase própria.
+### 6.1 Trilha A: Produto base (investimento da empresa)
 
-### F0 — Descoberta e fundação (meses 1 a 3)
-**Objetivo:** fluxo validado e assinado pelos donos de processo, e base técnica pronta.
+**Objetivo:** produto pronto para prova de conceito e para a primeira implantação.
 
-Entregas:
-- Mapeamento do rito real da CET (as-is e to-be) por fase: autuação, CDA, JARI, CETRAN, cumprimento.
-- Matriz regimento → requisito → regra parametrizável (a partir da tabela A.7 do enunciado), incluindo resolução das inconsistências I1 a I15.
-- Inventário de integrações: sistema de multas (API ou arquivo/banco?), gov.br, SNE/CDT, RENAINF, Diário Oficial, assinador, SEI.
-- Inventário do acervo legado (quantidade de processos e terabytes).
-- Decisão de hospedagem e confirmação do HSM/KMS.
-- ADRs 1 a 10 da arquitetura formalizados.
-- Especificação formal do algoritmo de distribuição e do selo (com revisão independente).
-- Protótipo navegável do portal e da tela do relator, testado com cidadãos e com 2 ou 3 membros de JARI.
-- Fundação técnica: monorepo, pipeline CI/CD com SAST/SCA/SBOM, ambientes local, CI e homologação, Keycloak + gov.br em homologação.
+| Etapa | Meses | Entregas | Critério de saída |
+|---|---|---|---|
+| A0 Fundação | 1–2 | Comparação de regimentos de 3 a 5 órgãos-alvo; modelo de parametrização; ADRs; especificação do algoritmo de distribuição e do selo; monorepo, CI/CD com SAST/SCA/SBOM; protótipos testados | Modelo de configuração cobre os regimentos comparados |
+| A1 Núcleo demonstrável | 3–6 | Processo e movimentação por eventos, documentos por hash, auditoria encadeada, motor de prazos, protocolo assinado com recibo, distribuição semanal com selo e falha fechada, abertura de sessão com revelação, turmas com rodízio, ambiente do relator, votação, ata e acórdão, M9 | Uma sessão completa simulada, ponta a ponta, em ambiente de demonstração |
+| A2 Pronto para PoC | 7–9 | M1 completo, assinatura gov.br e ICP-Brasil, interface padrão de integração com sistema de multas + adaptador de referência (arquivo e API simulada), instalador automatizado, sandbox de treinamento, roteiro de PoC ensaiado, pentest | PoC executada internamente dentro do prazo típico de edital |
+| A3 Módulos complementares | 10–18 | M2, M5, integrações padrão (SNE/CDT, RENAINF, Diário Oficial), M6, M7, M8, precedentes, apoio de IA à triagem | Cada módulo com caderno de aderência pronto para propostas |
 
-Critério de saída: fluxo to-be assinado; decisões D1 a D8 (seção 14) respondidas; pipeline rodando.
+### 6.2 Trilha B: Proposta por edital (2 a 6 semanas)
 
-### F1 — MVP externo (meses 4 a 7)
-**Objetivo:** cidadão protocola recurso sem papel e acompanha o andamento.
+1. Leitura do edital e do termo de referência; registro de pedidos de esclarecimento e, se cabível, impugnação.
+2. Matriz de aderência: cada requisito do edital × módulo/parâmetro do produto × lacuna.
+3. Estimativa das lacunas e do adaptador de multas do órgão.
+4. Precificação (licença, implantação, adaptadores, migração, sustentação, conforme o modelo do edital).
+5. Documentação de habilitação e atestados de capacidade técnica.
+6. Preparação da prova de conceito com a parametrização do regimento do órgão.
 
-Entregas:
-- M1: login gov.br, consulta de autuações/penalidades (leitura do sistema de multas), assistente de peticionamento com indicação de fase e peça cabível, upload com antivírus e PDF/A, assinatura gov.br, recibo com hash, linha do tempo, notificação por e-mail.
-- Motor de prazos (serviço isolado com calendário de feriados) com tempestividade e ciência presumida da Res. 918/2022.
-- Processo, movimentação (eventos imutáveis), documentos endereçados por hash, auditoria encadeada.
-- M9 básico: perfis, parametrização de prazos e feriados.
-- Recepção manual de peças em papel (digitalização e certificação).
-- Projeção de "situação" para a Secretaria atual trabalhar os protocolos fora do sistema até F2.
+### 6.3 Trilha C: Execução contratual por órgão (meses contados da assinatura)
 
-Critério de saída: recurso real protocolado pelo celular em menos de 5 minutos, com recibo e linha do tempo; a peça chega à Secretaria.
+| Etapa | Meses | Entregas | Critério de saída |
+|---|---|---|---|
+| C0 Descoberta e parametrização | 1–2 | Fluxo do órgão validado, regimento parametrizado, checklist da seção 15.3 respondido, ambiente provisionado | Configuração aprovada pelo órgão |
+| C1 Integrações locais | 2–5 | Adaptador do sistema de multas, gov.br, SNE/CDT, Diário Oficial, assinador, HSM/KMS do órgão | Integrações homologadas |
+| C2 Piloto | 4–6 | Uma junta voluntária julgando no sistema; portal do cidadão aberto | Sessão real com ata e acórdão assinados e publicados |
+| C3 Expansão | 6–9 | Todas as juntas em ondas; 2ª instância e cumprimento | Ciclo 1ª → 2ª → cumprimento sem intervenção manual |
+| C4 Operação assistida e sustentação | 9 em diante | Suporte, atualizações de plataforma, relatórios regimentais | Conforme níveis de serviço do contrato |
 
-### F2 — Núcleo JARI (meses 6 a 12)
-**Objetivo:** uma junta-piloto julga uma sessão inteira exclusivamente no sistema.
-
-Entregas:
-- M6 mínimo: cadastro de juntas, membros, segmentos, mandatos, presidente/vice, suplentes, termos de posse.
-- M3: triagem assistida, exigência/saneamento, remessa por incompetência, distribuição semanal com conexão por veículo/requerente, selo criptográfico, selo do processo (ex.: `2026-S22 / 14ª Junta / B / seq. 20`), pauta e edital de pauta.
-- M4: abertura de sessão (quórum, presenças, revelação), formação de turmas com rodízio combinatório, distribuição interna, ambiente do relator (autos, dossiê, checklist dos três eixos), editor de voto, votação sequencial, impedimento/suspeição, diligência, assinatura PAdES, ata, acórdão, ementa, certidão.
-- Visualizador sem download para membros, com marca d'água e registro de acesso.
-- Publicação do resultado e notificação ao recorrente.
-- Sandbox regimental para treinamento dos membros.
-- Suíte de testes obrigatória das regras RN19 a RN30 e regras ArchUnit protegendo a designação.
-- Pentest independente focado em distribuição e sigilo.
-
-Critério de saída: junta-piloto realiza sessão real, com ata e acórdão assinados e publicados sem redigitação.
-
-### F3 — Integrações, 2ª instância e cumprimento (meses 11 a 17)
-**Objetivo:** ciclo 1ª → 2ª instância → cumprimento sem intervenção manual.
-
-Entregas:
-- Integração bidirecional com o sistema de multas (camada anticorrupção, outbox, reconciliação): efeito suspensivo, cumprimento, restituição.
-- SNE/CDT (notificação e ciência), RENAINF, Diário Oficial eletrônico.
-- M5: peticionamento ao CETRAN, admissibilidade, remessa íntegra com índice e verificação, retorno e cumprimento.
-- Painel de backlog, alertas T-10/T-5/T-1 e lista de elegíveis a efeito suspensivo.
-- Expansão gradual para todas as 27 juntas (ondas de 5 a 7 juntas).
-- Estatísticas mensais e relatório anual (art. 28, XII).
-
-Critério de saída: 27 juntas operando no sistema; um processo percorre 1ª e 2ª instância e é cumprido no sistema de multas sem intervenção manual.
-
-### F4 — Composição, transparência e escala (meses 16 a 24)
-**Objetivo:** ciclo de vida completo dos membros, transparência ativa e segundo órgão.
-
-Entregas:
-- M6 completo: edital bienal, inscrição de entidades, consulta CADIN, sorteio de classificação com rateio, convocação, habilitação, provas, posse, perda de mandato (evidência, nunca sanção), capacitação, presença e gratificação.
-- M7: consulta pública anonimizada, retorno sistêmico de falhas de sinalização, painéis gerenciais, dados abertos.
-- M8: demandas judiciais, subsídio à defesa, base de consultas ao CETRAN/CONTRAN.
-- Base de precedentes pesquisável; apoio de IA à triagem (sem decisão automatizada).
-- Onboarding do segundo tenant.
-- Avaliação jurídica da sessão virtual (somente se houver alteração regimental).
-
-Critério de saída: segundo órgão em produção; indicadores publicados.
-
-### Cronograma macro (estimativa)
-
-```
-Mês:        1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
-F0          ██ ██ ██
-F1                   ██ ██ ██ ██
-F2                         ██ ██ ██ ██ ██ ██ ██
-F3                                        ██ ██ ██ ██ ██ ██ ██
-F4                                                       ██ ██ ██ ██ ██ ██ ██ ██ ██
-Piloto 1 junta                                   ▲ (mês 12)
-27 juntas                                                        ▲ (mês 17)
-2º órgão                                                                          ▲ (mês 24)
-```
+Prazos de C1 dependem diretamente da qualidade da API de multas de cada órgão.
 
 ---
 
-## 6. Estrutura analítica do projeto (EAP)
+## 7. Estrutura analítica do projeto (EAP)
 
-1. Gestão do projeto: plano, cronograma, riscos, comunicação, mudanças, relatórios ao patrocinador.
-2. Negócio e normas: mapeamento de processo, matriz regimento → regra, parametrização por tenant, validação jurídica.
-3. UX e acessibilidade: pesquisa com cidadãos e membros, protótipos, design system, linguagem simples, WCAG 2.1 AA/eMAG.
-4. Desenvolvimento por módulo: M1 a M9.
-5. Serviços transversais: motor de prazos, documentos (PDF/A, renditions, antivírus), assinatura e carimbo do tempo, auditoria encadeada, notificação.
-6. Segurança: modelo de ameaças, selo criptográfico, HSM/KMS, break-glass, ASVS nível 2, pentests.
-7. Integrações: multas, gov.br, SNE/CDT, RENAINF, DOC, assinador, SEI/BI.
-8. Infraestrutura e operação: ambientes, pipeline, observabilidade, backup e DR, runbooks.
-9. Dados: modelo, migração do acervo legado, anonimização para homologação, dados abertos.
-10. Qualidade: estratégia de testes, carga (cenário "27 juntas abrem sessão no mesmo minuto"), E2E de sessão completa, regressão do sigilo.
-11. Implantação: piloto, ondas de expansão, treinamento (sandbox regimental), suporte assistido, comunicação ao cidadão.
-12. Transição: documentação, repasse à equipe de sustentação, contrato de atualização anual da plataforma.
+1. Gestão: plano, cronograma, riscos, comunicação, mudanças.
+2. Negócio e normas: comparação de regimentos, modelo de parametrização, validação jurídica.
+3. Comercial e licitação: matriz de aderência, precificação, PoC, habilitação.
+4. UX e acessibilidade: pesquisa, protótipos, linguagem simples, WCAG 2.1 AA/eMAG.
+5. Desenvolvimento dos módulos M1 a M9.
+6. Serviços transversais: motor de prazos, documentos, assinatura, auditoria, notificação.
+7. Segurança: modelo de ameaças, selo, HSM/KMS, break-glass, ASVS nível 2, pentests.
+8. Integrações: interface padrão + adaptadores por órgão (multas, gov.br, SNE/CDT, RENAINF, Diário Oficial, assinador).
+9. Implantação automatizada: infraestrutura como código, instalador, migração de configuração entre versões.
+10. Dados: modelo, migração de acervo (opcional), anonimização, dados abertos.
+11. Qualidade: testes, carga, E2E de sessão, regressão do sigilo, testes por configuração de regimento.
+12. Implantação por contrato: piloto, ondas, treinamento, suporte.
+13. Sustentação: atualização anual da plataforma, correções, versões para todas as instalações.
 
 ---
 
-## 7. Equipe estimada
+## 8. Equipe estimada
 
-| Papel | Qtd. | Fases |
+### 8.1 Time de produto (Trilha A)
+| Papel | Qtd. |
+|---|---|
+| Gerente de produto / projeto | 1 |
+| Analista de negócio com base jurídica em trânsito | 1–2 |
+| Arquiteto de software | 1 |
+| Engenheiro de segurança/criptografia | 0,5–1 |
+| Backend Java | 4–5 |
+| Frontend React | 2 |
+| UX/acessibilidade | 1 |
+| QA/automação | 2 |
+| DevOps/SRE | 1 |
+
+Total: 13 a 16 pessoas.
+
+### 8.2 Time de proposta (Trilha B, por edital)
+Gerente comercial, analista de negócio, arquiteto e um especialista em licitações (parcial).
+
+### 8.3 Time de implantação (Trilha C, por contrato)
+| Papel | Qtd. |
+|---|---|
+| Gerente de projeto | 1 |
+| Analista de negócio / parametrização | 1 |
+| Desenvolvedor de integrações | 1–2 |
+| DevOps | 0,5–1 |
+| Suporte e treinamento | 1 |
+
+Total: 4 a 6 pessoas por contrato, apoiadas pelo time de produto.
+
+---
+
+## 9. Backlog macro priorizado (épicos)
+
+| Prioridade | Épico | Etapa |
 |---|---|---|
-| Gerente de projeto | 1 | todas |
-| Product owner (do órgão) | 1 | todas |
-| Analista de negócio com base jurídica (trânsito/processo administrativo) | 1–2 | todas |
-| Arquiteto de software | 1 | todas |
-| Engenheiro de segurança / criptografia | 0,5–1 | F0, F2, pentests |
-| Desenvolvedores backend Java | 4–6 | F1 a F4 |
-| Desenvolvedores frontend React | 2–3 | F1 a F4 |
-| Designer UX / acessibilidade | 1 | F0 a F2, F4 |
-| QA / automação de testes | 2 | F1 a F4 |
-| DevOps / SRE | 1 | todas |
-| DBA (parcial) | 0,5 | F0, F3 |
-| Especialista em integrações | 1 | F1, F3 |
-| Pessoas-chave do órgão: Secretaria da JARI, coordenador, 1 presidente de junta, TI do sistema de multas | sob demanda | F0, homologações |
-
-Pico estimado: 14 a 18 pessoas (F2/F3).
+| Crítico | Modelo de parametrização de regimento por instalação | A0–A1 |
+| Crítico | Distribuição semanal com selo commit–reveal e falha fechada | A1 |
+| Crítico | Abertura de sessão com quórum e revelação | A1 |
+| Crítico | Motor de prazos com calendário parametrizável | A1 |
+| Crítico | Auditoria append-only encadeada | A1 |
+| Crítico | Protocolo assinado com recibo e hash | A1 |
+| Alto | Instalador automatizado e atualização de instalações | A2 |
+| Alto | Interface padrão de integração com sistema de multas | A2 |
+| Alto | Assistente de peticionamento | A2 |
+| Alto | Ambiente do relator (relatar → votar → próximo) | A1 |
+| Alto | Modos de designação sigiloso e aberto | A1 |
+| Alto | Remessa ao CETRAN e retorno | A3 |
+| Médio | Credenciamento e ciclo de vida dos membros | A3 |
+| Médio | Retorno sistêmico de falhas de sinalização | A3 |
+| Médio | Painéis e relatórios regimentais | A3 |
+| Médio | Demandas judiciais | A3 |
+| Baixo | Precedentes com busca e apoio de IA | A3 |
+| Condicionado | Sessão virtual assíncrona | onde o regimento permitir |
 
 ---
 
-## 8. Backlog macro priorizado (épicos)
+## 10. Marcos e critérios de aceite
 
-| Prioridade | Épico | Fase |
+| Marco | Quando (est.) | Critério |
 |---|---|---|
-| Crítico | Distribuição semanal com selo commit–reveal e falha fechada | F2 |
-| Crítico | Abertura de sessão com quórum e revelação | F2 |
-| Crítico | Motor de prazos com calendário parametrizável | F1 |
-| Crítico | Auditoria append-only encadeada e ancorada | F1 |
-| Crítico | Protocolo assinado com recibo e hash | F1 |
-| Alto | Assistente de peticionamento (peça certa na fase certa) | F1 |
-| Alto | Ambiente do relator com editor simples e caminho relatar → votar → próximo | F2 |
-| Alto | Formação de turmas com rodízio combinatório e substituição por ausência | F2 |
-| Alto | Ata, acórdão e certidão gerados e assinados | F2 |
-| Alto | Integração com sistema de multas (leitura em F1, cumprimento em F3) | F1/F3 |
-| Alto | Remessa ao CETRAN e retorno | F3 |
-| Médio | Credenciamento de entidades e ciclo de vida dos membros | F2 (mínimo) / F4 |
-| Médio | Retorno sistêmico de falhas de sinalização | F4 |
-| Médio | Painéis, estatísticas mensais e relatório anual | F3/F4 |
-| Médio | Demandas judiciais | F4 |
-| Baixo | Base de precedentes com busca e apoio de IA | F4 |
-| Condicionado | Sessão virtual assíncrona | após alteração regimental |
+| Plano aprovado | Produto, mês 1 | Empresa aprova trilhas, investimento e órgãos-alvo |
+| Modelo de configuração validado | Produto, mês 2 | Regimentos de 3 a 5 órgãos cabem na parametrização |
+| Núcleo demonstrável | Produto, mês 6 | Sessão completa simulada, com designação revelada só na abertura e verificável |
+| Pronto para PoC | Produto, mês 9 | PoC ensaiada dentro do prazo típico de edital |
+| Configuração aprovada | Contrato, mês 2 | Órgão aprova a parametrização |
+| Primeira sessão real | Contrato, mês 6 | Junta-piloto julga sessão completa no sistema |
+| Todas as juntas | Contrato, mês 9 | Ciclo completo sem intervenção manual |
+
+Os nove critérios de aceite da seção 13 do enunciado viram critérios de aceite do produto e roteiro base da PoC.
 
 ---
 
-## 9. Marcos e critérios de aceite
+## 11. Governança
 
-| Marco | Mês (est.) | Critério |
-|---|---|---|
-| M0 – Plano aprovado | 1 | Patrocinador aprova escopo, premissas e decisões abertas |
-| M1 – Fluxo to-be assinado | 3 | Donos de processo assinam o fluxo e a matriz de regras |
-| M2 – Primeiro protocolo real | 7 | Recurso protocolado por celular em < 5 min, com recibo verificável |
-| M3 – Primeira sessão digital | 12 | Junta-piloto julga sessão completa no sistema; designação revelada só na abertura e verificável contra o compromisso |
-| M4 – Todas as juntas | 17 | 27 juntas operando; relatório diário de processos fora do prazo |
-| M5 – Ciclo completo | 17 | 1ª → 2ª instância → cumprimento sem intervenção manual |
-| M6 – Escala | 24 | Segundo órgão em produção; indicadores publicados |
-
-Os nove critérios de aceite da seção 13 do enunciado valem como critérios finais do projeto e serão rastreados até casos de teste.
+- **Comitê de produto** (mensal): direção da empresa, gerente de produto, arquiteto. Decide roadmap, investimento e órgãos-alvo.
+- **Comitê de regras** (quinzenal na A0, depois mensal): analista jurídico, analista de negócio, arquiteto. Mantém o modelo de parametrização e a comparação de regimentos.
+- **Comitê de segurança** (por release): arquiteto, segurança, auditor independente. Aprova algoritmo, selo e pentests.
+- **Por contrato:** comitê com o órgão contratante, conforme exigido no edital.
+- Sprints de 2 semanas; ADRs no repositório; versionamento semântico do produto com notas de versão por instalação.
 
 ---
 
-## 10. Governança
-
-- **Comitê executivo** (mensal): patrocinador, coordenador das JARIs, GP, arquiteto. Decide escopo, prazos e mudanças.
-- **Comitê de regras** (quinzenal na F0, mensal depois): coordenador, representante jurídico, analista de negócio. Mantém a matriz regimento → regra e aprova parametrizações.
-- **Comitê de segurança** (por marco): segurança do órgão, arquiteto, auditor independente. Aprova algoritmo de distribuição, selo e resultados de pentest.
-- **Cadência de entrega:** sprints de 2 semanas, revisão com o órgão ao fim de cada sprint, homologação por fase.
-- **Registro de decisões:** ADRs no repositório e decisões de negócio em log versionado.
-- **Gestão de mudanças:** toda mudança de escopo passa pelo comitê executivo com análise de impacto em prazo e custo.
-
----
-
-## 11. Riscos (complementa a seção 14 do enunciado)
+## 12. Riscos
 
 | Risco | Prob. | Impacto | Mitigação |
 |---|---|---|---|
-| Sistema de multas sem API | Alta | Alto | Camada anticorrupção; prova de conceito de integração já na F0 |
-| HSM/KMS indisponível no cenário de hospedagem | Média | Crítico | Decidir na F0; plano B documentado (mais fraco) e aceito formalmente |
-| Captura ou vazamento da designação | Média | Crítico | Selo, ArchUnit, auditoria de consulta, revisão independente do algoritmo, pentest dirigido |
-| Atualização anual do Spring Boot não contratada | Alta | Alto | Cláusula contratual de atualização de plataforma |
-| Acervo legado subdimensionado | Alta | Alto | Inventário na F0; trilha e orçamento separados |
-| Resistência dos membros ao julgamento digital | Média | Médio | Junta voluntária, sandbox, editor simples, suporte presencial nas primeiras sessões |
-| Mudança do regimento durante o projeto | Alta | Médio | Regras parametrizáveis; comitê de regras |
-| Interpretações divergentes do regimento (I1 a I15) | Alta | Médio | Resolver e registrar formalmente na F0 |
-| Dependência de mudança de edital para digitalizar o credenciamento | Média | Baixo | Planejar M6 alinhado ao próximo edital bienal (2028) |
-| Equipe do órgão sem disponibilidade para validação | Média | Alto | Agenda fixa de validação acordada no M0 |
-| Pico de protocolos em fim de prazo | Média | Médio | Recebimento assíncrono com recibo imediato; capacidade reservada |
+| Produto não estar pronto quando sair o primeiro edital | Média | Crítico | Priorizar o núcleo demonstrável; acompanhar editais publicados |
+| PoC com prazo curto e roteiro específico do órgão | Alta | Alto | Roteiro de PoC ensaiado; parametrização rápida do regimento |
+| Edital exigir tecnologia ou requisito fora do produto | Média | Alto | Matriz de aderência; pedido de esclarecimento ou impugnação no prazo |
+| Falta de atestados de capacidade técnica | Média | Crítico | Levantar atestados existentes; avaliar consórcio |
+| Preço inexequível ou acima do mercado | Média | Alto | Modelo de custo por instalação e por adaptador |
+| Regimentos muito diferentes entre estados | Média | Alto | Comparação de regimentos já na A0 |
+| API de multas de cada órgão ruim ou inexistente | Alta | Alto | Interface padrão + adaptador por arquivo/banco; esforço precificado por edital |
+| HSM/KMS não fornecido pelo contratante | Média | Alto | Plano B documentado; HSM em nuvem como item de proposta |
+| Muitas instalações em versões diferentes | Alta | Médio | Instalador automatizado; política de suporte de versões |
+| Atualização anual do Spring Boot não prevista nos contratos | Alta | Alto | Incluir na sustentação de cada contrato |
+| Captura ou vazamento da designação | Média | Crítico | Selo, ArchUnit, auditoria de consulta, revisão independente, pentest |
+| Acervo legado subdimensionado | Alta | Alto | Item opcional, precificado só após inventário |
 
 ---
 
-## 12. Estratégia de qualidade
+## 13. Estratégia de qualidade
 
-- Testes unitários e de integração (Testcontainers com Postgres, MinIO e Keycloak reais).
-- **Suíte obrigatória das regras RN19 a RN30**, cada regra com casos positivos e negativos.
-- Testes de propriedade para a distribuição (equidade por membro, conexão, rodízio sem repetição antes de 4 reuniões).
-- Regressão de sigilo: nenhum endpoint, relatório ou log expõe a designação antes da abertura.
-- E2E (Playwright) de uma sessão completa, do protocolo à publicação.
-- Acessibilidade com axe-core em pipeline e avaliação manual com usuários.
-- Teste de carga com o cenário real: 27 juntas abrindo sessão no mesmo minuto + rajada de protocolos em véspera de prazo.
-- Restauração de backup testada trimestralmente; ensaio de DR incluindo a chave mestra.
-
----
-
-## 13. Implantação, treinamento e transição
-
-- **Piloto:** uma junta voluntária, com sessões em paralelo ao processo atual nas 2 primeiras semanas (somente se o regimento permitir; senão, piloto direto com suporte presencial).
-- **Ondas:** 5 a 7 juntas por onda, a cada 3 ou 4 semanas.
-- **Treinamento:** sandbox regimental com calendário acelerado; trilha para membros, Secretaria, presidentes e coordenador; material integrado à capacitação do art. 28, XV.
-- **Comunicação ao cidadão:** páginas de serviço geradas a partir da mesma parametrização do motor de prazos.
-- **Transição:** runbooks, documentação de arquitetura, repasse à equipe de sustentação definida em D7.
+- Suíte obrigatória das regras RN19 a RN30, com casos positivos e negativos.
+- Testes executados contra várias configurações de regimento (SP como base + regimentos de órgãos-alvo).
+- Testes de propriedade da distribuição: equidade, conexão, rodízio sem repetição antes de esgotar as combinações.
+- Regressão de sigilo: nenhum endpoint, relatório ou log expõe a designação antes da abertura, no modo sigiloso.
+- E2E de sessão completa (Playwright), axe-core em pipeline, Testcontainers.
+- Carga com o cenário de SP (27 juntas abrindo sessão no mesmo minuto + rajada de protocolos) como teto de referência.
+- Teste de instalação e de atualização do zero em ambiente limpo a cada release.
 
 ---
 
-## 14. Perguntas em aberto
+## 14. Implantação, treinamento e transição (por contrato)
 
-### Decisões que bloqueiam o plano (D)
-- D1. Qual é o papel de vocês no projeto: fornecedor contratado, equipe interna do órgão, ou proposta comercial a ser apresentada?
-- D2. O contratante e órgão-piloto é a CET/Prefeitura de São Paulo, ou outro órgão?
-- D3. A esfera é municipal, estadual (DETRAN) ou rodoviária?
-- D4. O sistema cobre todo o rito (defesa da autuação, indicação de condutor, JARI, CETRAN) ou só o recurso à JARI?
-- D5. A designação dos julgadores será sigilosa até a sessão (modelo SP) ou publicada na pauta (modelo DETRAN-PB)?
-- D6. Será produto multi-tenant para vários órgãos ou instalação única?
-- D7. Quem opera o sistema após o go-live: o órgão, a empresa pública de TI ou o fornecedor?
-- D8. Existe prazo-limite (contratual, eleitoral, orçamentário) para a entrada em produção?
-
-### Prazo, orçamento e equipe (P)
-- P1. Há orçamento definido ou teto de custo para o projeto?
-- P2. Há equipe já disponível, ou a equipe será montada/contratada?
-- P3. O modelo de contratação é por fábrica de software, preço fixo, ou alocação?
-- P4. Quem será o product owner do lado do órgão e quanto tempo ele terá por semana?
-
-### Infraestrutura (I)
-- I-1. Onde o sistema será hospedado (nuvem pública, empresa pública de TI como a PRODAM, ou datacenter próprio)?
-- I-2. Existe HSM ou serviço de chaves gerenciado disponível nesse ambiente?
-- I-3. O órgão já opera Kubernetes com equipe própria?
-- I-4. É aceitável operar runtime Node em produção (SSR do portal)?
-- I-5. Existe design system institucional da Prefeitura a seguir no lugar do GovBR-DS?
-
-### Integrações (N)
-- N1. Qual é o sistema de multas atual e quem o mantém?
-- N2. Esse sistema expõe API, ou a integração será por arquivo/banco?
-- N3. Existe ambiente de homologação do sistema de multas disponível para o projeto?
-- N4. O órgão já aderiu ao login gov.br e ao SNE/CDT?
-- N5. Qual Diário Oficial eletrônico será integrado e há API de publicação?
-- N6. O sistema deve integrar com o SEI (processo SEI do edital indica uso)?
-- N7. Qual provedor de assinatura será usado: gov.br avançada, ICP-Brasil, ou os dois?
-- N8. DSV Digital e Meu Veículo serão substituídos pelo SIREJ ou continuarão existindo em paralelo?
-
-### Regras do regimento (R)
-- R1. Uma decisão com só 2 votos (maioria simples, art. 17 §1) é válida no sistema, ou sempre são exigidos 3 votos assinados?
-- R2. Presidente e vice precisam ficar em turmas diferentes quando há 2 turmas simultâneas?
-- R3. O membro pode acessar os autos fora do dia e horário da reunião, ou só durante a sessão (arts. 19 e 29, XIII)?
-- R4. A ordem de voto relator → revisor → 3º membro é fixa e sequencial, ou os dois outros votam em paralelo?
-- R5. Qual é o prazo de relatoria a ser medido (art. 12, VI)?
-- R6. O que é o "planejamento mensal de distribuição interna" do art. 30?
-- R7. O roteiro de reunião do art. 15 deve ser obrigatório no sistema ou apenas sugerido?
-- R8. O prazo-meta interno para análise da defesa da autuação (sem prazo legal) já existe? Qual é?
-- R9. Após o julgamento, os nomes dos julgadores aparecem para o recorrente e na consulta pública?
-- R10. Quando o mesmo veículo tem recursos conexos em semanas diferentes, eles devem esperar para ir juntos ao mesmo membro?
-- R11. Como tratar membro que muda de junta ou sai no meio do ciclo, com processos conexos já atribuídos à sua posição?
-- R12. O órgão aceita propor a correção das remissões internas do regimento (arts. 9º e 29)?
-
-### Credenciamento e composição (C)
-- C1. O próximo edital bienal pode prever inscrição eletrônica e prova de informática no próprio sistema?
-- C2. A seleção dos representantes da comunidade (565 inscritos no último ciclo) entra no escopo?
-- C3. A gratificação por presença é calculada pelo SIREJ ou só a presença é enviada à folha?
-- C4. A consulta ao CADIN Municipal tem API ou é manual?
-
-### Dados e acervo (A)
-- A1. Quantos processos e quantos terabytes existem no acervo legado a migrar?
-- A2. Processos em andamento no momento da implantação migram para o SIREJ ou terminam no sistema antigo?
-- A3. Qual é a política de temporalidade documental do município a respeitar?
-
-### Segunda instância (S)
-- S1. Quais são os procedimentos do CETRAN-SP para receber recursos (art. 25, IX)? Existe documento?
-- S2. O CETRAN-SP tem sistema próprio para receber os autos eletronicamente, ou a remessa será por pacote/arquivo?
-
-### Expectativa sobre este plano (E)
-- E1. Este plano deve servir para gestão interna, para proposta comercial, ou para termo de referência de licitação?
-- E2. Precisa de estimativa de custo em reais e de esforço em horas por fase?
-- E3. Há modelo ou metodologia de plano exigida (PMBOK, ágil, padrão do órgão)?
+- Piloto com uma junta voluntária e suporte presencial nas primeiras sessões.
+- Ondas de juntas conforme o porte do órgão.
+- Treinamento no sandbox regimental; material ajustado ao regimento do órgão.
+- Páginas de serviço ao cidadão geradas a partir da mesma parametrização do motor de prazos.
+- Transferência de conhecimento e documentação conforme exigido no edital.
 
 ---
 
-## 15. Próximos passos
+## 15. Perguntas em aberto
 
-1. Responder as decisões D1 a D8 e a pergunta E1, que mudam a forma do plano.
-2. Com essas respostas, ajustar fases, equipe e cronograma, e adicionar estimativa de custo se pedida.
-3. Agendar a F0 com o órgão-piloto: entrevistas com Secretaria, coordenador, um presidente de junta e a TI do sistema de multas.
+### 15.1 Respondidas em 06/10/2026
+D1 a D8 (seção 2) e E1 (o plano serve para proposta e concorrência licitatória).
+
+### 15.2 Estratégia de licitação e produto (L)
+- L1. Já existe edital ou termo de referência publicado (ou em consulta pública)? De qual órgão?
+- L2. Os órgãos-alvo são municipais (como a CET) ou estaduais (DETRANs)?
+- L3. Quais estados ou órgãos a empresa quer priorizar?
+- L4. A empresa já tem algum produto ou código para esse sistema, ou parte do zero?
+- L5. A empresa vai investir na construção do produto antes de ganhar o primeiro contrato?
+- L6. Os editais-alvo costumam exigir prova de conceito? Com que prazo?
+- L7. Qual critério de julgamento é esperado: menor preço ou técnica e preço?
+- L8. A empresa tem atestados de capacidade técnica em sistemas de processo administrativo ou trânsito?
+- L9. A hospedagem será do órgão, da empresa (serviço gerenciado por instalação) ou de nuvem contratada pelo órgão?
+- L10. A plataforma Java/JavaScript é escolha da empresa ou exigência de algum edital?
+- L11. O código-fonte será cedido ao órgão, ou a empresa mantém a propriedade e licencia?
+- L12. Qual modelo de remuneração a empresa prefere: licença + implantação + sustentação, UST, ou preço global?
+- L13. Há orçamento e equipe definidos para a Trilha A?
+
+### 15.3 Checklist de descoberta por órgão contratante (respondido na etapa C0)
+Infraestrutura
+- Onde será hospedado e se há HSM/KMS disponível.
+- Se o órgão opera Kubernetes e aceita runtime Node em produção.
+- Se há design system institucional a seguir.
+
+Integrações
+- Qual é o sistema de multas, quem o mantém, e se tem API ou integração por arquivo/banco.
+- Se há ambiente de homologação do sistema de multas.
+- Se o órgão aderiu ao gov.br e ao SNE/CDT.
+- Qual Diário Oficial e se há API de publicação.
+- Se há integração com SEI ou outro sistema de processo.
+- Qual assinatura: gov.br avançada, ICP-Brasil ou as duas.
+- Quais sistemas atuais o SIREJ substitui e quais continuam em paralelo.
+
+Regras do regimento
+- Se uma decisão com 2 votos é válida ou se sempre são exigidos 3.
+- Se presidente e vice precisam ficar em turmas diferentes.
+- Se o membro acessa os autos fora do dia e horário da reunião.
+- Se a votação é sequencial ou paralela.
+- Qual é o prazo de relatoria.
+- Quais passos do roteiro de reunião são obrigatórios.
+- Qual o prazo-meta interno para análise da defesa da autuação.
+- Se os nomes dos julgadores aparecem após o julgamento.
+- Como tratar recursos conexos em semanas diferentes.
+- Como tratar membro que sai com processos conexos atribuídos à sua posição.
+
+Credenciamento e composição
+- Se a inscrição de entidades e as provas serão eletrônicas.
+- Se a seleção dos representantes da comunidade entra no escopo.
+- Se a gratificação por presença é calculada no sistema.
+- Se a consulta ao CADIN tem API.
+
+Dados e acervo
+- Tamanho do acervo legado (processos e terabytes).
+- Se processos em andamento migram ou terminam no sistema antigo.
+- Qual política de temporalidade documental se aplica.
+
+Segunda instância
+- Procedimentos do CETRAN do estado para receber recursos.
+- Se o CETRAN tem sistema para receber autos eletronicamente.
+
+### 15.4 Sobre este plano
+- E2. Precisa de estimativa de custo em reais e esforço em horas por trilha?
+- E3. Há metodologia de plano exigida pelos editais-alvo (PMBOK, ágil)?
+
+---
+
+## 16. Próximos passos
+
+1. Responder L1 a L5, que definem se o plano começa pela Trilha A ou por um edital já publicado.
+2. Levantar os regimentos de 3 a 5 órgãos-alvo para validar o modelo de parametrização.
+3. Se houver edital publicado, montar a matriz de aderência e o cronograma da proposta.
 4. Fechar a especificação do algoritmo de distribuição e do selo, por ser o componente de maior risco.
