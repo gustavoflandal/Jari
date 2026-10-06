@@ -2,7 +2,11 @@
 
 Sistema Integrado de Recursos de Infrações de Trânsito (JARI): processo administrativo eletrônico para o rito recursal de infrações de trânsito.
 
-## Documentação
+## Para quem vai desenvolver
+
+Comece por [CLAUDE.md](CLAUDE.md) (invariantes e regras para agentes) e pelo [índice da documentação de referência](docs/dev/00-indice.md). Decisões de arquitetura em [docs/adr](docs/adr/README.md); configurações de regimento em [config/regimentos](config/regimentos).
+
+## Documentação de projeto
 
 | Documento | Conteúdo |
 |---|---|

@@ -1,0 +1,29 @@
+# Configuração de Curitiba (SMDT) — RASCUNHO
+# Base normativa: Lei municipal 15.154/2017 (texto ainda não analisado).
+# Fontes públicas: transito.curitiba.pr.gov.br (JARI e recursos à JARI/CETRAN-PR).
+# Herda de sp.yaml; só sobrescreve o que difere. Itens "A CONFIRMAR" dependem da lei e do edital.
+# Esquema e semântica: docs/dev/06-parametrizacao.md
+
+herda: sp
+
+orgao:
+  codigo: SMDT-CURITIBA
+  nome: Secretaria Municipal de Defesa Social e Trânsito
+  esfera: MUNICIPAL
+  uf: PR
+  municipioIbge: 4106902
+  fusoHorario: America/Sao_Paulo
+  segundaInstancia: CETRAN-PR
+
+identidade:
+  # Hoje o protocolo usa a identidade digital do Estado do Paraná (Central de Segurança),
+  # PIÁ e Detran InteliGente (advogados com certificado OAB). A CONFIRMAR no edital.
+  provedoresCidadao: [GOVBR, IDENTIDADE_PR]
+
+composicao:
+  # 4 juntas, 6 titulares e 3 suplentes por junta (página institucional).
+  # Segmentos e posições: A CONFIRMAR na Lei 15.154/2017.
+  suplentesPorSegmento: 1
+
+designacao:
+  modo: SIGILOSO   # A CONFIRMAR; padrão do produto
