@@ -1,0 +1,157 @@
+# Configuração de referência: JARI do Município de São Paulo (CET)
+# Base normativa: Decreto 60.982/2021; Regimento das JARIs (Comunicado CET 007/23);
+# Edital 001/2026-JARI/CET. Artigos citados referem-se ao Regimento.
+# Esquema e semântica: docs/dev/06-parametrizacao.md
+
+orgao:
+  codigo: CET-SP
+  nome: Companhia de Engenharia de Tráfego
+  esfera: MUNICIPAL
+  uf: SP
+  municipioIbge: 3550308
+  fusoHorario: America/Sao_Paulo
+  segundaInstancia: CETRAN-SP
+
+modulos:
+  portalRecorrente: true        # M1
+  autuacaoInstrucao: true       # M2
+  segundaInstancia: true        # M5
+  credenciamento: true          # M6
+  transparencia: true           # M7
+  demandasJudiciais: true       # M8
+
+identidade:
+  provedoresCidadao: [GOVBR]
+  nivelMinimoPorAto:            # bronze | prata | ouro (gov.br)
+    CONSULTA: bronze
+    PROTOCOLO: prata
+    ASSINATURA: prata
+  mfaInternos: true
+
+calendario:
+  feriados: [NACIONAL, ESTADUAL, MUNICIPAL, ORGAO]
+  prorrogaVencimentoEmDiaNaoUtil: true
+
+prazos:                         # dias corridos, salvo indicação
+  defesaAutuacao: { origem: IMPRESSO_NA }        # prazo vem da notificação
+  indicacaoCondutor: { dias: 15, conta: CIENCIA_NA }          # art. 257 §7º CTB
+  recurso1a: { dias: 30, conta: CIENCIA_NP }                  # art. 285 CTB
+  recurso2a: { dias: 30, conta: PUBLICACAO_OU_NOTIFICACAO }   # arts. 288/289 CTB
+  cienciaPresumidaEletronica: { dias: 30 }                    # Res. CONTRAN 918/2022
+  julgamento: { dias: 30, acao: PROPOR_EFEITO_SUSPENSIVO }    # art. 285 CTB
+  exigencia: { dias: 10 }                                     # PROVISÓRIO: confirmar com o órgão
+  informacaoAgente: { dias: 10 }                              # PROVISÓRIO
+  relatoria: { sessoes: 1 }                                   # art. 12, VI: não definido em norma; PROVISÓRIO
+  metaDefesaAutuacao: { dias: null }                          # sem prazo legal; meta interna a definir
+  alertas: { diasAntes: [10, 5, 1] }
+
+pecas:
+  DEFESA_AUTUACAO: { decisor: ORGAO_AUTUADOR, viraProcessoJari: false }
+  INDICACAO_CONDUTOR: { decisor: ORGAO_AUTUADOR, viraProcessoJari: false }
+  RECURSO_1A_INSTANCIA: { decisor: JARI, viraProcessoJari: true }
+  RECURSO_2A_INSTANCIA: { decisor: CETRAN, viraProcessoJari: false }
+  PEDIDO_EFEITO_SUSPENSIVO: { decisor: AUTORIDADE, viraProcessoJari: false }
+  CONVERSAO_ADVERTENCIA: { decisor: AUTORIDADE, viraProcessoJari: false }
+  JUNTADA_DOCUMENTOS: { decisor: null, viraProcessoJari: false }
+
+composicao:
+  segmentos: [COMUNIDADE, ENTIDADE_EXECUTIVA, SOCIEDADE_CIVIL]   # art. 6º
+  posicoesPorJunta:
+    - { letra: A, segmento: COMUNIDADE }
+    - { letra: B, segmento: COMUNIDADE }
+    - { letra: C, segmento: ENTIDADE_EXECUTIVA }
+    - { letra: D, segmento: ENTIDADE_EXECUTIVA }
+    - { letra: E, segmento: SOCIEDADE_CIVIL }
+    - { letra: F, segmento: SOCIEDADE_CIVIL }
+  suplentesPorSegmento: 0       # art. 6º §4 permite; SP não fixa número
+  presidenciaLivre: true        # art. 6º §1: qualquer membro
+  mandato: { meses: 12, reconducao: true }                   # art. 11
+
+designacao:
+  modo: SIGILOSO                # art. 29, XII
+  revelarNomesAposJulgamento: true   # PROVISÓRIO: política de publicidade do órgão
+
+distribuicao:
+  periodicidade: SEMANAL        # art. 22
+  equidade: POR_POSICAO         # igual número por membro
+  conexao: [MESMO_REQUERENTE, MESMO_VEICULO]   # art. 22
+  conexaoComPendentes: MESMA_POSICAO           # PROVISÓRIO (doc 16, D-03)
+  ordemNaPosicao: DATA_INTERPOSICAO            # art. 23
+  falhaFechada: true                           # art. 22 §1 — não pode ser false
+  redistribuicao:
+    motivosPermitidos: [FORCA_MAIOR, IMPEDIMENTO, SUSPEICAO]   # art. 24
+    exigeCriterioDoCoordenador: true
+
+turmas:
+  membrosPorTurma: 3
+  umPorSegmento: true           # art. 17
+  maximoSimultaneas: 2          # art. 17 §2
+  rodizio: SEM_REPETICAO_ATE_ESGOTAR   # art. 17 §3
+  presidenteEViceEmTurmasDiferentes: false   # PROVISÓRIO (doc 16, D-02)
+
+sessao:
+  quorumAbertura: { minimoMembros: 3, segmentosDistintos: 3 }   # art. 13
+  executorDistribuicaoInterna: PRESIDENTE                       # art. 15, 25 II
+  substituicaoAusente: MESMO_SEGMENTO_NO_2O_OU_3O_VOTO          # art. 17 §4
+  relatorAusente: RETORNA_A_PAUTA
+  roteiro:                       # art. 15; obrigatorio=true bloqueia avanço
+    - { passo: ABERTURA, obrigatorio: true }
+    - { passo: APROVACAO_ATA_ANTERIOR, obrigatorio: false }
+    - { passo: DISTRIBUICAO_INTERNA_E_TURMAS, obrigatorio: true }
+    - { passo: DISTRIBUICAO_AOS_MEMBROS, obrigatorio: true }
+    - { passo: JULGAMENTO, obrigatorio: true }
+    - { passo: PROPOSICOES, obrigatorio: false }
+    - { passo: ENCERRAMENTO, obrigatorio: true }
+  modalidades: [PRESENCIAL, HIBRIDA]   # virtual exige alteração regimental
+  sustentacaoOral: false               # art. 20
+
+votacao:
+  votosMinimos: 3
+  excecaoMaioriaSimples: { permitida: true, minimo: 2, exigePresidenteOuVice: true }   # art. 6º §3, 17 §1
+  ordem: SEQUENCIAL              # RELATOR -> REVISOR -> TERCEIRO; PROVISÓRIO (doc 16, D-04)
+  votoRelatorVisivelAposConclusao: true
+  exigeDispositivoNormativo: true
+
+resultados:                      # art. 27, VI — rol fechado
+  - { codigo: REJEICAO_ADMINISTRATIVA, alteraPenalidade: false }
+  - { codigo: NAO_CONHECIMENTO_INTEMPESTIVIDADE, alteraPenalidade: false }
+  - { codigo: NAO_CONHECIMENTO_ILEGITIMIDADE, alteraPenalidade: false }
+  - { codigo: MANUTENCAO_PENALIDADE, alteraPenalidade: false }
+  - { codigo: CANCELAMENTO_PENALIDADE, alteraPenalidade: true }
+
+relatoria:
+  checklist: [REGULARIDADE_PROCEDIMENTO, FORCA_MAIOR_ALEGADA, ANTECEDENTES_RECORRENTE]   # RN13
+
+impedimento:                     # art. 27 §§1-2
+  motivos:
+    - { codigo: APENADO_OU_PARENTE, tipo: IMPEDIMENTO }
+    - { codigo: TESTEMUNHA, tipo: IMPEDIMENTO }
+    - { codigo: PERITO_OU_PROVA_DETERMINANTE, tipo: IMPEDIMENTO }
+    - { codigo: ORIENTOU_RECORRENTE, tipo: IMPEDIMENTO }
+    - { codigo: AMIZADE_OU_INIMIZADE_INTIMA, tipo: SUSPEICAO }
+    - { codigo: CREDOR_OU_DEVEDOR, tipo: SUSPEICAO }
+
+diligencia:
+  presencial: { minimoMembros: 2, segmentosDistintos: 2 }   # art. 20 par. único
+
+autos:
+  downloadMembros: false         # art. 19
+  marcaDagua: true
+  acessoMembrosForaDaSessao: PERMITIDO   # PROVISÓRIO: art. 29 XIII (doc 16, D-01)
+
+presenca:
+  cancelaPorRecusaImotivada: true   # art. 14 §2
+
+mandato:
+  perda:                          # art. 12; o sistema só evidencia (RN30)
+    faltasSeguidas: 3
+    faltasIntercaladasAno: 4
+    hipotesesComProcedimento: [III, IV, V, VI, VII, VIII, IX]
+
+documentos:
+  formatosAceitos: [application/pdf, image/jpeg, image/png]
+  tamanhoMaximoMb: 20
+  obtidosDeOficio: [CRLV, DOCUMENTO_IDENTIDADE, CNPJ]   # Lei 14.129/2021
+
+retencao:
+  anos: 5
