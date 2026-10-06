@@ -1,6 +1,6 @@
 # Plano do Projeto SIREJ (Sistema Integrado de Recursos de Infrações de Trânsito / JARI)
 
-**Versão:** 0.2 (revisada para o cenário de licitação)
+**Versão:** 0.3 (Curitiba como primeiro alvo)
 **Data:** 06/10/2026
 **Base documental analisada:**
 - `enunciado-projeto-sistema-jari.md` (v1.0, 14/09/2026)
@@ -15,6 +15,7 @@
 |---|---|---|
 | 0.1 | 06/10/2026 | Primeira versão, assumindo a CET/SP como contratante |
 | 0.2 | 06/10/2026 | Revisão com as respostas de Gustavo: empresa concorrente em licitações, clientes em outros estados, instalação única por órgão |
+| 0.3 | 06/10/2026 | Respostas L1 a L5: editais em andamento, órgãos municipais e estaduais, Curitiba como primeiro alvo, produto partindo do zero com investimento da empresa |
 
 ---
 
@@ -46,10 +47,51 @@ Como cada órgão tem regimento, CETRAN, calendário e sistema de multas própri
 | D7 | API do sistema de multas | Cada estado fornece a sua | Interface de integração padronizada no produto; adaptador por órgão vira item de implantação, com custo próprio |
 | D8 | Finalidade deste plano | Proposta e concorrência licitatória | Inclui matriz de aderência ao edital, prova de conceito, precificação e riscos de licitação |
 
+**Respostas de 06/10/2026 sobre estratégia (L1 a L5):**
+
+| # | Pergunta | Resposta | Impacto |
+|---|---|---|---|
+| L1 | Há edital publicado? | Sim, vários em andamento | Trilha B começa já, em paralelo à Trilha A |
+| L2 | Municipais ou estaduais? | Os dois | Parametrização precisa cobrir prefeituras e DETRANs (escala de poucas a dezenas de juntas) |
+| L3 | Prioridade | Curitiba | Primeiro alvo; ver seção 2.1 |
+| L4 | Há código existente? | Não, parte do zero | Não há produto para prova de conceito hoje; o prazo do edital de Curitiba decide a estratégia |
+| L5 | A empresa investe antes do contrato? | Sim | Trilha A começa imediatamente |
+
 **Mudanças nos documentos de base que isso provoca:**
 - A arquitetura previa multi-tenant desde o início (enunciado 10 e 15.6). Passa a ser uma instalação por contratante, com o mesmo artefato.
 - A "restrição fixa do cliente: Java/JavaScript" da arquitetura precisa ser confirmada como escolha da empresa ou exigência de edital (pergunta L10).
 - Decisões que eram do patrocinador (enunciado 15) passam a ser parâmetros de instalação ou respostas por edital.
+
+### 2.1 Primeiro alvo: Curitiba
+
+O que as fontes públicas mostram em 06/10/2026:
+
+| Item | Curitiba | São Paulo (referência) |
+|---|---|---|
+| Órgão | Secretaria Municipal de Defesa Social e Trânsito (SMDT) | CET |
+| Norma da JARI | Lei municipal nº 15.154/2017 | Decreto 60.982/2021 + Comunicado 007/23 |
+| Juntas | 4 juntas, cada uma com 6 titulares e 3 suplentes | 27 juntas de 6 membros |
+| 2ª instância | CETRAN-PR | CETRAN-SP |
+| Protocolo hoje | Plataformas do Estado do Paraná (Central de Segurança / identidade digital PR, PIÁ, Detran InteliGente para advogados com certificado da OAB), Correios e presencial com agendamento | DSV Digital, Correios |
+| Assinatura exigida | Avançada ou qualificada ICP-Brasil | — |
+| Notificação | SNE | SNE |
+
+Fontes: [JARI — Trânsito Curitiba](https://transito.curitiba.pr.gov.br/institucional/junta-administrativa-de-recursos-de-infracoes-jari/20), [Recursos à JARI e ao CETRAN-PR](https://transito.curitiba.pr.gov.br/multas/recursos-de-multas-a-jari-e-ao-cetran-pr/68).
+
+Não encontrei o edital do sistema de JARI de Curitiba nos portais públicos. Os pregões de 2026 localizados no portal de transparência tratam de outros objetos (PE 054/2026-SMDT, manutenção semafórica; PE 009/2026-SMATI, conectividade). O texto da Lei 15.154/2017 não pôde ser baixado automaticamente e precisa ser lido.
+
+**O que isso muda:**
+1. A escala é cerca de 7 vezes menor que a de SP (4 juntas contra 27). A primeira instalação pode ser enxuta, e o dimensionamento de SP fica como teto.
+2. Suplentes fixos por junta (3 por junta) precisam entrar no modelo de composição e de substituição.
+3. O protocolo hoje passa pela identidade digital do Paraná, não pelo gov.br. O produto precisa de um adaptador de identidade, além do gov.br.
+4. O prazo do edital decide a estratégia, porque o produto parte do zero:
+
+| Situação do edital de Curitiba | Estratégia recomendada |
+|---|---|
+| Proposta ou PoC em menos de 4 meses, exigindo produto pronto | Não disputar este edital; usá-lo para aprender o termo de referência e mirar o próximo |
+| Proposta em menos de 4 meses, mas sem PoC e com implantação durante o contrato | Disputar, com o desenvolvimento cabendo no prazo de implantação do contrato; risco alto de prazo |
+| PoC entre 4 e 6 meses | Trilha A acelerada com escopo de Curitiba: núcleo enxuto, equipe completa desde o mês 1, PoC por volta do mês 5 |
+| Mais de 6 meses | Trilha A normal, com Curitiba parametrizado desde a A0 |
 
 ---
 
@@ -313,12 +355,16 @@ Os nove critérios de aceite da seção 13 do enunciado viram critérios de acei
 ### 15.1 Respondidas em 06/10/2026
 D1 a D8 (seção 2) e E1 (o plano serve para proposta e concorrência licitatória).
 
-### 15.2 Estratégia de licitação e produto (L)
-- L1. Já existe edital ou termo de referência publicado (ou em consulta pública)? De qual órgão?
-- L2. Os órgãos-alvo são municipais (como a CET) ou estaduais (DETRANs)?
-- L3. Quais estados ou órgãos a empresa quer priorizar?
-- L4. A empresa já tem algum produto ou código para esse sistema, ou parte do zero?
-- L5. A empresa vai investir na construção do produto antes de ganhar o primeiro contrato?
+L1 a L5 foram respondidas em 06/10/2026 (seção 2).
+
+### 15.2 Edital de Curitiba (CT)
+- CT1. Qual é o número do edital de Curitiba, e você pode anexar o edital e o termo de referência aqui?
+- CT2. Quais são as datas de entrega da proposta, da sessão de lances e da prova de conceito?
+- CT3. Qual o prazo de implantação exigido após a assinatura do contrato?
+- CT4. O edital exige produto pronto na prova de conceito ou aceita desenvolvimento durante o contrato?
+- CT5. Quais outros editais em andamento a empresa acompanha (órgão e data)?
+
+### 15.3 Estratégia de licitação e produto (L)
 - L6. Os editais-alvo costumam exigir prova de conceito? Com que prazo?
 - L7. Qual critério de julgamento é esperado: menor preço ou técnica e preço?
 - L8. A empresa tem atestados de capacidade técnica em sistemas de processo administrativo ou trânsito?
@@ -326,9 +372,9 @@ D1 a D8 (seção 2) e E1 (o plano serve para proposta e concorrência licitatór
 - L10. A plataforma Java/JavaScript é escolha da empresa ou exigência de algum edital?
 - L11. O código-fonte será cedido ao órgão, ou a empresa mantém a propriedade e licencia?
 - L12. Qual modelo de remuneração a empresa prefere: licença + implantação + sustentação, UST, ou preço global?
-- L13. Há orçamento e equipe definidos para a Trilha A?
+- L13. Há orçamento e equipe definidos para a Trilha A, e quando a equipe pode começar?
 
-### 15.3 Checklist de descoberta por órgão contratante (respondido na etapa C0)
+### 15.4 Checklist de descoberta por órgão contratante (respondido na etapa C0)
 Infraestrutura
 - Onde será hospedado e se há HSM/KMS disponível.
 - Se o órgão opera Kubernetes e aceita runtime Node em produção.
@@ -370,7 +416,7 @@ Segunda instância
 - Procedimentos do CETRAN do estado para receber recursos.
 - Se o CETRAN tem sistema para receber autos eletronicamente.
 
-### 15.4 Sobre este plano
+### 15.5 Sobre este plano
 - E2. Precisa de estimativa de custo em reais e esforço em horas por trilha?
 - E3. Há metodologia de plano exigida pelos editais-alvo (PMBOK, ágil)?
 
@@ -378,7 +424,8 @@ Segunda instância
 
 ## 16. Próximos passos
 
-1. Responder L1 a L5, que definem se o plano começa pela Trilha A ou por um edital já publicado.
-2. Levantar os regimentos de 3 a 5 órgãos-alvo para validar o modelo de parametrização.
-3. Se houver edital publicado, montar a matriz de aderência e o cronograma da proposta.
-4. Fechar a especificação do algoritmo de distribuição e do selo, por ser o componente de maior risco.
+1. Receber o edital e o termo de referência de Curitiba (CT1 a CT4) e escolher a estratégia da tabela da seção 2.1.
+2. Montar a matriz de aderência do edital de Curitiba.
+3. Ler a Lei municipal 15.154/2017 e incluí-la, com o regimento de SP e o de um DETRAN, na comparação de regimentos da A0.
+4. Montar a equipe da Trilha A e começar a A0.
+5. Fechar a especificação do algoritmo de distribuição e do selo, por ser o componente de maior risco.
