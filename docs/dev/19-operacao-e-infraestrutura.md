@@ -121,6 +121,16 @@ Metas: RPO ≤ 15 min, RTO ≤ 4 h (RNF07).
 - Rollback ensaiado em homologação a cada release; nunca presumido.
 - A atualização nunca altera a configuração do órgão (ADR-0011).
 
+**Pipeline de integração (PT-01).** Em todo push para `main` e em todo PR, o GitHub Actions roda, sem depender de segredo ou chave de API:
+
+| Workflow | Etapa | Bloqueia o PR quando |
+|---|---|---|
+| `ci.yml` › backend | `./mvnw -B verify` (testes, `ApplicationModules.verify()`), SBOM CycloneDX do backend publicado como artefato `sbom-backend` e SCA com OSV-Scanner sobre esse SBOM (dependências diretas e transitivas) | algum teste ou verificação falha, ou há qualquer vulnerabilidade conhecida |
+| `ci.yml` › frontend | `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, `npm audit --audit-level=high` (SCA) e SBOM CycloneDX do frontend, publicado como artefato `sbom-frontend` | algo falha ou há vulnerabilidade alta ou crítica |
+| `codeql.yml` | SAST CodeQL (`security-extended`) em Java, TypeScript e nos próprios workflows; também semanal | alerta de segurança, conforme a proteção do branch |
+
+As actions são fixadas por SHA de commit. O Dependabot (`.github/dependabot.yml`) propõe atualizações semanais de Maven, npm e actions. O `actions/dependency-review-action` só funciona com o Dependency graph ligado nas configurações do repositório. Quando estiver ligado, ele pode ser somado aos PRs como SCA adicional. A varredura de imagem (Trivy) e a assinatura de imagens entram quando houver imagens de contêiner (PT-27).
+
 ## 9. Runbooks obrigatórios
 
 Cada um em `docs/operacao/runbooks/`, escrito no PT-27 e revisado a cada release:

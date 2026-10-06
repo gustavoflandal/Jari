@@ -6,6 +6,15 @@ Sistema Integrado de Recursos de Infrações de Trânsito (JARI): processo admin
 
 Comece por [CLAUDE.md](CLAUDE.md) (invariantes e regras para agentes) e pelo [índice da documentação de referência](docs/dev/00-indice.md). Decisões de arquitetura em [docs/adr](docs/adr/README.md); configurações de regimento em [config/regimentos](config/regimentos). Para executar uma fase do plano com agentes, use os [prompts por fase](docs/prompts/README.md).
 
+### Build local
+
+Requisitos: JDK 25, Node 22.12+ e npm 10.
+
+```sh
+./mvnw verify            # backend: testes e ApplicationModules.verify()
+cd frontend && npm ci && npm test
+```
+
 ## Documentação de projeto
 
 | Documento | Conteúdo |
