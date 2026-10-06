@@ -24,6 +24,12 @@
             <artifactId>sirej-compartilhado</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Registro de auditoria da criação de regimento_versao, na mesma transação (doc 08; D-48). -->
+        <dependency>
+            <groupId>br.com.sirej</groupId>
+            <artifactId>sirej-auditoria</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Persistência de regimento_versao (docs/dev/05): JDBC + Flyway + PostgreSQL. Sem JPA: a tabela é imutável. -->
         <dependency>

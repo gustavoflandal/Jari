@@ -58,7 +58,10 @@
             <artifactId>spring-modulith-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Contexto completo com PostgreSQL 17 (Testcontainers) e o cofre de chaves simulado do configuracao (PT-03). -->
+        <!--
+            PostgreSQL 17 descartável para o teste de subida do contexto (PT-04: módulos com banco) e o cofre de
+            chaves simulado do configuracao (PT-03).
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>

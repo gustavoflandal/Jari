@@ -46,10 +46,16 @@ class SubidaDaAplicacaoTest {
     }
 
     private static ConfigurableApplicationContext subir(String url, boolean cofre, String... propriedades) {
+        return subir(url, cofre, List.of(), propriedades);
+    }
+
+    private static ConfigurableApplicationContext subir(String url, boolean cofre, List<Class<?>> extras,
+            String... propriedades) {
         List<Class<?>> fontes = new ArrayList<>(List.of(AplicacaoDeTeste.class));
         if (cofre) {
             fontes.add(ApoioDeTeste.CofrePresente.class);
         }
+        fontes.addAll(extras);
         List<String> props = new ArrayList<>(List.of("spring.datasource.url=" + url,
                 "spring.datasource.username=" + POSTGRES.getUsername(),
                 "spring.datasource.password=" + POSTGRES.getPassword(), "spring.main.banner-mode=off"));
@@ -106,6 +112,23 @@ class SubidaDaAplicacaoTest {
                     .containsExactly("DEFERIMENTO", "INDEFERIMENTO", "NAO_CONHECIMENTO");
             assertThat(r.prazos().recurso1a().dias()).isEqualTo(45);
         }
+    }
+
+    @Test
+    @DisplayName("D-48: se a auditoria falhar, a versão do regimento não fica gravada e a aplicação não sobe")
+    void D48_falha_da_auditoria_desfaz_a_gravacao_da_versao() {
+        String url = bancoNovo();
+
+        Throwable erro = catchThrowable(() -> subir(url, true, List.of(ApoioDeTeste.AuditoriaQueFalha.class),
+                "sirej.regimento=sp"));
+
+        assertThat(causaRaiz(erro)).hasMessageContaining(ApoioDeTeste.AuditoriaQueFalha.MENSAGEM);
+        JdbcClient banco = JdbcClient.create(new DriverManagerDataSource(url, POSTGRES.getUsername(),
+                POSTGRES.getPassword()));
+        assertThat(banco.sql("SELECT to_regclass('configuracao.regimento_versao') IS NOT NULL").query(Boolean.class)
+                .single()).as("migrações rodaram").isTrue();
+        assertThat(banco.sql("SELECT count(*) FROM configuracao.regimento_versao").query(Long.class).single())
+                .isZero();
     }
 
     @Test

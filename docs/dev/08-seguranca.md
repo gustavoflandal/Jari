@@ -48,6 +48,16 @@ O insider vem antes do atacante externo. Isso é deliberado.
 - Gravação de auditoria é parte da mesma transação do ato. Se a auditoria falhar, o ato falha.
 - Job de verificação da cadeia roda diariamente e alerta em divergência.
 
+### Como a trilha está implementada (PT-04)
+
+- API pública única: `TrilhaAuditoria.registrar(NovoRegistroAuditoria)`, com propagação `MANDATORY` (fora de transação é recusada). Autor identificado é obrigatório (RN23); rotinas usam `Ator.sistema(...)` e só registram atos técnicos.
+- Forma canônica: JSON com chaves em ordem, sem espaços; `em` truncado em microssegundos; IP na forma do JDK; `hash_anterior` do primeiro registro = 64 zeros (gênese). O hash entra como `hex(hash_anterior) ‖ UTF-8(JSON)`.
+- Concorrência: bloqueio consultivo (`pg_advisory_xact_lock`) até o fim da transação do chamador; gravações simultâneas ficam em fila e cada uma encadeia no elo efetivamente gravado. Buracos na sequência (transação desfeita) são legítimos.
+- Verificação (`VerificacaoDaCadeiaService`): percorre em ordem de `seq` e aponta o primeiro ponto de quebra com o motivo: `HASH_DIVERGENTE` (registro alterado), `ENCADEAMENTO_ROMPIDO` (remoção, inserção ou reordenação antes do registro), `ANCORA_DIVERGENTE` (cadeia reescrita e recalculada depois de uma âncora), `ANCORA_SEM_REGISTRO` (fim da cadeia removido). O resultado é registrado na própria trilha e a quebra gera alerta no log.
+- Ancoragem (`AncoragemDiariaService`): só dia encerrado; verifica a cadeia antes e recusa se rompida; carimba por `CarimboTempoPort` e exporta por `ArmazenamentoAncoraPort` (doc 09); idempotente por dia; a rotina recupera dias pendentes. Qualquer falha não grava nada (falha fechada).
+- Limite conhecido: superusuário ou dono do banco podem desligar triggers. Isso não é impedido no banco; é detectado pela cadeia e, para reescrita completa ou remoção do fim, pelas âncoras exportadas para fora da produção.
+- Log da aplicação: só `seq`, código da ação, dia e motivo da quebra; nunca autor, IP, alvo ou detalhe.
+
 ## Dados e LGPD
 
 - Base legal: execução de política pública. Minimização em toda tela e exportação.

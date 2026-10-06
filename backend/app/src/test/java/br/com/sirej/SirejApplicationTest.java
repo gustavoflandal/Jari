@@ -20,22 +20,6 @@ import br.com.sirej.configuracao.VerificadorCofreChavesSimulado;
 @SpringBootTest(properties = "sirej.regimento=sp")
 class SirejApplicationTest {
 
-    /** PostgreSQL 17 descartável e cofre de chaves simulado (regra de consistência 7 do doc 06; D-49). */
-    @TestConfiguration(proxyBeanMethods = false)
-    static class Infraestrutura {
-
-        @Bean
-        @ServiceConnection
-        PostgreSQLContainer postgres() {
-            return new PostgreSQLContainer("postgres:17-alpine");
-        }
-
-        @Bean
-        VerificadorCofreChaves verificadorCofreChaves() {
-            return VerificadorCofreChavesSimulado.comCofre();
-        }
-    }
-
     @Autowired
     private ApplicationContext contexto;
 
@@ -49,5 +33,26 @@ class SirejApplicationTest {
     @DisplayName("PT-03: a aplicação sobe com o regimento de referência (sp) vigente")
     void PT03_aplicacao_sobe_com_regimento_sp_vigente() {
         assertThat(contexto.getBean(RegimentoVigente.class).regimento()).isEqualTo(RegimentoFixtures.sp());
+    }
+
+    /** PostgreSQL 17 descartável: os módulos com tabelas (PT-04 em diante) rodam as migrações na subida. */
+    @TestConfiguration(proxyBeanMethods = false)
+    static class BancoDeTeste {
+
+        @Bean
+        @ServiceConnection
+        PostgreSQLContainer postgres() {
+            return new PostgreSQLContainer("postgres:17-alpine");
+        }
+    }
+
+    /** Cofre de chaves simulado: regra de consistência 7 do doc 06 para o regimento SIGILOSO de SP (D-49). */
+    @TestConfiguration(proxyBeanMethods = false)
+    static class CofreDeTeste {
+
+        @Bean
+        VerificadorCofreChaves verificadorCofreChaves() {
+            return VerificadorCofreChavesSimulado.comCofre();
+        }
     }
 }

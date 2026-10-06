@@ -6,10 +6,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import br.com.sirej.auditoria.TrilhaAuditoria;
 import br.com.sirej.configuracao.RegimentoVersaoPublicada;
 import br.com.sirej.configuracao.VerificadorCofreChaves;
 import br.com.sirej.configuracao.VerificadorCofreChavesSimulado;
@@ -41,6 +43,22 @@ public final class ApoioDeTeste {
         @Bean
         VerificadorCofreChaves verificadorCofreChaves() {
             return VerificadorCofreChavesSimulado.comCofre();
+        }
+    }
+
+    /** Trilha de auditoria que sempre falha ao gravar: o ato auditado precisa falhar junto (D-48). */
+    @TestConfiguration(proxyBeanMethods = false)
+    public static class AuditoriaQueFalha {
+
+        /** Mensagem da falha simulada. */
+        public static final String MENSAGEM = "falha simulada da trilha de auditoria";
+
+        @Bean
+        @Primary
+        TrilhaAuditoria trilhaQueFalha() {
+            return registro -> {
+                throw new IllegalStateException(MENSAGEM);
+            };
         }
     }
 

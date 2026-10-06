@@ -22,12 +22,15 @@ import br.com.sirej.configuracao.RegimentoInvalidoException.Violacao;
  * recusaria a chave só como desconhecida); as demais olham o regimento tipado.
  *
  * <p>Nenhum valor de regimento está aqui: os únicos nomes fixos são os das invariantes (papel {@code ADMIN} na
- * regra 9; termos de voto de qualidade na regra 8).
+ * regra 9; termos de voto de qualidade na regra 8; termo de provimento parcial na regra 11).
  */
 public final class RegrasDeConsistencia {
 
     /** Termos que denunciam voto de qualidade, peso de voto ou desempate (regra 8; invariante 3). */
     private static final List<String> TERMOS_VOTO_DE_QUALIDADE = List.of("qualidade", "peso", "desempate", "minerva");
+
+    /** Termo que denuncia provimento parcial num resultado (regra 11; invariante 4). */
+    private static final String TERMO_PROVIMENTO_PARCIAL = "parcial";
 
     /** Papel que nunca aprova mudança de regimento (regra 9; RN38). */
     private static final String PAPEL_ADMIN = "ADMIN";
@@ -49,7 +52,7 @@ public final class RegrasDeConsistencia {
     }
 
     /**
-     * Regras 1 a 7, 9 e 10 sobre o regimento tipado.
+     * Regras 1 a 7, 9, 10 e 11 sobre o regimento tipado.
      *
      * @param cofreDeChavesDisponivel se a instalação tem cofre de chaves configurado e alcançável (regra 7)
      */
@@ -64,6 +67,7 @@ public final class RegrasDeConsistencia {
         regra7CofreDeChaves(r, cofreDeChavesDisponivel, v);
         regra9Aprovadores(r, v);
         regra10Temporalidade(r, v);
+        regra11SemProvimentoParcial(r, v);
         return v;
     }
 
@@ -192,6 +196,21 @@ public final class RegrasDeConsistencia {
         if (r.temporalidade().eliminacaoFisica()) {
             v.add(Violacao.daRegra(10, "temporalidade.eliminacaoFisica",
                     "eliminação física só aceita false enquanto a D-19 estiver aberta"));
+        }
+    }
+
+    /**
+     * Regra 11: nenhum resultado representa provimento parcial (invariante 4). O resultado só tem {@code codigo} (o
+     * esquema recusa outra chave, inclusive uma descrição); o código é comparado sem acento e em qualquer caixa.
+     */
+    private static void regra11SemProvimentoParcial(Regimento r, List<Violacao> v) {
+        List<Resultado> resultados = r.resultados();
+        for (int i = 0; i < resultados.size(); i++) {
+            String codigo = resultados.get(i).codigo();
+            if (codigo != null && normalizar(codigo).contains(TERMO_PROVIMENTO_PARCIAL)) {
+                v.add(Violacao.daRegra(11, "resultados[" + i + "].codigo", "o resultado " + codigo
+                        + " representa provimento parcial, que não existe (invariante 4)"));
+            }
         }
     }
 

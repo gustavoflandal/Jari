@@ -18,6 +18,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import apoioteste.configuracao.ApoioDeTeste;
+import br.com.sirej.auditoria.TrilhaAuditoria;
 import br.com.sirej.compartilhado.Hash;
 import br.com.sirej.compartilhado.Relogio;
 import br.com.sirej.configuracao.aplicacao.CargaDoRegimento;
@@ -48,6 +49,9 @@ class PersistenciaDoRegimentoTest {
     RegimentoVersaoRepository repositorio;
 
     @Autowired
+    TrilhaAuditoria trilha;
+
+    @Autowired
     TransactionTemplate transacao;
 
     @Autowired
@@ -63,8 +67,13 @@ class PersistenciaDoRegimentoTest {
         return jdbc.sql("SELECT count(*) FROM configuracao.regimento_versao").query(Long.class).single();
     }
 
+    private long registrosDeCriacao() {
+        return jdbc.sql("SELECT count(*) FROM auditoria.registro_auditoria WHERE acao = 'REGIMENTO_VERSAO_CRIADA'")
+                .query(Long.class).single();
+    }
+
     private CargaDoRegimento carga(String nome) {
-        return new CargaDoRegimento(leitor, repositorio, transacao, publicador, relogio, cofres, nome);
+        return new CargaDoRegimento(leitor, repositorio, trilha, transacao, publicador, relogio, cofres, nome);
     }
 
     @Test
@@ -101,6 +110,24 @@ class PersistenciaDoRegimentoTest {
     }
 
     @Test
+    @DisplayName("D-48: a criação da versão gera registro de auditoria (ação, alvo, INSTALADOR e hash), sem dado pessoal")
+    void D48_criacao_da_versao_registrada_na_trilha() {
+        Map<String, Object> registro = jdbc.sql("""
+                SELECT ator_id, ator_papel, ip, alvo_tipo, alvo_id, detalhe ->> 'hash' AS hash,
+                       detalhe ->> 'regimento' AS regimento
+                  FROM auditoria.registro_auditoria WHERE acao = 'REGIMENTO_VERSAO_CRIADA'
+                """).query().singleRow();
+
+        assertThat(registro.get("ator_id")).isEqualTo("INSTALADOR");
+        assertThat(registro.get("ator_papel")).isEqualTo("SISTEMA");
+        assertThat(registro.get("ip")).isNull();
+        assertThat(registro.get("alvo_tipo")).isEqualTo("regimento_versao");
+        assertThat(registro.get("alvo_id")).isEqualTo(vigente.versao().id().toString());
+        assertThat(registro.get("hash")).isEqualTo(vigente.versao().hash().hex());
+        assertThat(registro.get("regimento")).isEqualTo("sp");
+    }
+
+    @Test
     @DisplayName("PT-03: conteúdo inalterado reaproveita a versão existente")
     void PT03_conteudo_inalterado_reaproveita_versao() {
         CargaDoRegimento outraSubida = carga("sp");
@@ -108,6 +135,7 @@ class PersistenciaDoRegimentoTest {
 
         assertThat(linhas()).isEqualTo(1);
         assertThat(outraSubida.versao().id()).isEqualTo(vigente.versao().id());
+        assertThat(registrosDeCriacao()).as("reaproveitar não cria versão nem registro").isEqualTo(1);
     }
 
     @Test

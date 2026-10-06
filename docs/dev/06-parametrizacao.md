@@ -16,7 +16,7 @@ O regimento de SP foi trocado por um simples Comunicado em 2023. O produto atend
 ## Ciclo de vida
 
 1. No startup, o módulo `configuracao` lê o YAML (chave repetida reprova), resolve `herda`, aplica a regra de consistência 8 às chaves cruas, valida contra o esquema (`config/regimentos/esquema.json`) e aplica as demais **regras de consistência** abaixo. Falha de validação impede a subida da aplicação, com mensagem que cita a regra (`[regra 3 do doc 06] turmas.membrosPorTurma: ...`) ou `[esquema]`.
-2. A configuração validada vira uma `regimento_versao` imutável, com hash: SHA-256 (`Hash` do `compartilhado`) do **conteúdo canônico** (JSON do regimento resolvido, chaves em ordem, sem espaços; comentários e ordem do YAML não mudam o hash). Com o banco vazio, vira a primeira versão (`aplicado_por = INSTALADOR`) e publica `RegimentoVersaoPublicada` na mesma transação (D-48). Se o conteúdo não mudou, reaproveita a versão existente; se mudou, vale o item 5. Na subida, o hash de cada versão gravada é conferido contra o conteúdo (adulteração impede a subida) e a versão é validada de novo.
+2. A configuração validada vira uma `regimento_versao` imutável, com hash: SHA-256 (`Hash` do `compartilhado`) do **conteúdo canônico** (JSON do regimento resolvido, chaves em ordem, sem espaços; comentários e ordem do YAML não mudam o hash). Com o banco vazio, vira a primeira versão (`aplicado_por = INSTALADOR`) e, na mesma transação, grava o registro de auditoria `REGIMENTO_VERSAO_CRIADA` (`TrilhaAuditoria`) e publica `RegimentoVersaoPublicada`; falha da auditoria desfaz a versão e impede a subida (D-48). Se o conteúdo não mudou, reaproveita a versão existente; se mudou, vale o item 5. Na subida, o hash de cada versão gravada é conferido contra o conteúdo (adulteração impede a subida) e a versão é validada de novo.
 3. Todo ato que depende de regra grava a `config_versao` vigente (movimentação, voto, decisão, lote de distribuição). Assim, um processo antigo pode ser reconstituído com a regra da época.
 4. Alteração em produção: proposta pela Administração (M9), aprovada por outra pessoa, com vigência futura, auditada. Sem deploy. Regras de vigência e não retroatividade no doc 18, seção 4 (RN38, RN39).
 5. Depois da instalação, o **banco é a fonte de verdade**. Um YAML diferente no pacote não é aplicado sozinho: gera alerta e só entra por importação aprovada (ADR-0011).
@@ -68,6 +68,7 @@ Implementadas em `configuracao` (`RegrasDeConsistencia`); cada uma tem teste de 
 8. Não existe chave para voto de qualidade, peso de voto ou desempate. Se aparecer no YAML, a validação falha (invariante 3).
 9. Cada tipo em `administracao.aprovadores` tem ao menos um papel, e nenhum deles é `ADMIN` para `REGIMENTO` nem para `IMPORTACAO` (quem parametriza não aprova a própria área; RN38; D-50).
 10. Toda classe de `temporalidade` tem guarda total (corrente + intermediária) ≥ `retencao.anos`; `temporalidade.eliminacaoFisica` só aceita `false` enquanto a D-19 estiver aberta.
+11. Nenhum resultado configurável representa provimento parcial (invariante 4; RN26). Código ou descrição com `PARCIAL`, ou equivalente sem acento e em qualquer caixa, reprova (D-52). Hoje o resultado só tem `codigo`; o esquema recusa qualquer outra chave.
 
 ## Valores PROVISÓRIOS
 

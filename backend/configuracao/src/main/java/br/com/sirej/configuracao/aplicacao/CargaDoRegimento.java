@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,10 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import br.com.sirej.auditoria.AlvoAuditoria;
+import br.com.sirej.auditoria.Ator;
+import br.com.sirej.auditoria.NovoRegistroAuditoria;
+import br.com.sirej.auditoria.TrilhaAuditoria;
 import br.com.sirej.compartilhado.Relogio;
 import br.com.sirej.configuracao.RegimentoInvalidoException;
 import br.com.sirej.configuracao.RegimentoVersao;
@@ -36,7 +41,9 @@ import br.com.sirej.configuracao.infraestrutura.RegimentoVersaoRepository.LinhaR
  *   <li>Lê o regimento do pacote ({@code sirej.regimento}, variável {@code SIREJ_REGIMENTO}), resolve
  *       {@code herda} e valida esquema e regras de consistência. Falha impede a subida.</li>
  *   <li>Banco vazio: o regimento do pacote vira a primeira {@code regimento_versao}, aplicada pelo
- *       {@code INSTALADOR}, e {@link RegimentoVersaoPublicada} é publicado na mesma transação.</li>
+ *       {@code INSTALADOR}; na mesma transação, o registro de auditoria {@value #ACAO_VERSAO_CRIADA} é gravado
+ *       na trilha e {@link RegimentoVersaoPublicada} é publicado. Se a auditoria falhar, a versão não fica
+ *       gravada e a subida falha (D-48).</li>
  *   <li>Banco com versões: o banco é a fonte de verdade. Mesmo hash, a versão existente é reaproveitada; hash
  *       diferente gera alerta de "configuração do pacote divergente" e nada é aplicado (ADR-0011).</li>
  *   <li>Toda versão gravada tem o hash conferido contra o conteúdo e é validada de novo; versão adulterada ou
@@ -50,12 +57,19 @@ public class CargaDoRegimento implements RegimentoVigente, SmartLifecycle {
     /** Quem aplica a primeira versão (docs/dev/18, seção 6). */
     public static final String INSTALADOR = "INSTALADOR";
 
+    /** Ação na trilha de auditoria ao criar uma {@code regimento_versao} (doc 08: alteração de configuração). */
+    public static final String ACAO_VERSAO_CRIADA = "REGIMENTO_VERSAO_CRIADA";
+
+    /** Tipo do alvo na trilha de auditoria. */
+    public static final String ALVO_REGIMENTO_VERSAO = "regimento_versao";
+
     private static final SecureRandom ALEATORIO = new SecureRandom();
 
     private static final Logger LOG = LoggerFactory.getLogger(CargaDoRegimento.class);
 
     private final LeitorDeRegimento leitor;
     private final RegimentoVersaoRepository repositorio;
+    private final TrilhaAuditoria trilha;
     private final TransactionTemplate transacao;
     private final ApplicationEventPublisher eventos;
     private final Relogio relogio;
@@ -64,11 +78,12 @@ public class CargaDoRegimento implements RegimentoVigente, SmartLifecycle {
 
     private volatile List<RegimentoVersao> versoes = List.of();
 
-    public CargaDoRegimento(LeitorDeRegimento leitor, RegimentoVersaoRepository repositorio,
+    public CargaDoRegimento(LeitorDeRegimento leitor, RegimentoVersaoRepository repositorio, TrilhaAuditoria trilha,
             TransactionTemplate transacao, ApplicationEventPublisher eventos, Relogio relogio,
             ObjectProvider<VerificadorCofreChaves> cofres, @Value("${sirej.regimento:}") String nome) {
         this.leitor = leitor;
         this.repositorio = repositorio;
+        this.trilha = trilha;
         this.transacao = transacao;
         this.eventos = eventos;
         this.relogio = relogio;
@@ -143,6 +158,7 @@ public class CargaDoRegimento implements RegimentoVigente, SmartLifecycle {
             LinhaRegimentoVersao nova = new LinhaRegimentoVersao(uuidV7(agora), doPacote.conteudoCanonico(),
                     doPacote.hash(), agora, INSTALADOR, null, agora, INSTALADOR);
             repositorio.inserir(nova);
+            auditar(nova);
             eventos.publishEvent(new RegimentoVersaoPublicada(nova.id(), nova.hash(), nova.vigenteDesde(),
                     INSTALADOR, agora));
             LOG.info("Regimento '{}' aplicado como primeira versão {} (hash {})", nome, nova.id(), nova.hash());
@@ -156,6 +172,17 @@ public class CargaDoRegimento implements RegimentoVigente, SmartLifecycle {
                     + " tem hash {}. O banco prevalece; o YAML só entra por importação aprovada (ADR-0011).",
                     nome, doPacote.hash(), ultima.id(), ultima.hash());
         }
+    }
+
+    /**
+     * Registro de auditoria da criação da versão, na transação da gravação (D-48). Autor técnico, sem dado pessoal;
+     * detalhe é mapa plano de texto (D-43).
+     */
+    private void auditar(LinhaRegimentoVersao nova) {
+        trilha.registrar(NovoRegistroAuditoria.de(new Ator(INSTALADOR, Ator.PAPEL_SISTEMA), null, ACAO_VERSAO_CRIADA,
+                new AlvoAuditoria(ALVO_REGIMENTO_VERSAO, nova.id().toString()),
+                Map.of("hash", nova.hash().hex(), "regimento", nome, "aplicado_por", nova.aplicadoPor(),
+                        "vigente_desde", nova.vigenteDesde().toString())));
     }
 
     private RegimentoVersao conferir(LinhaRegimentoVersao linha, boolean cofre) {

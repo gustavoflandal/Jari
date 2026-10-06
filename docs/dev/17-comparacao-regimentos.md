@@ -222,11 +222,11 @@ Nenhum destes parâmetros foi incluído no doc 06 nem no `sp.yaml`, salvo a P6 (
 | P12 | `pecas.RECURSO_2A_INSTANCIA.instrutor` e `segundaInstancia.cienciaAosMembros` | papel (`PRESIDENTE_JUNTA \| SECRETARIA \| COORDENADOR`); boolean | `PRESIDENTE_JUNTA` (art. 25, IX); `true` (art. 27, V) | D-34 |
 | P13 | `publicidade` | `{ editalPauta: { publicar: boolean, antecedencia: {dias}, incluiDesignacao: boolean }, estatisticas: { periodicidade, destinatario }, relatorioAnual: boolean }` | `editalPauta`: omisso, provisório `{ false, null, false }`; `estatisticas: { MENSAL, ENTIDADE_EXECUTIVA }`, `relatorioAnual: true` (art. 28, XII) | D-35 |
 
-Regras de consistência sugeridas (numeradas a partir das 10 atuais do doc 06):
+Regras de consistência sugeridas (numeradas a partir das 11 atuais do doc 06):
 
-11. `publicidade.editalPauta.incluiDesignacao: true` só é aceito com `designacao.modo: ABERTO` (invariante 1).
-12. Com `designacao.modo: SIGILOSO`, `sessao.extraordinaria.pauta` só aceita `SOMENTE_JA_REVELADOS` (nenhuma sessão antecipa a revelação de lote selado).
-13. `votacao.excecaoMaioriaSimples.exigePresidenteOuVice: true` exige `sessao.quorumAbertura.exigePresidenteOuVice: true`.
+12. `publicidade.editalPauta.incluiDesignacao: true` só é aceito com `designacao.modo: ABERTO` (invariante 1).
+13. Com `designacao.modo: SIGILOSO`, `sessao.extraordinaria.pauta` só aceita `SOMENTE_JA_REVELADOS` (nenhuma sessão antecipa a revelação de lote selado).
+14. `votacao.excecaoMaioriaSimples.exigePresidenteOuVice: true` exige `sessao.quorumAbertura.exigePresidenteOuVice: true`.
 
 ## 6. Inconsistências internas do texto de SP
 

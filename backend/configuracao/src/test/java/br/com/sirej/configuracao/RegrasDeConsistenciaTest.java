@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import br.com.sirej.configuracao.RegimentoInvalidoException.Violacao;
 
 /**
- * PT-03: as 10 regras de consistência do doc 06, cada uma com teste de falha (a mensagem cita a regra) e teste
+ * PT-03: as 11 regras de consistência do doc 06, cada uma com teste de falha (a mensagem cita a regra) e teste
  * positivo. As variações herdam de {@code sp} e sobrescrevem só o que a regra exercita.
  */
 class RegrasDeConsistenciaTest {
@@ -444,6 +444,51 @@ class RegrasDeConsistenciaTest {
                     """);
             assertThat(r.temporalidade().classes()).singleElement()
                     .extracting(Regimento.ClasseTemporalidade::guardaTotalAnos).isEqualTo(3);
+        }
+    }
+
+    @Nested
+    @DisplayName("Regra 11: nenhum resultado representa provimento parcial (invariante 4; D-52)")
+    class Regra11 {
+
+        @Test
+        void RN26_regra11_provimento_parcial_reprovado() {
+            List<Violacao> violacoes = reprovar("""
+                    herda: sp
+                    resultados:
+                      - { codigo: MANUTENCAO_PENALIDADE, alteraPenalidade: false }
+                      - { codigo: PROVIMENTO_PARCIAL, alteraPenalidade: true }
+                      - { codigo: CANCELAMENTO_PENALIDADE, alteraPenalidade: true }
+                    """, 11);
+            assertThat(violacoes).singleElement().satisfies(v -> {
+                assertThat(v.caminho()).isEqualTo("resultados[1].codigo");
+                assertThat(v.mensagem()).contains("PROVIMENTO_PARCIAL").contains("invariante 4");
+            });
+        }
+
+        @Test
+        void RN26_regra11_parcial_sem_acento_e_em_qualquer_caixa_reprovado() {
+            for (String codigo : List.of("DEFERIMENTO_PARCIAL", "ParcialmenteProvido", "provimento_párcial")) {
+                Regimento r = RegimentoFixtures.sp().comResultados(List.of(
+                        new Regimento.Resultado("CANCELAMENTO_PENALIDADE", true),
+                        new Regimento.Resultado(codigo, true)));
+                assertThat(RegimentoFixtures.violacoes(r)).as(codigo).singleElement().satisfies(v -> {
+                    assertThat(v.regra()).isEqualTo("regra 11 do doc 06");
+                    assertThat(v.caminho()).isEqualTo("resultados[1].codigo");
+                });
+            }
+        }
+
+        @Test
+        void RN26_regra11_rol_sem_parcial_aceito() {
+            Regimento r = ler("""
+                    herda: sp
+                    resultados:
+                      - { codigo: INDEFERIMENTO, alteraPenalidade: false }
+                      - { codigo: DEFERIMENTO, alteraPenalidade: true }
+                    """);
+            assertThat(r.resultados()).extracting(Regimento.Resultado::codigo)
+                    .containsExactly("INDEFERIMENTO", "DEFERIMENTO");
         }
     }
 
