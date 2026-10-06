@@ -22,6 +22,8 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-modulith.version>2.1.1</spring-modulith.version>
+        <!-- Mesma versão que o Spring Modulith traz; declarada para os testes de arquitetura do PT-02. -->
+        <archunit.version>1.4.2</archunit.version>
     </properties>
 
     <!-- Um módulo por contexto do doc 03, com os nomes exatos de lá; app é o módulo técnico de inicialização. -->
@@ -59,6 +61,11 @@
                 <version>${spring-modulith.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit</artifactId>
+                <version>${archunit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

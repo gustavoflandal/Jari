@@ -19,5 +19,12 @@
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-api</artifactId>
         </dependency>
+
+        <!-- Só testes: os tipos de valor dependem apenas do JDK (docs/dev/13, "Domínio sem dependência de Spring"). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
