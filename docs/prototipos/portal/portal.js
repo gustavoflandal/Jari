@@ -159,13 +159,14 @@
 
   function mostrar(nome) {
     var precisa = { aits: "placa", passo1: "ait", passo2: "peca", passo3: "peca", passo4: "peca", recibo: "recibo", processo: "processoAtual" };
-    if (precisa[nome] && !st[precisa[nome]]) nome = "inicio";
-    if (!TITULOS[nome]) nome = "inicio";
+    // Só nomes de tela conhecidos (o hash vem do endereço): nada de propriedades herdadas.
+    if (!Object.prototype.hasOwnProperty.call(TITULOS, nome)) nome = "inicio";
+    if (Object.prototype.hasOwnProperty.call(precisa, nome) && !st[precisa[nome]]) nome = "inicio";
     Array.prototype.forEach.call(document.querySelectorAll("main > section"), function (s) { s.classList.add("oculto"); });
     var sec = $("tela-" + nome);
     sec.classList.remove("oculto");
     var render = { aits: renderAits, passo1: renderPasso1, passo2: renderPasso2, passo3: renderPasso3, meus: renderMeus, processo: renderProcesso };
-    if (render[nome]) render[nome]();
+    if (Object.prototype.hasOwnProperty.call(render, nome)) render[nome]();
     document.title = TITULOS[nome] + " — Portal (protótipo SIREJ)";
     window.scrollTo(0, 0);
     P.focar(sec.querySelector("h1"));
