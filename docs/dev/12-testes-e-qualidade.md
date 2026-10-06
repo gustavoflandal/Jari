@@ -29,6 +29,21 @@
 6. Nenhuma classe de domínio usa `LocalDate.now()`/`Instant.now()`; usar `Relogio`.
 7. Nenhum literal numérico de prazo (`30`, `15`) em classes de `prazos` e `secretaria` fora de testes (verificação por regra customizada).
 
+### Como as regras são verificadas
+
+As regras ficam em `backend/app/src/test/java/br/com/sirej/arquitetura/RegrasDeArquitetura.java` e rodam no `./mvnw verify` contra todas as classes de produção de `br.com.sirej` (sem classes de teste), junto com `ApplicationModules.verify()`. Cada regra recebe o pacote raiz como parâmetro e tem dois testes em `RegrasDeArquiteturaPegamViolacoesTest`: um que importa uma violação plantada em `src/test/java/fixturearquitetura/<regra>/violacao` e exige a reprovação, e outro que importa um exemplo conforme em `.../<regra>/conforme` e exige a aprovação. As fixtures ficam fora de `br.com.sirej` e nunca em `src/main`.
+
+| Regra | Critério exato |
+|---|---|
+| 1 | Fora de `distribuicao..`, nenhuma classe depende de tipo cujo nome comece com `Designacao`, `Selo` ou `Semente`, e nenhum tipo com esses prefixos é declarado. Únicas exceções: `DesignacaoConsulta` e `DesignacaoRevelada` no pacote raiz de `distribuicao` (D-39). |
+| 2 | Uma classe só depende de outro módulo pelo pacote raiz dele ou pelo subpacote `api..` (doc 03, regra 1). `internal`, `dominio`, `aplicacao`, `infraestrutura`, `web` e qualquer outro subpacote são internos. |
+| 3 | Em `distribuicao..`, todo método de `@RestController`/`@Controller` com mapeamento atende só `GET`, `HEAD` ou `OPTIONS`; mapeamento sem método HTTP declarado conta como violação. Controller de outro módulo não depende de nenhum tipo de `distribuicao` além de `DesignacaoConsulta` (D-39). |
+| 4 | Todo método público declarado em `@RestController`/`@Controller` tem `@PreAuthorize` no próprio método, direta ou por anotação composta; na classe não basta. Endpoint público declara `@PreAuthorize("permitAll()")` (D-42). |
+| 5 | Repositório (subtipo de Spring Data `Repository` ou nome `*Repository`) que gerencia tipo `@Imutavel` (argumento genérico ou assinatura de método) não tem método, próprio ou herdado, com prefixo `save`, `delete`, `remove`, `update`, `merge`, `salvar`, `apagar`, `excluir`, `remover`, `atualizar` ou `alterar` (D-41). |
+| 6 | Nenhuma classe de produção (não só de domínio) chama ou referencia `now()` de `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`, `ZonedDateTime`, `OffsetDateTime`, `OffsetTime`, `Year`, `YearMonth`, `MonthDay`; `Clock.system*`; `System.currentTimeMillis()`; `new Date()`; `new GregorianCalendar()`; `Calendar.getInstance()`. Exceção: o `Relogio` de `compartilhado`. |
+| 7 | Em classes de produção de `prazos..` e `secretaria..`, o bytecode não contém literal numérico diferente de `-1`, `0` e `1`: no código (inclusive lambdas), em constantes de campo e em valores de anotação. Ignora o que o compilador gera (ordinal de enum, `$values()`, classes sintéticas, métodos ponte). Literal `char` também conta. Bytecode ilegível reprova (D-40). |
+| extra | `compartilhado` depende só do JDK (doc 03 e doc 13). |
+
 ## Testes de imutabilidade (banco)
 
 Para cada tabela **[imutável]** do doc 05: `UPDATE` e `DELETE` pelo usuário da aplicação falham.
