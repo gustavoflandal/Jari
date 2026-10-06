@@ -45,3 +45,7 @@ Especificação no doc 18, seção 10. Público: administrador do sistema, coord
 - Nenhuma regra de negócio só no frontend; validação no cliente é conveniência.
 - Textos de interface em arquivos de mensagens (`pt-BR`), revisados pelo glossário (doc 02).
 - Testes: Vitest para componentes, Playwright para E2E (inclui roteiro completo de uma sessão), axe-core em pipeline.
+
+## Protótipos da fase A0
+
+Protótipos navegáveis do portal, do ambiente do relator e do painel do presidente estão em `docs/prototipos/` (HTML estático), com o roteiro de teste com usuários e o registro de achados. Eles servem para validar hipóteses de uso; **não** são especificação. Em caso de conflito, vale este documento e o doc 04. Decisões de protótipo que dependem de regra ainda não definida estão listadas no `docs/prototipos/README.md`.

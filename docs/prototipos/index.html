@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protótipos SIREJ — fase A0</title>
+<link rel="stylesheet" href="assets/proto.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<div class="faixa-prototipo" role="note">PROTÓTIPO — SEM VALOR JURÍDICO · dados fictícios</div>
+<header class="cabecalho">
+  <span class="marca">SIREJ · Protótipos</span>
+  <span class="orgao">Fase A0 · material para teste com usuários</span>
+</header>
+<main id="conteudo" class="estreito" tabindex="-1">
+  <h1>Protótipos navegáveis</h1>
+  <p>Três telas críticas do doc 11, em HTML estático. Todos os dados são fictícios e nada sai do navegador.</p>
+
+  <div class="cartao">
+    <h2><a href="portal/index.html">1. Portal do recorrente</a></h2>
+    <p>Placa ou auto → pedido cabível → escrever e anexar → revisar → assinar → recibo → linha do tempo. Pensado para celular.</p>
+    <p class="dica">Perfil de teste: cidadão leigo, no celular.</p>
+  </div>
+
+  <div class="cartao">
+    <h2><a href="relator/index.html">2. Ambiente do relator</a></h2>
+    <p>Autos com marca d'água à esquerda, editor à direita. Relatar → votar → próximo, com um clique entre processos.</p>
+    <p class="dica">Perfil de teste: membro da junta ("login e dois parágrafos").</p>
+  </div>
+
+  <div class="cartao">
+    <h2><a href="presidente/index.html">3. Painel do presidente</a></h2>
+    <p>Roteiro da reunião, presenças, quórum, abertura com revelação da distribuição, acompanhamento dos votos e proclamação.</p>
+    <p class="dica">Perfil de teste: presidente de junta; secretaria como observadora.</p>
+  </div>
+
+  <div class="msg msg-info">
+    <p><strong>Para o moderador:</strong> acrescente <code>?moderador=1</code> ao endereço de qualquer tela para ver cronômetro, contagem de cliques e marcos.
+    Exemplo: <a href="portal/index.html?moderador=1">portal com painel do moderador</a>.</p>
+  </div>
+  <p>Roteiro do teste: <code>roteiro-teste-usuarios.md</code> · Registro de achados: <code>achados.md</code> · Explicações: <code>README.md</code>.</p>
+</main>
+<script src="assets/proto.js"></script>
+</body>
+</html>
