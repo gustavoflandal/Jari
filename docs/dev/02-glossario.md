@@ -71,6 +71,18 @@ Use exatamente estes termos em código, banco, API, eventos e interface. O nome 
 | Selo do processo | `SeloProcesso` | Identificador impresso: `2026-S22 / 14ª Junta / B / seq. 20`. |
 | Modo de designação | `ModoDesignacao` | `SIGILOSO` (padrão, SP) ou `ABERTO` (ex.: DETRAN-PB publica relator na pauta). |
 
+## Termos da administração
+
+| Termo | Nome no código | Definição |
+|---|---|---|
+| Proposta de alteração | `PropostaAlteracao` | Pedido de mudança de regimento, calendário ou modelo; só vale depois de aprovada por outra pessoa e de chegar a vigência. |
+| Vigência | `Vigencia` | Instante a partir do qual uma versão vale; sempre futuro em relação à aprovação. |
+| Versão do regimento | `RegimentoVersao` | Configuração imutável, com hash, gravada em cada ato como `config_versao`. |
+| Suspensão de expediente | `SuspensaoExpediente` | Período sem expediente (indisponibilidade, calamidade) que prorroga prazos. |
+| Atribuição de papel | `AtribuicaoPapel` | Papel + escopo + vigência de um usuário; concedida ou derivada de mandato. |
+| Modelo de documento | `ModeloDocumento` | Texto-base versionado de ata, acórdão, notificação etc., com campos de lista fechada. |
+| Fase arquivística | `FaseArquivistica` | `CORRENTE`, `INTERMEDIARIA` ou `AGUARDANDO_DESTINACAO`; não é a situação do processo. |
+
 ## Siglas
 
 AIT, NA, NP, JARI, CETRAN, CONTRANDIFE, CONTRAN, SENATRAN, SNT, SNE (Sistema de Notificação Eletrônica), CDT (Carteira Digital de Trânsito), RENAINF, RENAVAM, RENACH, CTB (Lei 9.503/1997), LGPD, PDF/A, PAdES, HSM, KMS, ICP-Brasil, NIC (multa por não indicação de condutor), CADIN.

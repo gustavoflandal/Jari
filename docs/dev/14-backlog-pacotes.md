@@ -20,6 +20,10 @@ PT-01 ─┬─ PT-02 ─┬─ PT-03 ─┬─ PT-05 ────────�
        │  PT-15 (dep. 08, 12) ── PT-16 ── PT-17
        │  PT-18 (dep. 12, 17) ── PT-19 ── PT-20 (dep. 22) ── PT-21 ── PT-23 ── PT-24
        │  PT-22 (dep. 07)
+       │  PT-29 (dep. 03–06) ─┬─ PT-30 (dep. 12) ─┐
+       │                      ├─ PT-31 (dep. 07) ─┼─ PT-33 (frontend)
+       │                      └─ PT-32 (dep. 08) ─┘
+       │  PT-34 (dep. 23, 24, 29): teste ponta a ponta da A1
        └─ PT-25 / PT-26 (frontend, dep. das APIs) ── PT-27 ── PT-28
 ```
 
@@ -58,8 +62,14 @@ Pode rodar em paralelo, depois do PT-03: PT-04, PT-05, PT-06, PT-07, PT-09, PT-1
 | PT-22 | Assinatura e carimbo do tempo | assinatura | 07 | RN23 | `AssinaturaPort` com DSS (PAdES) e adaptador simulado; carimbo do tempo simulado; validação de assinatura |
 | PT-20 | Relatoria, votação e proclamação | julgamento | 19, 22 | RN07, RN13, RN14, RN23, RN26 | Relatório com checklist; voto com resultado do rol, fundamentação e dispositivo; ordem sequencial; apuração; exceção de 2 votos com presidente; voto assinado imutável; proclamação |
 | PT-21 | Impedimento, diligência, redistribuição | julgamento, distribuicao | 20 | RN06, RN27, RN28, RN34 | Declaração tipificada e recomposição; contador por membro; diligência com prazo e retorno à pauta; presencial com 2 segmentos; redistribuição só por motivo e critério cadastrado |
-| PT-23 | Ata, acórdão e publicação | sessao, julgamento, publicidade | 21 | RN10, RN26 | Ata, acórdão, ementa e certidão em PDF/A assinados; publicação (porta Diário Oficial simulada); abertura do prazo de 2ª instância |
+| PT-23 | Ata, acórdão e publicação | sessao, julgamento, publicidade | 21, 31 | RN10, RN26 | Ata, acórdão, ementa e certidão em PDF/A assinados; publicação (porta Diário Oficial simulada); abertura do prazo de 2ª instância |
 | PT-24 | Notificações e prazos de julgamento | notificacao, prazos | 23 | RN08, RN37 | Notificação de cortesia e SNE simulado; comprovante de ciência; relatório diário de processos fora do prazo; lista de elegíveis a efeito suspensivo |
+| PT-29 | Governança de configuração e calendário | configuracao | 03, 04, 05, 06 | RN38, RN39, RN40, RN41 | Ciclo da proposta (doc 18 §3) com diff e impacto; aprovação por pessoa distinta; vigência e não retroatividade por seção (doc 18 §4), com teste de lote e sessão iniciados antes da vigência; chaves de invariante recusadas; calendário com feriado, ponto facultativo e suspensão, revogação por novo registro, recálculo que só prorroga; importação e exportação YAML; alerta de pacote divergente; `PublicadorDeVersoes` idempotente com ShedLock |
+| PT-30 | Papéis por escopo e segregação de funções | identidade | 06, 12, 29 | RN42, RN45 | Atribuição com escopo e fim; `MEMBRO`/`PRESIDENTE` só por mandato (evento de `composicao`); dupla aprovação de papéis sensíveis; autoconcessão recusada; tabela de incompatibilidades com teste para cada linha; suspensão automática por conflito; revogação encerra sessões; recertificação mensal; `ADMIN` recebe 403 em rotas de processo, documento e designação |
+| PT-31 | Modelos de documento | configuracao | 07, 29 | RN43 | Versões imutáveis por tipo; campos de lista fechada; campos de designação recusados em pauta, recibo e exigência; pré-visualização só com dados sintéticos; documento gerado grava versão e hash do modelo; modelos de referência de SP na instalação |
+| PT-32 | Temporalidade e fase arquivística | processo, documentos | 08, 29 | RN44 | Classes da configuração; fase arquivística separada da situação; job mensal de transição; lista de elegíveis sem processo com demanda judicial ou retenção legal; nenhuma rota de eliminação (ArchUnit) |
+| PT-33 | Console administrativo | frontend | APIs de 04, 29, 30, 31 | RN38, RN45 | Telas do doc 18 §10; diff e impacto antes de submeter e aprovar; confirmação em aprovar, rejeitar e revogar; nenhuma tela mostra processo ou designação; axe-core sem violações |
+| PT-34 | Sessão completa ponta a ponta (critério de saída da A1) | qualidade | 23, 24, 29 | todas da A1 | Teste de integração com regimento `sp.yaml` e adaptadores simulados: proposta de mudança de prazo aprovada com vigência futura → protocolo → triagem → instrução → distribuição semanal → pauta → abertura com revelação → turmas → votação → proclamação → ata e acórdão assinados → publicação; ao fim, verificação pública do selo e da cadeia de auditoria, e prova de que processo protocolado antes da vigência manteve o prazo antigo |
 | PT-25 | Back-office: relator, presidente, secretaria | frontend | APIs de 13, 18–21 | RN29 | Telas do doc 11; caminho relatar→votar→próximo com um clique; painel do presidente com roteiro; axe-core sem violações |
 
 ### A2 — Pronto para PoC

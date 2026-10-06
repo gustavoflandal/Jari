@@ -19,7 +19,7 @@ O insider vem antes do atacante externo. Isso é deliberado.
 - Cidadão: OIDC via Keycloak federando gov.br (e outros provedores configurados, ex.: identidade digital do PR). Nível mínimo por ato vem de `identidade.nivelMinimoPorAto`.
 - Internos: Keycloak + LDAP/AD do órgão, MFA obrigatório, sessão curta (15 min de inatividade).
 - Autorização por **papel + escopo** (órgão, junta, sessão). Checagem sempre no servidor, por método de serviço (`@PreAuthorize` + checagem de escopo no domínio).
-- **Segregação de funções**: quem parametriza não julga; quem opera infraestrutura não lê conteúdo de processo; Secretaria não vê designação não revelada.
+- **Segregação de funções**: quem parametriza não julga; quem opera infraestrutura não lê conteúdo de processo; Secretaria não vê designação não revelada. Tabela de incompatibilidades, dupla aprovação e papéis derivados de mandato no doc 18, seção 7 (RN42).
 - Acesso ao banco de produção só por break-glass: aprovação de duas pessoas, tempo limitado, sessão gravada, registro na auditoria.
 
 ### Papéis
@@ -34,8 +34,8 @@ O insider vem antes do atacante externo. Isso é deliberado.
 | `SECRETARIA` | Triagem, exigência, pauta, ata, presença; **nunca** designação não revelada |
 | `MEMBRO` | Relatar e votar nos processos da sua turma, na sessão aberta |
 | `PRESIDENTE` | O de membro + abrir/encerrar sessão, executar distribuição interna, proclamar |
-| `COORDENADOR` | Gestão das juntas, critérios de redistribuição, relatórios |
-| `ADMIN` | Parametrização, perfis; **nunca** conteúdo de processo nem designação |
+| `COORDENADOR` | Gestão das juntas, critérios de redistribuição, relatórios, aprovação de propostas de alteração (doc 18) |
+| `ADMIN` | Propor parametrização, calendário e modelos; conceder e revogar papéis (sensíveis com dupla aprovação); **nunca** conteúdo de processo, dado de recorrente nem designação (RN45) |
 | `AUDITOR` | Leitura da trilha de auditoria e verificação de selos |
 | `CONSULTA_PUBLICA` | Anônimo: pautas, resultados e ementas anonimizados |
 

@@ -14,3 +14,4 @@ Formato curto: contexto, decisão, consequências. Nova ADR: próximo número, s
 | [0008](0008-kubernetes-so-se-o-orgao-ja-opera.md) | Kubernetes só se o órgão já opera |
 | [0009](0009-ssr-do-portal-condicionado-a-node-em-producao.md) | SSR do portal condicionado a Node em produção |
 | [0010](0010-sem-drm-controle-de-copia-por-marca-d-agua-e-auditoria.md) | Sem DRM; controle de cópia por marca d'água e auditoria |
+| [0011](0011-configuracao-em-producao-por-proposta-com-dupla-aprovacao.md) | Configuração em produção por proposta com dupla aprovação; banco como fonte de verdade após a instalação |

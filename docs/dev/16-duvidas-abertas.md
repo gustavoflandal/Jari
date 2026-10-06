@@ -19,6 +19,12 @@ Formato: id · origem · dúvida · opção provisória · por quê.
 | D-11 | Curitiba | Segmentos, posições e uso dos 3 suplentes por junta | A confirmar na Lei 15.154/2017 | Texto não analisado |
 | D-12 | Curitiba | Provedor de identidade do cidadão (gov.br, identidade digital PR ou ambos) | Ambos, por configuração | Hoje Curitiba usa plataformas do Paraná |
 | D-13 | Prazos SP | Prazo de exigência e de informação do agente | 10 dias (provisório) | Norma omissa |
+| D-14 | PT-29 | Mudança de prazo alcança prazo já iniciado? | Não: vale para contagens cujo termo inicial ocorra após a vigência | Segurança jurídica; o cidadão já foi informado do prazo |
+| D-15 | PT-29 | Desligar um módulo com processos em curso nele | Fecha novas entradas; processos em curso terminam no módulo | Nenhum processo fica órfão |
+| D-16 | PT-29 | Antecedência mínima da vigência | `administracao.antecedenciaMinima: { diasUteis: 1 }` | Dá tempo de revisão e de aviso; exceção só para suspensão de expediente |
+| D-17 | PT-29 | Indisponibilidade do portal no fim de prazo prorroga automaticamente? | O sistema gera a proposta de suspensão; a publicação exige aprovação | Nenhuma decisão automática; a prorrogação precisa de ato |
+| D-18 | PT-30 | Vigência máxima de papel concedido e incompatibilidade de `COORDENADOR` com julgador | 12 meses; `COORDENADOR` incompatível com `MEMBRO`/`PRESIDENTE` | Opção mais restritiva; o regimento de SP não trata do tema |
+| D-19 | PT-32 | Eliminação física de documentos após a guarda | Não implementar; só lista de elegíveis | Exige termo, publicação e comissão do órgão; a invariante 5 prevalece até decisão |
 
 ## Como registrar uma nova dúvida
 

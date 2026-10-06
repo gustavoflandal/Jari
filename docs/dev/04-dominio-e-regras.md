@@ -114,6 +114,21 @@ Formato: id · regra · parâmetro (doc 06) · teste mínimo obrigatório.
 | RN08 | Recurso não julgado em 30 dias: o sistema propõe lista de elegíveis a efeito suspensivo; a concessão é ato da autoridade. | `prazos.julgamento` | Lista diária correta; nenhuma concessão automática. |
 | RN37 | Alertas de prazo em T-10, T-5 e T-1 dias para todo estado com prazo-alvo. | `prazos.alertas` | Alertas gerados nos dias certos. |
 
+### Administração (M9)
+
+Especificação completa no doc 18.
+
+| Id | Regra | Parâmetro | Teste mínimo |
+|---|---|---|---|
+| RN38 | Toda mudança de regimento, calendário ou modelo de documento é proposta, validada, justificada (com ato normativo quando houver) e aprovada por pessoa diferente do proponente, com papel aprovador configurado. Não há fluxo que pule a aprovação. | `administracao.aprovadores` | Proponente aprovando a própria proposta é recusado; proposta sem justificativa não é submetida. |
+| RN39 | Mudança tem vigência futura (com antecedência mínima) e nunca retroage: lote, sessão ou contagem de prazo já iniciados seguem a versão em que começaram (tabela do doc 18, seção 4). | `administracao.antecedenciaMinima` | Vigência no passado é recusada; lote iniciado antes da vigência usa a versão anterior. |
+| RN40 | Parâmetros que representam invariantes não são editáveis por nenhum caminho; designações seladas como sigilosas continuam sigilosas até a abertura mesmo que o modo mude. | — (fixo) | Proposta que altera `distribuicao.falhaFechada` é recusada; troca para `ABERTO` não revela lote já selado. |
+| RN41 | Calendário: não se inclui nem se revoga feriado com data passada (fato passado entra como suspensão de expediente); recálculo por mudança de calendário só prorroga prazo, nunca encurta prazo já comunicado ao cidadão. | `calendario.*` | Revogação de feriado passado é recusada; revogação de feriado futuro não encurta prazo comunicado. |
+| RN42 | `MEMBRO` e `PRESIDENTE` só existem por derivação do mandato vigente. Papéis concedidos têm escopo e fim de vigência; ninguém concede papel a si mesmo; papéis sensíveis exigem dupla aprovação; incompatibilidades da tabela do doc 18 são recusadas. | `administracao.vigenciaMaximaPapel`, `administracao.papeisSensiveis` | Concessão manual de `MEMBRO` é recusada; `ADMIN` + `SECRETARIA` para a mesma pessoa é recusado. |
+| RN43 | Modelos de documento usam campos de lista fechada por tipo; campos de designação só existem em tipos emitidos após a abertura; versão publicada é imutável e todo documento gerado grava a versão do modelo. | `modelos.*` | Modelo de pauta com campo de relator é recusado no modo sigiloso. |
+| RN44 | Temporalidade: a fase arquivística é contada a partir do fim do rito e gera lista de elegíveis à destinação; o sistema não elimina documento nem processo; processo com demanda judicial ou retenção legal não é elegível. | `temporalidade.*`, `retencao.anos` | Nenhuma rota de eliminação existe; processo com demanda judicial não aparece na lista. |
+| RN45 | O console administrativo nunca exibe conteúdo de processo, dado pessoal de recorrente ou designação; todo acesso ao console é auditado. | — (fixo) | Perfil `ADMIN` recebe 403 em toda rota de processo, documento e designação. |
+
 ## 4. Resultados da referência SP
 
 | Código | Rótulo | Altera penalidade? | Texto ao cidadão (próximo passo) |

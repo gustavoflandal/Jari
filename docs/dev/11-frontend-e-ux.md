@@ -30,6 +30,15 @@ Público: membros, secretaria, presidentes, coordenação. **Linha de base real 
 - Painel do presidente: roteiro da reunião (passos obrigatórios bloqueiam avanço), presenças, botão de abertura, acompanhamento dos votos, proclamação.
 - Secretaria: fila de triagem, exigências, backlog com alertas de prazo, pauta e ata.
 
+## Console administrativo (`/admin` no back-office)
+
+Especificação no doc 18, seção 10. Público: administrador do sistema, coordenador (aprovações) e auditor.
+
+- Parâmetros em linguagem de negócio, com o artigo do regimento ao lado; nunca YAML cru na tela.
+- Toda proposta mostra diff legível ("30 → 20 dias") e impacto (processos alcançados, primeiro lote e primeira sessão sob a nova regra) antes de submeter e antes de aprovar.
+- Aprovar, rejeitar e revogar pedem confirmação explícita; rejeitar exige motivo.
+- Nenhuma tela do console mostra processo, documento dos autos, dado de recorrente ou designação.
+
 ## Padrões técnicos
 
 - TypeScript `strict`, React 19, Vite, TanStack Query para estado de servidor, Zod para validação (schemas gerados do OpenAPI em `packages/tipos`).

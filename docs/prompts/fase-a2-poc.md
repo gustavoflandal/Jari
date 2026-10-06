@@ -38,7 +38,7 @@ e sem achado crítico ou alto aberto no pentest.
 
 PASSO 1 — DETALHAR OS PACOTES QUE FALTAM
 O doc 14 só traz PT-26, PT-27 e PT-28 para a A2. Antes de abrir agentes, proponha por PR no doc 14 os pacotes
-abaixo (título, módulo, dependências, RN, critérios de aceite verificáveis), numerados a partir de PT-29,
+abaixo (título, módulo, dependências, RN, critérios de aceite verificáveis), numerados a partir do próximo PT livre (PT-35),
 e peça aprovação humana:
 - Assinatura real: implementação de AssinaturaPort para gov.br (avançada) e ICP-Brasil (A1/A3), com
   validação e carimbo do tempo de autoridade credenciada; o adaptador simulado continua para testes.
