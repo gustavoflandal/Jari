@@ -12,12 +12,33 @@
 
     <artifactId>sirej-prazos</artifactId>
     <name>SIREJ :: prazos</name>
-    <description>Módulo prazos (docs/dev/03-arquitetura.md).</description>
+    <description>Módulo prazos (docs/dev/03-arquitetura.md): calendário de expediente e motor de prazos.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-api</artifactId>
+        </dependency>
+        <!-- Regimento tipado (prazos, alertas, calendario): nenhum prazo é fixo no código (doc 06). -->
+        <dependency>
+            <groupId>br.com.sirej</groupId>
+            <artifactId>sirej-configuracao</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- RegimentoFixtures.sp() para os testes (doc 06, "Acesso no código"). -->
+        <dependency>
+            <groupId>br.com.sirej</groupId>
+            <artifactId>sirej-configuracao</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <classifier>testfixtures</classifier>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
