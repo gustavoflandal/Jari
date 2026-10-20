@@ -33,7 +33,7 @@ jobs:
       # SCA do backend sobre o SBOM (dependências diretas e transitivas de execução).
       # Falha com qualquer vulnerabilidade conhecida (mais restritivo que "alta").
       - name: SCA das dependências Maven (OSV-Scanner sobre o SBOM)
-        uses: google/osv-scanner-action/osv-scanner-action@a345acffa64b0eaede81a3d9aae6141214d9c8fc # v2.6.0
+        uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
         with:
           scan-args: |-
             --lockfile=backend/app/target/classes/META-INF/sbom/application.cdx.json
