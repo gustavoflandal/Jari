@@ -21,7 +21,7 @@
     <properties>
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-modulith.version>2.1.1</spring-modulith.version>
+        <spring-modulith.version>2.1.2</spring-modulith.version>
         <!-- Mesma versão que o Spring Modulith traz; declarada para os testes de arquitetura do PT-02. -->
         <archunit.version>1.5.1</archunit.version>
         <!--
